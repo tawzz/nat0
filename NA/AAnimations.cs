@@ -28,13 +28,15 @@ namespace ations
     public static void AniResourceUpdate(FrameworkElement target)
     {
       var ani = Storyboards.Scale(target, TimeSpan.FromSeconds(.3), new Point(1, 1), new Point(5, 2), null, true);
-      ani.Completed += (s, _) => GlobalCompleted(ani);
+      ani.Completed += (s, _) => GlobalCompleted(ani, target.DataContext);
       ani.Begin();
     }
 
     static void GlobalCompleted(object sb, object param = null)
     {
       (sb as Storyboard).Completed -= GlobalCompleted;
+      Console.WriteLine("ani "+param + ", AfterAnimation="+AfterAnimation);
+
       AfterAnimation?.Invoke(param);
     }
 

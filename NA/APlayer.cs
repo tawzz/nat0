@@ -16,6 +16,8 @@ namespace ations
     public ObservableCollection<ACard> Cards { get; set; }
 
     public AResDict Res { get; set; }
+    public int RaidValue { get { return raidValue; } set { if (raidValue != value) { raidValue = value; NotifyPropertyChanged(); } } }
+    int raidValue=2;//testing
     public ObservableCollection<AWorker> ExtraWorkers { get; set; }//cost res, cost count, margin, is checked out
     public Dictionary<string, bool> Defaulted { get; set; }
     public Brush Brush { get; set; }
@@ -25,6 +27,8 @@ namespace ations
     public int Level { get; set; }
     public bool IsMainPlayer { get { return isMainPlayer; } set { isMainPlayer = value; NotifyPropertyChanged(); } }
     bool isMainPlayer;
+    public bool HasPassed { get { return hasPassed; } set { if (hasPassed != value) { hasPassed = value; NotifyPropertyChanged(); } } }
+    bool hasPassed;
     #region positioning on stats board
     public Point LevelPosition { get; set; }
     static int[] LevelOffsetX = { 20, 50, 20, 50 };
@@ -168,6 +172,10 @@ namespace ations
         }
         Pay("book", cost - num);
       }
+    }
+    public int ComputeRaidValue()
+    {
+      return 0;
     }
 
 

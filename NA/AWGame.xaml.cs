@@ -63,7 +63,7 @@ namespace ations
         selbuy.IsChecked = false;
         Game.Buy(selbuy.DataContext as AField);
       }
-      else if (selbuy != null) Game.Message = "Please select a place on civ board!";
+      else if (selbuy != null) Game.Message = "select a place on civ board!";
     }
     private void OnClickProgressCard(object sender, RoutedEventArgs e) { Game.MarkPossiblePlaces((sender as FrameworkElement).DataContext as AField); }
     private void OnClickNext(object sender, RoutedEventArgs e) { }
@@ -80,7 +80,7 @@ namespace ations
 
     private void OnClickStart(object sender, RoutedEventArgs e)
     {
-      Game.Kickoff();
+      AGame.Kickoff();
     }
   }
 }

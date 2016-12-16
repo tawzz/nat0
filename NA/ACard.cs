@@ -72,7 +72,7 @@ namespace ations
       }
       field.Card = card;
 
-      card.CanPlace = true;//testing
+      //card.CanPlace = true;//testing
       return card;
 
     }
@@ -92,7 +92,7 @@ namespace ations
       };
       field.Card = card;
 
-      card.CanBuy = true; //testing
+      //card.CanBuy = true; //testing
       return card;
     }
     public static ACard MakeEventCard(XElement xcard)

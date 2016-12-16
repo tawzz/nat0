@@ -29,6 +29,7 @@ namespace ations
     public const int MAX_ROUNDS = 8;
     public static int[] LevelGrowth = { 4, 3, 2, 1 };
     #endregion
+
     #region properties
     public int NumPlayers { get; set; }
     public ObservableCollection<APlayer> Players { get; set; }
@@ -41,6 +42,7 @@ namespace ations
         {
           var oldmain = mainPlayer;
           mainPlayer = value;
+          Message = "Hi!"; //testing!
           if (oldmain != null) oldmain.IsMainPlayer = false;
           mainPlayer.IsMainPlayer = true;
           NotifyPropertyChanged();
@@ -70,8 +72,8 @@ namespace ations
     public bool ShowWorkerPicker { get { return showWorkerPicker; } set { if (showWorkerPicker != value) { showWorkerPicker = value; NotifyPropertyChanged(); } } }
     bool showWorkerPicker;
 
-    public string Message { get { return message; } set { message = value; NotifyPropertyChanged(); } }
-    string message;
+    public string Message { get { return message; } set { message = MainPlayer.Name + ", " + value; NotifyPropertyChanged(); } }
+    string message;//testing
     public string Caption { get { return caption; } set { caption = value; NotifyPropertyChanged(); } }
     string caption;
     public string Title { get { return title; } set { title = value; NotifyPropertyChanged(); } }
@@ -82,8 +84,10 @@ namespace ations
     public static readonly DependencyProperty SelectedResourceProperty = DependencyProperty.Register("SelectedResource", typeof(ARes), typeof(AGame), null);
     public ACard SelectedCard { get; set; }
     public int Number { get; set; }
+    public Dictionary<string, int> NumEach { get; set; }
 
     #endregion
+
     #region initialization
     private static readonly AGame instance = new AGame(); public static AGame GameInstance { get { return instance; } }
     private AGame() { Initialize(); }
@@ -104,43 +108,51 @@ namespace ations
     }
     void Initialize()
     {
-      ResChoices = new ObservableCollection<ations.ARes>();
+      ResChoices = new ObservableCollection<ARes>();
 
-      NumPlayers = 5;
+      NumPlayers = 2;
       InitPlayers(NumPlayers);
       Progress = new AProgress(7);// NumPlayers + 2);
       Stats = new AStats(this);
 
-      Title = "Nations Start!";Message = "Hi, " + MainPlayer.Name+", press Start!" ; ShowStartButton = true; Kickoff = StartRound;
+      SetupForStart();
     }
     #endregion
 
-    public Action Kickoff { get; set; }
-    Action AllPlayers;
-    Action AfterAllPlayers;
+    #region control flow
+    public static Action Kickoff { get; private set; } // called from AWGame after multiuse button/action ausloeser
+    static Action EachPlayerStartsAt; // called in NextPlayer when one player is done
+    static Action AfterAllPlayers; // called in NextPlayer when all players are done
+    //AAnimations.AfterAnimation<object> can be set to determine where flow goes after animation ends (some animations started from AGame have onCompleted as param)
     int playerIndex;
 
-    public void StartRound()
+    public void SetupForStart() //called after initialization
+    {
+      Title = "Nations Start!"; Message = "press Start!";
+      ShowStartButton = true; Kickoff = StartRound;
+    }
+    public void StartRound() // phase 1: update round, age, deal progress cards
     {
       ShowStartButton = false;
       Stats.UpdateRound();
       Stats.UpdateAge();
       Progress.Deal();
-      AllPlayers = Growth;
+      EachPlayerStartsAt = Growth;
       AfterAllPlayers = EventAndAction;
       playerIndex = 0;
       Debug.Assert(MainPlayer == Players[0], "StartRound with wrong player!!!!!");
 
-      AAnimations.AniRoundMarker(Stats.RoundMarkerPosition, (x) => Growth());
+      AAnimations.AniRoundMarker(Stats.RoundMarkerPosition, (x) => Growth()); //testing! EventAndAction()); //
     }
     //******************** version 0 **************************
     public void Growth()
     {
-      Title = "Growth"; AAnimations.AfterAnimation = (x) => NextPlayer(); // ani in ui ausgeloest onResourceUpdate
+      Title = "Growth";
 
       var reslist = new List<string> { "wheat", "coal", "gold" };
       if (MainPlayer.ExtraWorkers.Count(x => !x.IsCheckedOut) > 0) reslist.Add("worker");
       var num = LevelGrowth[MainPlayer.Level];
+      AAnimations.AfterAnimation = (x) => NextPlayer(); // ani in ui ausgeloest onResourceUpdate
       PrepareResourcePicker(reslist, num, "growth");
     }
     public void PrepareResourcePicker(IEnumerable<string> resnames, int num, string forWhat)
@@ -149,6 +161,16 @@ namespace ations
       foreach (var rname in resnames) ResChoices.Add(new ARes(rname));
       Message = "pick " + forWhat + " resource";
       Number = num;
+      ShowChoicePicker = true;
+      ShowResChoices = true;
+    }
+    public void PrepareVariableNumberResourcePicker(Dictionary<string, int> rescombis, string forWhat)
+    {
+      Debug.Assert(ResChoices != null && ResChoices.Count == 0, "PrepareResourcePicker ResChoices init error!");
+      foreach (var rname in rescombis.Keys) ResChoices.Add(new ARes(rname));
+      Message = "pick " + forWhat + " resource";
+      NumEach = rescombis;
+      Number = -1; //HACK!
       ShowChoicePicker = true;
       ShowResChoices = true;
     }
@@ -172,7 +194,7 @@ namespace ations
       ShowChoicePicker = false;
       ResChoices.Clear();
       SelectedResource = null;
-      Message = MainPlayer.Name + ", you picked " + res.Name.ToCapital();
+      Message = "you picked " + res.Name.ToCapital();
 
       if (res.Name == "worker")
       {
@@ -182,7 +204,7 @@ namespace ations
         if (wfree1.CostRes != wfree2.CostRes) PrepareWorkerPicker();
         else { MainPlayer.CheckOutWorker(wfree1); }
       }
-      else { MainPlayer.Res.inc(res.Name, Number); }
+      else { MainPlayer.Res.inc(res.Name, Number < 0 ? NumEach[res.Name] : Number); } //HACK!
     }
     public void OnPickWorker()
     {
@@ -196,40 +218,50 @@ namespace ations
         ResChoices.Clear();
         SelectedResource = null;
         var worker = MainPlayer.ExtraWorkers.FirstOrDefault(x => !x.IsCheckedOut && x.CostRes == res.Name);
-        MainPlayer.CheckOutWorker(worker);
-        Message = MainPlayer.Name + ", this worker will cost you 3 " + res.Name;
+        MainPlayer.CheckOutWorker(worker); //TODO: multiple worker checkout
+        Message = "this worker will cost you 3 " + res.Name;
       }
     }
-    //hier kommt eine animation, danach geht es zu NextPlayer
+    //hier kommt eine animation (started from ui: AWGame.OnResNumUpdated), danach geht es zu AAnimations.AfterAnimation
     void NextPlayer()
     {
       playerIndex++;
       if (playerIndex >= NumPlayers)
       {
-        MainPlayer = Players[0];
+        playerIndex = 0;
+        MainPlayer = Players[0]; 
         AfterAllPlayers?.Invoke();
       }
       else
       {
         MainPlayer = Players[playerIndex];
-        AllPlayers?.Invoke();
+        EachPlayerStartsAt?.Invoke();
       }
     }
 
     public void EventAndAction()
     {
       Stats.PickEventCard();
-      AllPlayers = PlayerAction;
+      foreach (var pl in Players) pl.HasPassed = false;
+      EachPlayerStartsAt = PlayerAction;
       AfterAllPlayers = Production;
-      Title = "Action Phase"; Message = "Hi, " + MainPlayer.Name + ", press Start!"; ShowStartButton = true; Kickoff = PlayerAction;
-
-
+      Title = "Action Phase"; Message = "press Start!";
+      ShowStartButton = true; Kickoff = PlayerAction;
     }
-    public void PlayerAction() { ShowStartButton = false; MarkPossibleProgressCards(); ShowBuyButton = true; }
+    public void PlayerAction()
+    {
+      ShowStartButton = false;
+      if (MainPlayer.HasPassed) NextPlayer();
+      else
+      {
+        MarkPossibleProgressCards();
+        ShowBuyButton = true;
+      }
+    }
     public void MarkPossibleProgressCards()
     {
       UnmarkProgresscards();
-      foreach (var f in Progress.Fields) f.Card.CanBuy = CalculateCanBuy(f);
+      foreach (var f in Progress.Fields.Where(x=>x.Card != null)) f.Card.CanBuy = CalculateCanBuy(f);
     }
     public bool IsUnambiguousBuy(AField field)
     {
@@ -238,27 +270,52 @@ namespace ations
       var isciv = card.civ();
       return !isciv || possible.Length == 1;
     }
-    public void Buy(AField field) //assumes unambiguous buy
+    public void Buy(AField fieldBuy, AField fieldPlace = null)//assumes unambiguous buy if called with 1 param
     {
-      var card = field.Card;
-      if (card.civ()) Buy(field, GetPossiblePlacesForCard(field).First());
-      else
-      {
-        Progress.Remove(field);
-        MainPlayer.Pay(card.Cost);
-
-        if (card.war()) Stats.UpdateWarPosition(MainPlayer, card);
-        //else if (card.golden()) 
-      }
-      // fuer andere brauch ich erstmal die players und das stats board
-    }
-    public void Buy(AField fieldBuy, AField fieldPlace)
-    {
+      ShowBuyButton = false;
       var card = fieldBuy.Card;
       card.CanBuy = false;
-      MainPlayer.Civ.Add(card, fieldPlace);
-      Progress.Remove(fieldBuy);
-      MainPlayer.Pay(card.Cost);
+
+      if (card.civ())
+      {
+        if (fieldPlace == null) fieldPlace = GetPossiblePlacesForCard(fieldBuy).First();
+        MainPlayer.Civ.Add(card, fieldPlace);
+        Progress.Remove(fieldBuy);
+        MainPlayer.Pay(card.Cost);
+        //NextPlayer();//nein, er macht die resourceupdate animation und geht automatisch zu nextplayer!
+      }
+      else
+      {
+        //BUG!!! bei golden age und bei battle gibts ein problem weil 2x resource update und daher potentiell 2x
+        // NextPlayer macht! >muss das loskoppeln!
+        Progress.Remove(fieldBuy);
+        MainPlayer.Pay(card.Cost);
+        if (card.war()) { Stats.UpdateWarPosition(MainPlayer, card);  }//auch hier gibts resource update
+        else if (card.golden()) BuyGoldenAge(card);
+        else if (card.battle())
+        {
+          AAnimations.AfterAnimation = (x) => NextPlayer(); // ani in ui ausgeloest onResourceUpdate
+          PrepareResourcePicker(new string[] { "wheat", "coal", "book" }, MainPlayer.RaidValue, "battle");
+        }
+      }
+    }
+    public void BuyGoldenAge(ACard card)
+    {
+      // check if even can afford vp option
+      var canaffordvp = MainPlayer.Res.n("gold") >= Stats.Age;
+      // if yes, 
+      if (canaffordvp)
+      {
+        AAnimations.AfterAnimation = (picked) =>
+        {
+          var aa = AAnimations.AfterAnimation;
+          var res = picked as ARes;
+          if (res != null && res.VP) MainPlayer.Pay(Stats.Age); //ignore golden age bonus
+          NextPlayer();
+          AAnimations.AfterAnimation = aa;
+        };
+        PrepareVariableNumberResourcePicker(new Dictionary<string, int> { { card.X.astring("res"), card.X.aint("n") }, { "vp", 1 } }, "golden age");
+      }
     }
 
     bool CalculateCanBuy(AField field)
@@ -277,14 +334,19 @@ namespace ations
       return canbuy;
     }
 
-    public void Production() { }
+    public void Production() {
+      UnmarkPlaces();
+      UnmarkProgresscards();
+    }
 
-
+    #endregion
 
     #region other safe helpers
     public IEnumerable<AField> GetPossiblePlacesForCard(AField field)
     {
+      Console.WriteLine(MainPlayer.Name);
       var card = field.Card;
+      Debug.Assert(card != null,"GetPossiblePlacesForCard called with null card!");
       return MainPlayer.Civ.Fields.Where(x => x.TypesAllowed.Contains(card.Type)).ToArray();
     }
     public void MarkPossiblePlaces(AField field)
@@ -298,7 +360,7 @@ namespace ations
     }
     public void UnmarkProgresscards()
     {
-      foreach (var f in Progress.Fields) f.Card.CanBuy = false;
+      foreach (var f in Progress.Fields) if (f.Card != null) f.Card.CanBuy = false;
     }
     public void RandomPlayerOrder()
     {
