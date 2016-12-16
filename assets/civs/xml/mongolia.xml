@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<playerboard name="mongolia">
+  <cards>
+    <card type="advisor"></card>
+    <card name="yurt" type="building"></card>
+    <card name="caravan" type="building"></card>
+    <card name="horse_archer" type="military"></card>
+    <card name="steppe" type="building"></card>
+    <card name="mongolia_dyn1" type="dynasty"></card>
+    <card name="" type="wic"></card>
+    <card name="" type="colony"></card>
+    <card name="" type="colony"></card>
+    <card name="" type="wonder"></card>
+    <card name="" type="wonder"></card>
+    <card name="" type="wonder"></card>
+    <card name="" type="wonder"></card>
+    <card name="" type="wonder"></card>
+  </cards>
+  <workers>
+    <worker res="wheat" n="3"></worker>
+    <worker res="wheat" n="3"></worker>
+    <worker res="wheat" n="3"></worker>
+    <worker res="military" n="3"></worker>
+    <worker res="military" n="3"></worker>
+    <worker res="military" n="3"></worker>
+    <worker res="military" n="3"></worker>
+    <worker res="military" n="3"></worker>
+  </workers>
+  <resources>
+    <res name="wheat" n="3"></res>
+    <res name="coal" n="6"></res>
+    <res name="gold" n="7"></res>
+    <res name="vp" n="4"></res>
+    <res name="worker" n="4"></res>
+  </resources>
+</playerboard>
+ 

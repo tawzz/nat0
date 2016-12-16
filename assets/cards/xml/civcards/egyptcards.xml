@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<cards>
+  <card name="temple" age="1" type="building" score="1">
+    <deploy>
+      <cost res="coal" n="1"></cost>
+    </deploy>
+    <prod>
+      <yield res="book" n="1"></yield>
+      <yield res="gold" n="1"></yield>
+    </prod>
+  </card>
+  <card name="caravan" age="1" type="building" stab="1" score="1">
+    <deploy>
+      <cost res="coal" n="1"></cost>
+    </deploy>
+    <prod>
+      <yield res="gold" n="1"></yield>
+    </prod>
+  </card>
+  <card name="egypt_dyn1" type="dynasty">
+    <round>
+      <check auto="yield" res="architect" n="1"></check>
+    </round>
+  </card>
+</cards>
+

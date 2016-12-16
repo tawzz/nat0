@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="utf-8"?>
+<cards>
+  <age1>
+    <card name="aryan_migration" age="1" famine="1" architects="2">
+      <code>"least military :res book -3"</code>
+      <cost res="book" n="3">
+        <cond op="least" res="military"/>
+      </cost>
+      <yield res="wheat" n="3">
+        <cond op="all_except_least" res="stability"/>
+      </yield>
+    </card>
+    <card name="assyrian_deportations" age="1" famine="0" architects="1">
+      <cost res="worker" n="1">
+        <cond op="least" res="stability"/>
+      </cost>
+      <regain_war_loss res="vp">
+        <cond op="most" res="stability"/>
+      </regain_war_loss>
+    </card>
+    <card name="attila" age="1" famine="3" architects="2">
+      <cost res="gold" n="3">
+        <cond op="least" res="military"/>
+      </cost>
+      <cost res="wheat" n="3">
+        <cond op="all_except_most" res="stability"/>
+      </cost>
+      <yield res="coal" n="4">
+        <cond op="most" res="stability"/>
+      </yield>
+    </card>
+    <card name="bread_and_games" age="1" famine="0" architects="2">
+      <yield res="wheat" n="4">
+        <cond op="most" res="stability"/>
+      </yield>
+      <opt players="all">
+        <cost res="wheat" n="4"/>
+        <yield res="book" n="6"/>
+      </opt>
+    </card>
+    <card name="hellenism" age="1" famine="1" architects="0">
+      <yield res="coal" n="2">
+        <cond op="most" res="military"/>
+      </yield>
+      <cost res="wheat" n="2">
+        <cond op="all_except_most" res="military"/>
+      </cost>
+      <opt players="all">
+        <undeploy res="military" n="*"/>
+        <yield res="book" n="2"/>
+      </opt>
+    </card>
+    <card name="pax_romana" age="1" famine="2" architects="0">
+      <yield res="vp" n="1">
+        <cond op="most" res="military"/>
+      </yield>
+      <opt players="all">
+        <cond op="most" res="stability"/>
+        <yield res="worker" n="1"/>
+        <yield res="wheat" n="3"/>
+      </opt>
+    </card>
+    <card name="qin_unification" age="1" famine="1" architects="1">
+      <yield res="vp" n="1">
+        <cond op="greater_than_war" res="military"/>
+      </yield>
+      <check op="go_first">
+        <cond op="most" res="stability"/>
+      </check>
+    </card>
+    <card name="rigveda" age="1" famine="2" architects="0">
+      <yield res="book" n="*">
+        <or>
+          <cond op="bought" type="war"/>
+          <cond op="bought" res="battle"/>
+        </or>
+      </yield>
+      <yield res="wheat" n="4">
+        <cond op="most" res="wheat"/>
+      </yield>
+    </card>
+    <card name="sea_peoples" age="1" famine="2" architects="1">
+      <cond op="least" res="military">
+        <or>
+          <cost op="remove" res="architect" n="1"/>
+          <cost res="vp" n="1"/>
+        </or>
+      </cond>
+      <cost res="vp" n="1">
+        <and>
+          <cond op="not_most" res="military"/>
+          <cond op="not_most" res="stability"/>
+        </and>
+      </cost>
+      <cost res="wheat" n="2">
+        <cond op="all_except_most" res="military"/>
+      </cost>
+
+    </card>
+    <card name="shang_oracle_bones" age="1" famine="1" architects="2">
+
+    </card>
+    <card name="taoism" age="1" famine="1" architects="1">
+
+    </card>
+    <card name="yellow_turban_rebellion" age="1" famine="1" architects="2">
+
+    </card>
+  </age1>
+  <age2>
+    <card name="benedictine_rule" age="2" famine="1" architects="2">
+
+    </card>
+    <card name="black_death" age="2" famine="1" architects="2">
+
+    </card>
+    <card name="chanson_de_roland" age="2" famine="1" architects="2">
+
+    </card>
+    <card name="ecological_collapse" age="2" famine="1" architects="2">
+
+    </card>
+    <card name="feudal_dues" age="2" famine="1" architects="2">
+
+    </card>
+    <card name="fourth_crusade" age="2" famine="1" architects="2">
+
+    </card>
+    <card name="imperial_examination" age="2" famine="1" architects="2">
+
+    </card>
+    <card name="martyrdom_of_ali" age="2" famine="1" architects="2">
+
+    </card>
+    <card name="peace_of_god" age="2" famine="1" architects="2">
+
+    </card>
+    <card name="raid_on_lindisfarne" age="2" famine="1" architects="2">
+
+    </card>
+    <card name="sack_of_baghdad" age="2" famine="1" architects="2">
+
+    </card>
+    <card name="stupor_mundi" age="2"  famine="1" architects="2">
+
+    </card>
+  </age2>
+  <age3>
+    <card name="absolute_monarchy" age="3"  famine="1" architects="2">
+
+    </card>
+    <card name="african_slave_trade" age="3" famine="1" architects="2">
+
+    </card>
+    <card name="blackbeard" age="3" famine="1" architects="2">
+
+    </card>
+    <card name="columbian_exchange" age="3" famine="1" architects="2">
+
+    </card>
+
+    <card name="crop_rotation" age="3" famine="1" architects="2">
+
+    </card>
+    <card name="janissaries" age="3" famine="1" architects="2">
+
+    </card>
+
+    <card name="little_ice_age" age="3" famine="1" architects="2">
+
+    </card>
+    <card name="magellans_expedition" age="3" famine="1" architects="2">
+
+    </card>
+
+    <card name="pilgrims" age="3">
+
+    </card>
+    <card name="sinking_of_the_vasa" age="3" famine="1" architects="2">
+
+    </card>
+
+    <card name="spice_trade" age="3" famine="1" architects="2">
+
+    </card>
+    <card name="tulip_mania" age="3" famine="1" architects="2">
+
+    </card>
+  </age3>
+  <age4>
+    <card name="american_revolution" age="4" famine="1" architects="2">
+
+    </card>
+    <card name="anarchism" age="4" famine="1" architects="2">
+
+    </card>
+    <card name="california_gold_rush" age="4" famine="1" architects="2">
+
+    </card>
+    <card name="entente_cordiale" age="4" famine="1" architects="2">
+
+    </card>
+    <card name="eruption_of_krakatoa" age="4" famine="1" architects="2">
+
+    </card>
+    <card name="march_to_moscow" age="4" famine="1" architects="2">
+
+    </card>
+    <card name="romanticism" age="4" famine="1" architects="2">
+
+    </card>
+    <card name="scramble_for_africa" age="4" famine="1" architects="2">
+
+    </card>
+    <card name="sick_man_of_europe" age="4" famine="1" architects="2">
+
+    </card>
+    <card name="sokoto_caliphate" age="4" famine="1" architects="2">
+
+    </card>
+    <card name="tonghak_movement" age="4" famine="1" architects="2">
+
+    </card>
+    <card name="weltpolitik" age="4" famine="1" architects="2">
+
+    </card>
+  </age4>
+</cards>

@@ -1,0 +1,386 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<cards>
+  <card name="aeneid" age="1" type="golden" res="book" n="2" />
+  <card name="aqueduct" age="1" type="building" score="1_1" stab="1" >
+    <deploy>
+      <cost res="coal" n="1"></cost>
+    </deploy>
+    <prod>
+      <yield res="wheat" n="2"></yield>
+    </prod>
+  </card>
+  <card name="archer" age="1" type="military" nbattle="4" score="1_1" mil="2" >
+    <deploy>
+      <cost res="coal" n="1"></cost>
+    </deploy>
+  </card>
+  <card name="archimedes" age="1" type="advisor">
+    <round>
+      <action type="architect" n="1"></action>
+    </round>
+    <prod>
+      <yield res="coal" n="1"></yield>
+    </prod>
+  </card>
+  <card name="armenia" age="1" type="colony" vp="0" milmin="6">
+    <prod>
+      <yield res="coal" n="1"></yield>
+    </prod>
+  </card>
+  <card name="augustus" age="1" type="advisor" mil="1">
+    <prod>
+      <yield res="coal" n="2">
+        <cond res="military" op="most"></cond>
+      </yield>
+    </prod>
+  </card>
+  <card name="babylonia" age="1" type="colony" vp="0" milmin="5">
+    <prod>
+      <yield res="gold" n="2"></yield>
+    </prod>
+  </card>
+  <card name="battle_of_cannae" age="1" type="battle" ></card>
+  <card name="battle_of_issus" age="1" type="battle" ></card>
+  <card name="battle_of_kadesh" age="1" type="battle"></card>
+  <card name="battle_of_thermopylae" age="1" type="battle"></card>
+  <card name="boudica" age="1" type="advisor" mil="1">
+    <round>
+      <check auto="remove">
+        <cond res="worker" on="mil" min="1"></cond>
+      </check>
+    </round>
+    <prod>
+      <yield res="wheat" n="1"></yield>
+      <yield res="gold" n="1"></yield>
+    </prod>
+  </card>
+  <card name="brewery" age="1" type="building" score="1_1">
+    <deploy>
+      <cost res="coal" n="1"></cost>
+    </deploy>
+    <prod>
+      <yield res="wheat" n="2"></yield>
+      <yield res="book" n="1"></yield>
+    </prod>
+  </card>
+  <card name="buddha" age="1" type="advisor" stab="3" filename="assets\graphics\cards\progress\age1\age1_buddha.jpg">
+    <round>
+      <check auto="skip_first_turn"></check>
+    </round>
+    <prod>
+      <yield res="coal" n="1"></yield>
+    </prod>
+  </card>
+  <card name="chariot" age="1" type="military" nbattle="3" score="1_1" mil="3" filename="assets\graphics\cards\progress\age1\age1_chariot.jpg">
+    <deploy>
+      <cost res="coal" n="1"></cost>
+    </deploy>
+    <prod>
+      <cost res="gold" n="1"></cost>
+    </prod>
+  </card>
+  <card name="city_wall" age="1" type="building" score="1_1" stab="1" filename="assets\graphics\cards\progress\age1\age1_city_wall.jpg">
+    <deploy>
+      <cost res="coal" n="1"></cost>
+    </deploy>
+    <prod>
+      <yield res="coal" n="2"></yield>
+    </prod>
+  </card>
+  <card name="coinage" age="1" type="golden" res="coal" n="2" />
+  <card name="colosseum" age="1" type="wonder" vp="1" mil="3" arch="2_2" filename="assets\graphics\cards\progress\age1\age1_colosseum.jpg">
+    <ready>
+      <cost res="wheat" n="2"></cost>
+    </ready>
+  </card>
+  <card name="confucian_academy" age="1" type="building" score="1_1" stab="2" filename="assets\graphics\cards\progress\age1\age1_confucian_academy.jpg">
+    <deploy>
+      <cost res="coal" n="1"></cost>
+    </deploy>
+    <prod>
+      <yield res="gold" n="1"></yield>
+    </prod>
+  </card>
+  <card name="crossing_the_alps" age="1" type="battle" filename="assets\graphics\cards\progress\age1\age1_crossing_the_alps.jpg"></card>
+  <card name="cyrus_the_great" age="1" type="advisor" filename="assets\graphics\cards\progress\age1\age1_cyrus_the_great.jpg">
+    <prod>
+      <yield res="gold" n="3">
+        <cond op="bought" type="colony"></cond>
+      </yield>
+    </prod>
+  </card>
+  <card name="elephant" age="1" type="military" nbattle="3" score="1_1" mil="4" filename="assets\graphics\cards\progress\age1\age1_elephant.jpg">
+    <deploy>
+      <cost res="coal" n="1"></cost>
+    </deploy>
+    <prod>
+      <cost res="wheat" n="2"></cost>
+    </prod>
+  </card>
+  <card name="forge" age="1" type="building" score="1_1" filename="assets\graphics\cards\progress\age1\age1_forge.jpg">
+    <deploy>
+      <cost res="coal" n="1"></cost>
+    </deploy>
+    <prod>
+      <yield res="coal" n="2"></yield>
+      <yield res="wheat" n="1"></yield>
+    </prod>
+  </card>
+  <card name="forum" age="1" type="building" score="1_1" filename="assets\graphics\cards\progress\age1\age1_forum.jpg">
+    <deploy>
+      <cost res="coal" n="1"></cost>
+    </deploy>
+    <prod>
+      <yield res="gold" n="2"></yield>
+      <yield res="wheat" n="1"></yield>
+    </prod>
+  </card>
+  <card name="gaul" age="1" type="colony" vp="0" milmin="7" filename="assets\graphics\cards\progress\age1\age1_gaul.jpg">
+    <prod>
+      <yield res="wheat" n="2"></yield>
+    </prod>
+  </card>
+  <card name="granary" age="1" type="building" score="1_1" filename="assets\graphics\cards\progress\age1\age1_granary.jpg">
+    <deploy>
+      <cost res="coal" n="1"></cost>
+    </deploy>
+    <prod>
+      <yield res="wheat" n="2"></yield>
+      <yield res="coal" n="1"></yield>
+    </prod>
+  </card>
+  <card name="great_lighthouse" age="1" type="wonder" vp="2" mil="3" arch="1_3" filename="assets\graphics\cards\progress\age1\age1_great_lighthouse.jpg">
+    <round>
+      <check auto="yield" res="book" n="1">
+        <cond op="buy" type="any" cost="3"></cond>
+      </check>
+    </round>
+    <prod>
+      <yield res="gold" n="1"></yield>
+    </prod>
+  </card>
+  <card name="hanging_gardens" age="1" type="wonder" vp="1" stab="1" arch="1_2" filename="assets\graphics\cards\progress\age1\age1_hanging_gardens.jpg">
+    <prod>
+      <yield res="wheat" n="2"></yield>
+      <cost res="coal" n="1"></cost>
+    </prod>
+  </card>
+  <card name="hannibal" age="1" type="advisor" filename="assets\graphics\cards\progress\age1\age1_hannibal.jpg">
+    <round>
+      <check auto="yield" res="any" n="1">
+        <cond op="buy" type="battle"></cond>
+      </check>
+      <check auto="cost" res="gold" n="1">
+        <cond op="others_buy" type="battle"></cond>
+      </check>
+    </round>
+  </card>
+  <card name="hatshepsut" age="1" type="advisor" filename="assets\graphics\cards\progress\age1\age1_hatshepsut.jpg">
+    <round>
+      <check auto="yield" res="book" n="3">
+        <cond op="wonder_ready"></cond>
+      </check>
+    </round>
+    <prod>
+      <yield res="gold" n="1"></yield>
+    </prod>
+  </card>
+  <card name="hindu_kush" age="1" type="colony" vp="0" milmin="9" filename="assets\graphics\cards\progress\age1\age1_hindu_kush.jpg">
+    <prod>
+      <yield res="coal" n="3"></yield>
+    </prod>
+  </card>
+  <card name="hispania" age="1" type="colony" vp="0" milmin="4" filename="assets\graphics\cards\progress\age1\age1_hispania.jpg">
+    <prod>
+      <yield res="wheat" n="2"></yield>
+    </prod>
+  </card>
+  <card name="hoplite" age="1" type="military" nbattle="3" score="1_1" mil="3" filename="assets\graphics\cards\progress\age1\age1_hoplite.jpg">
+    <deploy>
+      <cost res="coal" n="1"></cost>
+    </deploy>
+    <prod>
+      <cost res="coal" n="1"></cost>
+    </prod>
+  </card>
+  <card name="hunnic_invasions" age="1" type="war" res="wheat" n="4" filename="assets\graphics\cards\progress\age1\age1_hunnic_invasions.jpg"></card>
+  <card name="hyksos_invasion" age="1" type="war" res="coal" n="4" filename="assets\graphics\cards\progress\age1\age1_hyksos_invasion.jpg"></card>
+  <card name="immortal" age="1" type="military" nbattle="3" score="1_1" mil="3" stab="-1" filename="assets\graphics\cards\progress\age1\age1_immortal.jpg">
+    <deploy>
+      <cost res="coal" n="1"></cost>
+    </deploy>
+  </card>
+  <card name="iron_working" age="1" type="golden" res="coal" n="2" />
+  <card name="israel" age="1" type="colony" vp="0" milmin="5" filename="assets\graphics\cards\progress\age1\age1_israel.jpg">
+    <prod>
+      <yield res="book" n="2"></yield>
+    </prod>
+  </card>
+  <card name="legionary" age="1" type="military" nbattle="3" score="1_1" mil="3" filename="assets\graphics\cards\progress\age1\age1_legionary.jpg">
+    <deploy>
+      <cost res="coal" n="1"></cost>
+    </deploy>
+    <prod>
+      <cost res="wheat" n="1"></cost>
+    </prod>
+  </card>
+  <card name="library" age="1" type="building" score="1_1" filename="assets\graphics\cards\progress\age1\age1_library.jpg">
+    <deploy>
+      <cost res="coal" n="1"></cost>
+    </deploy>
+    <prod>
+      <yield res="book" n="2"></yield>
+      <yield res="gold" n="1"></yield>
+    </prod>
+  </card>
+  <card name="lighthouse" age="1" type="building" score="1_1" filename="assets\graphics\cards\progress\age1\age1_lighthouse.jpg">
+    <deploy>
+      <cost res="coal" n="1"></cost>
+    </deploy>
+    <prod>
+      <yield res="gold" n="2"></yield>
+      <yield res="coal" n="1"></yield>
+    </prod>
+  </card>
+  <card name="lyceum" age="1" type="building" score="1_1" filename="assets\graphics\cards\progress\age1\age1_lyceum.jpg">
+    <deploy>
+      <cost res="coal" n="1"></cost>
+    </deploy>
+    <prod>
+      <yield res="book" n="2"></yield>
+      <yield res="coal" n="1"></yield>
+    </prod>
+  </card>
+  <card name="macedonia" age="1" type="colony" vp="0" milmin="4" mil="2" filename="assets\graphics\cards\progress\age1\age1_macedonia.jpg"></card>
+  <card name="mahabharata" age="1" type="golden" res="book" n="2" />
+  <card name="map_making" age="1" type="golden" res="coal" n="2" />
+  <card name="milvian_bridge" age="1" type="battle" filename="assets\graphics\cards\progress\age1\age1_milvian_bridge.jpg"></card>
+  <card name="mine" age="1" type="building" score="1_1" filename="assets\graphics\cards\progress\age1\age1_mine.jpg">
+    <deploy>
+      <cost res="coal" n="1"></cost>
+    </deploy>
+    <prod>
+      <yield res="coal" n="2"></yield>
+      <yield res="gold" n="1"></yield>
+    </prod>
+  </card>
+  <card name="nubia" age="1" type="colony" vp="0" milmin="3" filename="assets\graphics\cards\progress\age1\age1_nubia.jpg">
+    <prod>
+      <yield res="gold" n="2"></yield>
+    </prod>
+  </card>
+  <card name="pagoda" age="1" type="building" score="1_1" stab="1" filename="assets\graphics\cards\progress\age1\age1_pagoda.jpg">
+    <deploy>
+      <cost res="coal" n="1"></cost>
+    </deploy>
+    <prod>
+      <yield res="book" n="2"></yield>
+    </prod>
+  </card>
+  <card name="parthian_wars" age="1" type="war" res="gold" n="3" filename="assets\graphics\cards\progress\age1\age1_parthian_wars.jpg"></card>
+  <card name="pelopponesian_war" age="1" type="war" res="book" n="4" filename="assets\graphics\cards\progress\age1\age1_pelopponesian_war.jpg"></card>
+  <card name="petra" age="1" type="wonder" vp="0" stab="1" arch="2_0_1" filename="assets\graphics\cards\progress\age1\age1_petra.jpg">
+    <round>
+      <action type="trade">
+        <cost res="wheat" n="1"></cost>
+        <yield res="book|coal|gold" n="3"></yield>
+      </action>
+    </round>
+  </card>
+  <card name="phalanx" age="1" type="military" nbattle="3" score="1_1" mil="4" filename="assets\graphics\cards\progress\age1\age1_phalanx.jpg">
+    <deploy>
+      <cost res="coal" n="1"></cost>
+    </deploy>
+    <prod>
+      <cost res="coal" n="2"></cost>
+    </prod>
+  </card>
+  <card name="punic_wars" age="1" type="war" res="wheat" n="6" filename="assets\graphics\cards\progress\age1\age1_punic_wars.jpg"></card>
+  <card name="pyramids" age="1" type="wonder" vp="3" stab="1" arch="2_1_0" filename="assets\graphics\cards\progress\age1\age1_pyramids.jpg">
+    <prod>
+      <yield res="gold" n="2"></yield>
+      <cost res="wheat" n="2"></cost>
+    </prod>
+  </card>
+  <card name="qin_shi_huang" age="1" type="advisor" filename="assets\graphics\cards\progress\age1\age1_qin_shi_huang.jpg">
+    <round>
+      <check auto="remove">
+        <cond res="stability" op="least"></cond>
+      </check>
+    </round>
+    <prod>
+      <yield res="wheat" n="3"></yield>
+    </prod>
+  </card>
+  <card name="saint_augustine" age="1" type="advisor" stab="1" filename="assets\graphics\cards\progress\age1\age1_saint_augustine.jpg">
+    <round>
+      <check auto="yield" res="book" n="2">
+        <cond res="stability" op="most"></cond>
+      </check>
+    </round>
+    <prod>
+      <yield res="wheat" n="3"></yield>
+    </prod>
+  </card>
+  <card name="siege_of_alesia" age="1" type="battle" filename="assets\graphics\cards\progress\age1\age1_siege_of_alesia.jpg"></card>
+  <card name="siege_of_troy" age="1" type="battle" filename="assets\graphics\cards\progress\age1\age1_siege_of_troy.jpg"></card>
+  <card name="silk" age="1" type="golden" res="coal" n="2" />
+  <card name="solomons_temple" age="1" type="wonder" vp="0" arch="1_1" filename="assets\graphics\cards\progress\age1\age1_solomons_temple.jpg">
+    <age>
+      <check auto="yield" res="vp" n="1"></check>
+    </age>
+  </card>
+  <card name="sphinx" age="1" type="wonder" vp="1" arch="2_2" filename="assets\graphics\cards\progress\age1\age1_sphinx.jpg">
+    <round>
+      <check auto="yield" res="coal" n="5">
+        <cond op="wonder_ready"></cond>
+      </check>
+    </round>
+  </card>
+  <card name="stonehenge" age="1" type="wonder" vp="0" arch="1_1_1" filename="assets\graphics\cards\progress\age1\age1_stonehenge.jpg">
+    <ready>
+      <yield res="book" n="6"></yield>
+      <yield res="wheat" n="4"></yield>
+    </ready>
+  </card>
+  <card name="sun_tzu" age="1" type="advisor" filename="assets\graphics\cards\progress\age1\age1_sun_tzu.jpg">
+    <round>
+      <check auto="double_action_first_turn"></check>
+    </round>
+  </card>
+  <card name="synagogue" age="1" type="building" score="1_1" filename="assets\graphics\cards\progress\age1\age1_synagogue.jpg">
+    <deploy>
+      <cost res="coal" n="1"></cost>
+    </deploy>
+    <prod>
+      <yield res="gold" n="2"></yield>
+      <yield res="book" n="1"></yield>
+    </prod>
+  </card>
+  <card name="terracotta_army" age="1" type="wonder" vp="2" arch="0_0_3" mil="1" filename="assets\graphics\cards\progress\age1\age1_terracotta_army.jpg">
+    <ready>
+      <check auto="cost" res="gold" n="4">
+        <cond player="any" res="stability" op="least"></cond>
+      </check>
+    </ready>
+  </card>
+  <card name="the_bible" age="1" type="golden" res="book" n="2" />
+  <card name="the_odyssey" age="1" type="golden" res="book" n="2" />
+  <card name="the_oracle" age="1" type="wonder" vp="1" arch="2_1" stab="2" filename="assets\graphics\cards\progress\age1\age1_the_oracle.jpg"></card>
+  <card name="three_kingdoms" age="1" type="war" res="gold" n="5" filename="assets\graphics\cards\progress\age1\age1_three_kingdoms.jpg"></card>
+  <card name="trireme" age="1" type="military" nbattle="3" score="1_1" mil="3" filename="assets\graphics\cards\progress\age1\age1_trireme.jpg">
+    <deploy>
+      <cost res="coal" n="2"></cost>
+    </deploy>
+  </card>
+  <card name="warring_states" age="1" type="war" res="book" n="3" filename="assets\graphics\cards\progress\age1\age1_warring_states.jpg"></card>
+  <card name="wars_of_alexander" age="1" type="war" res="wheat" n="2" filename="assets\graphics\cards\progress\age1\age1_wars_of_alexander.jpg"></card>
+  <card name="ziggurat" age="1" type="building" score="1_1" stab="2" filename="assets\graphics\cards\progress\age1\age1_ziggurat.jpg">
+    <deploy>
+      <cost res="coal" n="1"></cost>
+    </deploy>
+    <prod>
+      <yield res="coal" n="1"></yield>
+    </prod>
+  </card>
+</cards>

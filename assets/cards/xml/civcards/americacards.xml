@@ -1,0 +1,41 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<cards>
+  <card name="buffalo_horde" age="1" type="building" maxdeploy="1" score="1">
+    <deploy>
+      <cost res="coal" n="1"></cost>
+    </deploy>
+    <prod>
+      <yield res="wheat" n="4"></yield>
+    </prod>
+  </card>
+  <card name="brave" age="1" type="military" nbattle="2" score="1" mil="1">
+    <deploy>
+      <cost res="coal" n="1"></cost>
+    </deploy>
+    <prod>
+      <yield res="gold" n="1"></yield>
+    </prod>
+  </card>
+  <card name="teepee" age="1" type="building" score="1">
+    <deploy>
+      <cost res="coal" n="1"></cost>
+    </deploy>
+    <prod>
+      <yield res="coal" n="1"></yield>
+      <yield res="book" n="1"></yield>
+    </prod>
+  </card>
+  <card name="adobe" age="1" type="building" stab="2" score="1">
+    <deploy>
+      <cost res="coal" n="1"></cost>
+    </deploy>
+  </card>
+  <card name="america_dyn1" type="dynasty">
+    <round>
+      <check auto="yield" res="wheat" n="2">
+        <cond op="natural_wonder_ready"></cond>
+      </check>
+    </round>
+  </card>
+</cards>
+

@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<cards>
+  <card name="china_dyn1" type="dynasty">
+    <prod>
+      <check auto="yield" res="wheat" n="1">
+        <cond op="passed_first"></cond>
+      </check>
+    </prod>
+  </card>
+</cards>
+

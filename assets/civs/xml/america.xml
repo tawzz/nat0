@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<playerboard name="america">
+  <cards>
+    <card type="advisor"></card>
+    <card name="buffalo_horde" type="building"></card>
+    <card name="teepee" type="building"></card>
+    <card name="brave" type="military"></card>
+    <card name="adobe" type="building"></card>
+    <card name="america_dyn1" type="dynasty"></card>
+    <card name="" type="wic"></card>
+    <card name="" type="colony"></card>
+    <card name="" type="colony"></card>
+    <card name="" type="wonder"></card>
+    <card name="" type="wonder"></card>
+    <card name="" type="wonder"></card>
+    <card name="" type="wonder"></card>
+    <card name="" type="wonder"></card>
+  </cards>
+  <workers>
+    <worker res="wheat" n="3"></worker>
+    <worker res="wheat" n="3"></worker>
+    <worker res="wheat" n="3"></worker>
+    <worker res="wheat" n="3"></worker>
+    <worker res="stability" n="3"></worker>
+    <worker res="stability" n="3"></worker>
+    <worker res="stability" n="3"></worker>
+    <worker res="stability" n="3"></worker>
+  </workers>
+  <resources>
+    <res name="wheat" n="2"></res>
+    <res name="coal" n="5"></res>
+    <res name="gold" n="7"></res>
+    <res name="vp" n="5"></res>
+    <res name="worker" n="5"></res>
+  </resources>
+</playerboard>
+ 

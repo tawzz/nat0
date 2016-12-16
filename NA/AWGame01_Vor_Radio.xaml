@@ -1,0 +1,89 @@
+﻿<Window x:Class="ations.AWGame" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:controls="clr-namespace:Common.Controls"
+    xmlns:local="clr-namespace:ations" mc:Ignorable="d" Title="AWGame"
+    d:DataContext="{Binding Game, Source={d:DesignInstance IsDesignTimeCreatable=True, Type={x:Type local:AGameDesignTime}}}"
+    WindowStartupLocation="Manual" Height="980" Width="1686" Left="60" Top="100">
+  <Grid x:Name="gridMain" Background="Transparent">
+    <DockPanel>
+
+      <Grid x:Name="gMessage" DockPanel.Dock="Bottom" Height="29" Background="{Binding MainPlayer.Brush}">
+        <TextBlock Margin="20,0,20,1" Text="Hallo g das muss man noch binden!!!" Foreground="White" FontSize="22" FontWeight="Bold"
+            HorizontalAlignment="Center" />
+      </Grid>
+      <controls:DockPanelSplitter DockPanel.Dock="Bottom" />
+
+      <Grid x:Name="gStats" DockPanel.Dock="Left" Width="574" Background="{Binding MainPlayer.Brush}">
+        <Viewbox>
+          <Grid Width="989" Height="1443">
+            <Image Source="{Binding Stats.StatsboardImage}" />
+          </Grid>
+        </Viewbox>
+      </Grid>
+      <controls:DockPanelSplitter DockPanel.Dock="Left" />
+
+      <Grid x:Name="gPlayers" DockPanel.Dock="Right" Width="200" Background="{Binding MainPlayer.Brush}">
+      </Grid>
+      <controls:DockPanelSplitter DockPanel.Dock="Right" />
+
+      <!-- civ -->
+      <Grid x:Name="gCiv" DataContext="{Binding MainPlayer}" Height="480" Background="{Binding Brush}" DockPanel.Dock="Bottom">
+        <Viewbox>
+          <Grid Width="1834" Height="960" Margin="0">
+            <Image Source="{Binding Civ.Image}" />
+            <ItemsControl ItemsSource="{Binding Civ.Fields}" ItemsPanel="{StaticResource GridPanel}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                  <Grid Margin="{Binding Margin}" Background="Black">
+                    <Button >
+                      <Grid>
+                        <Image Source="{Binding Card.Image}" Stretch="Fill" />
+                        <Border BorderBrush="{Binding Card.Brush}" BorderThickness="12" CornerRadius="8"/>
+                      </Grid>
+                      <Button.ToolTip>
+                        <Grid Margin="-6,-4" ClipToBounds="true">
+                          <Image Source="{Binding Card.Image}"  />
+                          <Border BorderBrush="{Binding Card.Brush}" BorderThickness="12" />
+                        </Grid>
+                      </Button.ToolTip>
+                    </Button>
+                  </Grid>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </Grid>
+        </Viewbox>
+      </Grid>
+      <controls:DockPanelSplitter DockPanel.Dock="Bottom" />
+
+      <Grid x:Name="gRound" DockPanel.Dock="Right" Width="280" Background="{Binding MainPlayer.Brush}">
+      </Grid>
+      <controls:DockPanelSplitter DockPanel.Dock="Right" />
+
+      <!-- progress -->
+      <Grid x:Name="gProgress" Background="{Binding MainPlayer.Brush}">
+        <Viewbox>
+          <Grid Width="1412" Height="964" DataContext="{Binding Progress}">
+            <Image Source="{Binding ProgressboardImage}" />
+            <ItemsControl ItemsSource="{Binding Fields}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                  <Grid Background="Black" Width="172" Height="264" HorizontalAlignment="Left" VerticalAlignment="Top">
+                    <ToggleButton IsChecked="{Binding Card.CanBuy}">
+                      <Image Source="{Binding Card.Image,TargetNullValue={x:Null}}" />
+                    </ToggleButton>
+                  </Grid>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+              <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                  <UniformGrid Rows="3" Columns="{Binding Cols}" Margin="{Binding ProgressboardMargin}" />
+                </ItemsPanelTemplate>
+              </ItemsControl.ItemsPanel>
+            </ItemsControl>
+          </Grid>
+        </Viewbox>
+      </Grid>
+    </DockPanel>
+  </Grid>
+</Window>
