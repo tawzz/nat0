@@ -122,6 +122,7 @@
     <Compile Include="Common\Extensions.cs" />
     <Compile Include="Common\Rand.cs" />
     <Compile Include="Nations\Game_Engine.cs" />
+    <Compile Include="NA\Causes.cs" />
     <Compile Include="NA\Helpers.cs" />
     <Compile Include="NA\Levels.cs" />
     <Compile Include="NA\AStats.cs" />
