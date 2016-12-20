@@ -79,7 +79,7 @@
       <cost res="gold" n="1"></cost>
     </prod>
   </card>
-  <card name="city_wall" age="1" type="building" score="1_1" stab="1" filename="assets\graphics\cards\progress\age1\age1_city_wall.jpg">
+  <card name="city_wall" age="1" type="building" score="1_1" stab="1" >
     <deploy>
       <cost res="coal" n="1"></cost>
     </deploy>
@@ -88,12 +88,12 @@
     </prod>
   </card>
   <card name="coinage" age="1" type="golden" res="coal" n="2" />
-  <card name="colosseum" age="1" type="wonder" vp="1" mil="3" arch="2_2" filename="assets\graphics\cards\progress\age1\age1_colosseum.jpg">
+  <card name="colosseum" age="1" type="wonder" vp="1" mil="3" arch="2_2">
     <ready>
       <cost res="wheat" n="2"></cost>
     </ready>
   </card>
-  <card name="confucian_academy" age="1" type="building" score="1_1" stab="2" filename="assets\graphics\cards\progress\age1\age1_confucian_academy.jpg">
+  <card name="confucian_academy" age="1" type="building" score="1_1" stab="2">
     <deploy>
       <cost res="coal" n="1"></cost>
     </deploy>
@@ -101,15 +101,15 @@
       <yield res="gold" n="1"></yield>
     </prod>
   </card>
-  <card name="crossing_the_alps" age="1" type="battle" filename="assets\graphics\cards\progress\age1\age1_crossing_the_alps.jpg"></card>
-  <card name="cyrus_the_great" age="1" type="advisor" filename="assets\graphics\cards\progress\age1\age1_cyrus_the_great.jpg">
+  <card name="crossing_the_alps" age="1" type="battle"></card>
+  <card name="cyrus_the_great" age="1" type="advisor" >
     <prod>
       <yield res="gold" n="3">
         <cond op="bought" type="colony"></cond>
       </yield>
     </prod>
   </card>
-  <card name="elephant" age="1" type="military" nbattle="3" score="1_1" mil="4" filename="assets\graphics\cards\progress\age1\age1_elephant.jpg">
+  <card name="elephant" age="1" type="military" nbattle="3" score="1_1" mil="4">
     <deploy>
       <cost res="coal" n="1"></cost>
     </deploy>
@@ -159,13 +159,13 @@
       <yield res="gold" n="1"></yield>
     </prod>
   </card>
-  <card name="hanging_gardens" age="1" type="wonder" vp="1" stab="1" arch="1_2" filename="assets\graphics\cards\progress\age1\age1_hanging_gardens.jpg">
+  <card name="hanging_gardens" age="1" type="wonder" vp="1" stab="1" arch="1_2">
     <prod>
       <yield res="wheat" n="2"></yield>
       <cost res="coal" n="1"></cost>
     </prod>
   </card>
-  <card name="hannibal" age="1" type="advisor" filename="assets\graphics\cards\progress\age1\age1_hannibal.jpg">
+  <card name="hannibal" age="1" type="advisor">
     <round>
       <check auto="yield" res="any" n="1">
         <cond op="buy" type="battle"></cond>
@@ -175,7 +175,7 @@
       </check>
     </round>
   </card>
-  <card name="hatshepsut" age="1" type="advisor" filename="assets\graphics\cards\progress\age1\age1_hatshepsut.jpg">
+  <card name="hatshepsut" age="1" type="advisor">
     <round>
       <check auto="yield" res="book" n="3">
         <cond op="wonder_ready"></cond>
@@ -185,17 +185,17 @@
       <yield res="gold" n="1"></yield>
     </prod>
   </card>
-  <card name="hindu_kush" age="1" type="colony" vp="0" milmin="9" filename="assets\graphics\cards\progress\age1\age1_hindu_kush.jpg">
+  <card name="hindu_kush" age="1" type="colony" vp="0" milmin="9">
     <prod>
       <yield res="coal" n="3"></yield>
     </prod>
   </card>
-  <card name="hispania" age="1" type="colony" vp="0" milmin="4" filename="assets\graphics\cards\progress\age1\age1_hispania.jpg">
+  <card name="hispania" age="1" type="colony" vp="0" milmin="4">
     <prod>
       <yield res="wheat" n="2"></yield>
     </prod>
   </card>
-  <card name="hoplite" age="1" type="military" nbattle="3" score="1_1" mil="3" filename="assets\graphics\cards\progress\age1\age1_hoplite.jpg">
+  <card name="hoplite" age="1" type="military" nbattle="3" score="1_1" mil="3">
     <deploy>
       <cost res="coal" n="1"></cost>
     </deploy>
@@ -203,20 +203,20 @@
       <cost res="coal" n="1"></cost>
     </prod>
   </card>
-  <card name="hunnic_invasions" age="1" type="war" res="wheat" n="4" filename="assets\graphics\cards\progress\age1\age1_hunnic_invasions.jpg"></card>
-  <card name="hyksos_invasion" age="1" type="war" res="coal" n="4" filename="assets\graphics\cards\progress\age1\age1_hyksos_invasion.jpg"></card>
-  <card name="immortal" age="1" type="military" nbattle="3" score="1_1" mil="3" stab="-1" filename="assets\graphics\cards\progress\age1\age1_immortal.jpg">
+  <card name="hunnic_invasions" age="1" type="war" res="wheat" n="4"/>
+  <card name="hyksos_invasion" age="1" type="war" res="coal" n="4" />
+  <card name="immortal" age="1" type="military" nbattle="3" score="1_1" mil="3" stab="-1">
     <deploy>
       <cost res="coal" n="1"></cost>
     </deploy>
   </card>
   <card name="iron_working" age="1" type="golden" res="coal" n="2" />
-  <card name="israel" age="1" type="colony" vp="0" milmin="5" filename="assets\graphics\cards\progress\age1\age1_israel.jpg">
+  <card name="israel" age="1" type="colony" vp="0" milmin="5">
     <prod>
       <yield res="book" n="2"></yield>
     </prod>
   </card>
-  <card name="legionary" age="1" type="military" nbattle="3" score="1_1" mil="3" filename="assets\graphics\cards\progress\age1\age1_legionary.jpg">
+  <card name="legionary" age="1" type="military" nbattle="3" score="1_1" mil="3">
     <deploy>
       <cost res="coal" n="1"></cost>
     </deploy>
@@ -224,7 +224,7 @@
       <cost res="wheat" n="1"></cost>
     </prod>
   </card>
-  <card name="library" age="1" type="building" score="1_1" filename="assets\graphics\cards\progress\age1\age1_library.jpg">
+  <card name="library" age="1" type="building" score="1_1">
     <deploy>
       <cost res="coal" n="1"></cost>
     </deploy>
@@ -254,8 +254,8 @@
   <card name="macedonia" age="1" type="colony" vp="0" milmin="4" mil="2" filename="assets\graphics\cards\progress\age1\age1_macedonia.jpg"></card>
   <card name="mahabharata" age="1" type="golden" res="book" n="2" />
   <card name="map_making" age="1" type="golden" res="coal" n="2" />
-  <card name="milvian_bridge" age="1" type="battle" filename="assets\graphics\cards\progress\age1\age1_milvian_bridge.jpg"></card>
-  <card name="mine" age="1" type="building" score="1_1" filename="assets\graphics\cards\progress\age1\age1_mine.jpg">
+  <card name="milvian_bridge" age="1" type="battle"/>
+  <card name="mine" age="1" type="building" score="1_1">
     <deploy>
       <cost res="coal" n="1"></cost>
     </deploy>

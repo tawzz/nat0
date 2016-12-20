@@ -20,7 +20,7 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type local:UCard}">
           <Grid Background="{TemplateBinding Background}">
-            <Image x:Name="img" Margin="4" Source="{TemplateBinding Image}" />
+            <Image x:Name="img" Margin="4" Source="{Binding Path=Image, RelativeSource={RelativeSource Self}}" />
             <Border x:Name="border" Background="Transparent" BorderBrush="{TemplateBinding BorderBrush}"
                 BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="8" />
             <Grid.ToolTip>

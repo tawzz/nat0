@@ -27,8 +27,14 @@ namespace ations
     public int Level { get; set; }
     public bool IsMainPlayer { get { return isMainPlayer; } set { isMainPlayer = value; NotifyPropertyChanged(); } }
     bool isMainPlayer;
+    public int NumActions { get { return numActions; } set { if (numActions != value) { numActions = value; NotifyPropertyChanged(); } } }
+    int numActions;
     public bool HasPassed { get { return hasPassed; } set { if (hasPassed != value) { hasPassed = value; NotifyPropertyChanged(); } } }
     bool hasPassed;
+
+    public bool HasWIC { get { return !Civ.Fields[CT.WIC].IsEmpty; } }
+    public AField WIC { get { return Civ.Fields[CT.WIC]; } }
+    public bool HasPrivateArchitect { get { return false; } } //gehoert zu checks
     #region positioning on stats board
     public Point LevelPosition { get; set; }
     static int[] LevelOffsetX = { 20, 50, 20, 50 };
@@ -158,7 +164,7 @@ namespace ations
       w.IsCheckedOut = true;
       Res.inc("worker", 1);
     }
-    public void Pay(int cost) { Res.dec("gold", cost); }
+    public void Pay(int cost) { Pay("gold", cost); }
     public void Pay(string res, int cost)
     {
       var num = Res.n(res);
@@ -172,10 +178,13 @@ namespace ations
         }
         Pay("book", cost - num);
       }
+      else Res.dec(res, cost);
     }
     public int ComputeRaidValue()
     {
-      return 0;
+      var milcards = Cards.Where(x => x.mil()).ToArray();
+      var maxraid = milcards.Max(x => x.NumDeployed > 0 ? x.X.aint("battle"):0);
+      return maxraid;
     }
 
 

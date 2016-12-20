@@ -9,6 +9,7 @@ using System.Windows.Media.Imaging;
 using System.Xml.Linq;
 using System.Threading.Tasks;
 using System.Windows.Resources;
+using System.Diagnostics;
 
 namespace ations
 {
@@ -19,10 +20,23 @@ namespace ations
     public static XElement[] GetCardarrayX(int age) { var xel = GetX("cards/xml/cards0" + age + ".xml"); return xel != null ? xel.Elements().ToArray() : null; }
     public static XElement[] GetEventCardarrayX(int age)
     {
+      //Debug.Assert(age >= 1, "Helpers.GetEventCardArrayX called with age<1");
+      if (age < 1) age = 1; //testing
       var xfile = GetX("cards/xml/eventcards.xml");
       var e1 = xfile.Elements().ToArray(); //the 4 ages
       var e2 = e1[age - 1].Elements().ToArray();
       return e2;//.Elements().Elements("age"+age).ToArray();
+    }
+    public static XElement GetEventCardX(string name)
+    {
+      var xfile = GetX("cards/xml/eventcards.xml");
+      var e1 = xfile.Elements().ToArray(); //the 4 ages
+      foreach(var el in e1)
+      {
+        var xcard = el.Elements().FirstOrDefault(x => x.astring("name") == name);
+        if (xcard != null) return xcard;
+      }
+      return null;
     }
     public static XElement GetCardX(string cardname, int age)
     {
@@ -58,6 +72,7 @@ namespace ations
     public static BitmapImage GetEmptyCardImage(string type) { return GetImage("civs/cards/" + type + ".png"); }
     public static BitmapImage GetCivCardImage(string cardname) { return GetImage("civs/cards/age1_" + cardname + ".jpg"); }
     public static BitmapImage GetDynCardImage(string civ) { return GetImage("civs/cards/" + civ + "_dyn1.jpg"); }
+    public static BitmapImage GetMiscImage(string filename) { return GetImage("misc/" + filename + ".png"); }
 
     public static BitmapImage GetImage(string pathAfterAssets)
     {

@@ -12,6 +12,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using System.Xml.Linq;
@@ -21,7 +22,7 @@ namespace ations
   #region design time
   public class AGameDesignTime { public AGame Game { get; set; } public AGameDesignTime() { Game = AGame.GameInstance; } }
   #endregion
-  public class AGame : DependencyObject, INotifyPropertyChanged
+  public partial class AGame : DependencyObject, INotifyPropertyChanged
   {
     #region constants
     public const int MAX_PLAYERS = 5;
@@ -30,7 +31,7 @@ namespace ations
     public static int[] LevelGrowth = { 4, 3, 2, 1 };
     #endregion
 
-    #region properties
+    #region basic properties and constructor/singleton
     public int NumPlayers { get; set; }
     public ObservableCollection<APlayer> Players { get; set; }
     public APlayer MainPlayer
@@ -52,45 +53,11 @@ namespace ations
     APlayer mainPlayer;
     public AProgress Progress { get; set; }
     public AStats Stats { get; set; }
-    public bool CanTakeArchitect { get { return canTakeArchitect; } set { if (canTakeArchitect != value) { canTakeArchitect = value; NotifyPropertyChanged(); } } }
-    bool canTakeArchitect;
-    public bool CanTakeTurmoil { get { return canTakeTurmoil; } set { if (canTakeTurmoil != value) { canTakeTurmoil = value; NotifyPropertyChanged(); } } }
-    bool canTakeTurmoil;
-    public bool CanBuyProgressCard { get { return canBuyProgressCard; } set { if (canBuyProgressCard != value) { canBuyProgressCard = value; NotifyPropertyChanged(); } } }
-    bool canBuyProgressCard; //TODO mit phases steuern, nicht so!
-    public bool CanPlaceCard { get { return canPlaceCard; } set { if (canPlaceCard != value) { canPlaceCard = value; NotifyPropertyChanged(); } } }
-    bool canPlaceCard; //TODO mit phases steuern, nicht so!
 
-    public bool ShowStartButton { get { return showStartButton; } set { if (showStartButton != value) { showStartButton = value; NotifyPropertyChanged(); } } }
-    bool showStartButton;
-    public bool ShowBuyButton { get { return showBuyButton; } set { if (showBuyButton != value) { showBuyButton = value; NotifyPropertyChanged(); } } }
-    bool showBuyButton;
-    public bool ShowResChoices { get { return showResChoices; } set { if (showResChoices != value) { showResChoices = value; NotifyPropertyChanged(); } } }
-    bool showResChoices;
-    public bool ShowChoicePicker { get { return showChoicePicker; } set { if (showChoicePicker != value) { showChoicePicker = value; NotifyPropertyChanged(); } } }
-    bool showChoicePicker;
-    public bool ShowWorkerPicker { get { return showWorkerPicker; } set { if (showWorkerPicker != value) { showWorkerPicker = value; NotifyPropertyChanged(); } } }
-    bool showWorkerPicker;
-
-    public string Message { get { return message; } set { message = MainPlayer.Name + ", " + value; NotifyPropertyChanged(); } }
-    string message;//testing
-    public string Caption { get { return caption; } set { caption = value; NotifyPropertyChanged(); } }
-    string caption;
-    public string Title { get { return title; } set { title = value; NotifyPropertyChanged(); } }
-    string title;
-
-    public ObservableCollection<ARes> ResChoices { get; set; }
-    public ARes SelectedResource { get { return (ARes)GetValue(SelectedResourceProperty); } set { SetValue(SelectedResourceProperty, value); } }
-    public static readonly DependencyProperty SelectedResourceProperty = DependencyProperty.Register("SelectedResource", typeof(ARes), typeof(AGame), null);
-    public ACard SelectedCard { get; set; }
-    public int Number { get; set; }
-    public Dictionary<string, int> NumEach { get; set; }
-
-    #endregion
-
-    #region initialization
+    //singleton impl
     private static readonly AGame instance = new AGame(); public static AGame GameInstance { get { return instance; } }
     private AGame() { Initialize(); }
+    //initialization helpers
     void InitPlayers(int num)
     {
       Players = new ObservableCollection<APlayer>();
@@ -106,31 +73,74 @@ namespace ations
       for (int i = 0; i < NumPlayers; i++) Players.Add(new APlayer(names[i], civs[i], brushes[i], Levels.Chieftain, i));
       MainPlayer = Players[0];
     }
+    #endregion
+
+    #region initialize
+
     void Initialize()
     {
       ResChoices = new ObservableCollection<ARes>();
+      ResourceUpdateAnimationQueue = new List<Storyboard>();
 
       NumPlayers = 2;
       InitPlayers(NumPlayers);
-      Progress = new AProgress(7);// NumPlayers + 2);
+      Progress = new AProgress(7);// NumPlayers + 2); //testing
       Stats = new AStats(this);
 
       SetupForStart();
+      //Stats.WarCard = ACard.MakeCard("hyksos_invasion", 1); //testing design
+      //Stats.EventCard = ACard.MakeEventCard("attila"); //testing design
     }
+    public void SetupForStart() //called after initialization
+    {
+      Title = "Nations Start!"; Message = "press Start!"; Caption = "Start"; LongMessage = "game initialization complete";
+      IsOkStartEnabled = true; Kickoff = GameLoop;
+    }
+
     #endregion
 
-    #region control flow
-    public static Action Kickoff { get; private set; } // called from AWGame after multiuse button/action ausloeser
+    #region  resource selection
+
+    public ObservableCollection<ARes> ResChoices { get; set; }
+    public ARes SelectedResource { get { return (ARes)GetValue(SelectedResourceProperty); } set { SetValue(SelectedResourceProperty, value); } }
+    public static readonly DependencyProperty SelectedResourceProperty = DependencyProperty.Register("SelectedResource", typeof(ARes), typeof(AGame), null);
+    public void ResourceUpdated(FrameworkElement ui)
+    {
+      var sb = Storyboards.Scale(ui, TimeSpan.FromSeconds(.3), new Point(1, 1), new Point(5, 2), null, true);
+      ResourceUpdateAnimationQueue.Add(sb);
+    }
+    public void NumDeployedUpdated(FrameworkElement ui) // TODO: ui animations generalizieren, not just resource update!
+    {
+      var sb = Storyboards.Scale(ui, TimeSpan.FromSeconds(.3), new Point(1, 1), new Point(5, 2), null, true);
+      ResourceUpdateAnimationQueue.Add(sb);
+    }
+    public int Number { get; set; }
+    public Dictionary<string, int> NumEach { get; set; }
+
+    #endregion
+
+
+    //************************************************************************************
+    #region version 0 code: obsolete! echter code in AGameControl.cs
+    #region schon abgearbeitet
+    //******************* obsolete >goto version 1 (AGameControl.cs) *******************************************************************
+    public bool ShowStartButton { get { return showStartButton; } set { if (showStartButton != value) { showStartButton = value; NotifyPropertyChanged(); } } }
+    bool showStartButton;
+    public bool ShowBuyButton { get { return showBuyButton; } set { if (showBuyButton != value) { showBuyButton = value; NotifyPropertyChanged(); } } }
+    bool showBuyButton;
+    public bool ShowResChoices { get { return showResChoices; } set { if (showResChoices != value) { showResChoices = value; NotifyPropertyChanged(); } } }
+    bool showResChoices;
+    public bool ShowChoicePicker { get { return showChoicePicker; } set { if (showChoicePicker != value) { showChoicePicker = value; NotifyPropertyChanged(); } } }
+    bool showChoicePicker;
+    public bool ShowWorkerPicker { get { return showWorkerPicker; } set { if (showWorkerPicker != value) { showWorkerPicker = value; NotifyPropertyChanged(); } } }
+    bool showWorkerPicker;
+
+
     static Action EachPlayerStartsAt; // called in NextPlayer when one player is done
     static Action AfterAllPlayers; // called in NextPlayer when all players are done
     //AAnimations.AfterAnimation<object> can be set to determine where flow goes after animation ends (some animations started from AGame have onCompleted as param)
     int playerIndex;
 
-    public void SetupForStart() //called after initialization
-    {
-      Title = "Nations Start!"; Message = "press Start!";
-      ShowStartButton = true; Kickoff = StartRound;
-    }
     public void StartRound() // phase 1: update round, age, deal progress cards
     {
       ShowStartButton = false;
@@ -229,7 +239,7 @@ namespace ations
       if (playerIndex >= NumPlayers)
       {
         playerIndex = 0;
-        MainPlayer = Players[0]; 
+        MainPlayer = Players[0];
         AfterAllPlayers?.Invoke();
       }
       else
@@ -238,6 +248,7 @@ namespace ations
         EachPlayerStartsAt?.Invoke();
       }
     }
+    #endregion
 
     public void EventAndAction()
     {
@@ -254,23 +265,23 @@ namespace ations
       if (MainPlayer.HasPassed) NextPlayer();
       else
       {
-        MarkPossibleProgressCards();
+        MarkPossibleProgressCards0();
         ShowBuyButton = true;
       }
     }
-    public void MarkPossibleProgressCards()
+    public void MarkPossibleProgressCards0()
     {
       UnmarkProgresscards();
-      foreach (var f in Progress.Fields.Where(x=>x.Card != null)) f.Card.CanBuy = CalculateCanBuy(f);
+      foreach (var f in Progress.Fields.Where(x => x.Card != null)) f.Card.CanBuy = CalculateCanBuy0(f);
     }
-    public bool IsUnambiguousBuy(AField field)
+    public bool IsUnambiguousBuy0(AField field)
     {
       var card = field.Card;
       var possible = GetPossiblePlacesForCard(field).ToArray();
       var isciv = card.civ();
       return !isciv || possible.Length == 1;
     }
-    public void Buy(AField fieldBuy, AField fieldPlace = null)//assumes unambiguous buy if called with 1 param
+    public void Buy0(AField fieldBuy, AField fieldPlace = null)//assumes unambiguous buy if called with 1 param
     {
       ShowBuyButton = false;
       var card = fieldBuy.Card;
@@ -290,16 +301,16 @@ namespace ations
         // NextPlayer macht! >muss das loskoppeln!
         Progress.Remove(fieldBuy);
         MainPlayer.Pay(card.Cost);
-        if (card.war()) { Stats.UpdateWarPosition(MainPlayer, card);  }//auch hier gibts resource update
-        else if (card.golden()) BuyGoldenAge(card);
+        if (card.war()) { Stats.UpdateWarPosition(MainPlayer, card); }//auch hier gibts resource update
+        else if (card.golden()) BuyGoldenAge0(card);
         else if (card.battle())
         {
-          AAnimations.AfterAnimation = (x) => NextPlayer(); // ani in ui ausgeloest onResourceUpdate
+          AAnimations.AfterAnimation = null; // (x) => NextPlayer(); // ani in ui ausgeloest onResourceUpdate
           PrepareResourcePicker(new string[] { "wheat", "coal", "book" }, MainPlayer.RaidValue, "battle");
         }
       }
     }
-    public void BuyGoldenAge(ACard card)
+    public void BuyGoldenAge0(ACard card)
     {
       // check if even can afford vp option
       var canaffordvp = MainPlayer.Res.n("gold") >= Stats.Age;
@@ -318,7 +329,7 @@ namespace ations
       }
     }
 
-    bool CalculateCanBuy(AField field)
+    bool CalculateCanBuy0(AField field)
     {
       var card = field.Card;
       var canbuy = false;
@@ -334,34 +345,14 @@ namespace ations
       return canbuy;
     }
 
-    public void Production() {
+    public void Production()
+    {
       UnmarkPlaces();
       UnmarkProgresscards();
     }
-
     #endregion
 
     #region other safe helpers
-    public IEnumerable<AField> GetPossiblePlacesForCard(AField field)
-    {
-      Console.WriteLine(MainPlayer.Name);
-      var card = field.Card;
-      Debug.Assert(card != null,"GetPossiblePlacesForCard called with null card!");
-      return MainPlayer.Civ.Fields.Where(x => x.TypesAllowed.Contains(card.Type)).ToArray();
-    }
-    public void MarkPossiblePlaces(AField field)
-    {
-      UnmarkPlaces();
-      foreach (var f in GetPossiblePlacesForCard(field)) f.Card.CanPlace = true;
-    }
-    public void UnmarkPlaces()
-    {
-      foreach (var f in MainPlayer.Civ.Fields) f.Card.CanPlace = false;
-    }
-    public void UnmarkProgresscards()
-    {
-      foreach (var f in Progress.Fields) if (f.Card != null) f.Card.CanBuy = false;
-    }
     public void RandomPlayerOrder()
     {
       var plarr = Players.OrderBy(x => Rand.N()).ToArray();

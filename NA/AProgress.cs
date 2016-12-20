@@ -68,6 +68,7 @@ namespace ations
     }
     public void Remove(AField field)
     {
+      field.Card.IsSelected = false;
       Cards.Remove(field.Card);
       field.Card = null;
     }

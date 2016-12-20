@@ -7,13 +7,14 @@ using System.Xml.Linq;
 
 namespace ations
 {
-  public class ACard : INotifyPropertyChanged
+  public class ACard : DependencyObject, INotifyPropertyChanged
   {
     public string Type { get; set; }
     public string Name { get; set; }
     public Brush Brush { get; set; }
     public int Age { get; set; }
     public BitmapImage Image { get; set; }
+    public BitmapImage ImageDeployObject { get; set; }
     public XElement X { get; set; }
     public int Cost { get; set; }
 
@@ -21,8 +22,12 @@ namespace ations
     int numDeployed; // includes architects on wonder in construction
     public bool CanBuy { get { return canBuy; } set { if (canBuy != value) { canBuy = value; NotifyPropertyChanged(); } } }
     bool canBuy;
-    public bool CanPlace { get { return canPlace; } set { if (canPlace != value) { canPlace = value; NotifyPropertyChanged(); } } }
-    bool canPlace;
+    public bool CanActivate { get { return canActivate; } set { if (canActivate != value) { canActivate = value; NotifyPropertyChanged(); } } }
+    bool canActivate;
+    public bool IsMarked { get { return isMarked; } set { if (isMarked != value) { isMarked = value; NotifyPropertyChanged(); } } }
+    bool isMarked;
+    public bool IsSelected { get { return (bool)GetValue(IsSelectedProperty); } set { SetValue(IsSelectedProperty, value); } }
+    public static readonly DependencyProperty IsSelectedProperty = DependencyProperty.Register("IsSelected", typeof(bool), typeof(ACard), null);
 
     public static ACard MakeCivCard(AField field, string civ)
     {
@@ -48,12 +53,7 @@ namespace ations
       var card = new ACard();
       var name = field.X.astring("name");
 
-      //search for long xml info in either _commoncards.xml, [civ]cards.xml, or age 1 cards
-      var xcard = Helpers.GetCivCardX(civ, name)
-        ?? Helpers.GetCommonCardX(name)
-        ?? Helpers.GetCardX(name, 1);
-
-      if (xcard == null)
+      if (string.IsNullOrEmpty(name)) // empty field make empty card
       {
         card.Type = field.Type;
         card.Brush = CT.typeColors[card.Type];
@@ -63,16 +63,30 @@ namespace ations
       }
       else
       {
-        card.Type = xcard.astring("type");
-        card.Brush = CT.typeColors[card.Type];
-        card.Name = name;
-        card.Age = xcard.aint("age", 1); // sollte eh immer 1 sein
-        card.Image = card.dyn() ? Helpers.GetDynCardImage(civ) : Helpers.GetCivCardImage(name);
-        card.X = xcard;
+        //search for long xml info in either _commoncards.xml, [civ]cards.xml, or age 1 cards
+        var xcard = Helpers.GetCivCardX(civ, name)
+          ?? Helpers.GetCommonCardX(name)
+          ?? Helpers.GetCardX(name, 1);
+        if (xcard == null)
+        {
+          throw new System.Exception("card " + name + " not found (xml) in MakeCivCard");
+        }
+        else
+        {
+          card.Type = xcard.astring("type");
+          card.Brush = CT.typeColors[card.Type];
+          card.Name = name;
+          card.Age = xcard.aint("age", 1); // sollte eh immer 1 sein
+          card.Image = card.dyn() ? Helpers.GetDynCardImage(civ) : Helpers.GetCivCardImage(name);
+          card.ImageDeployObject = card.buildmil() ? Helpers.GetMiscImage("worker") :
+            card.wonder() ? Helpers.GetMiscImage("architect") : Helpers.GetMiscImage("cross");
+          card.X = xcard;
+        }
       }
+
       field.Card = card;
 
-      //card.CanPlace = true;//testing
+      //card.CanActivate = true;//testing
       return card;
 
     }
@@ -90,6 +104,8 @@ namespace ations
         X = xcard,
         Image = Helpers.GetCardImage(name, age),
       };
+      card.ImageDeployObject = card.buildmil() ? Helpers.GetMiscImage("worker") :
+          card.wonder() ? Helpers.GetMiscImage("architect") : Helpers.GetMiscImage("cross");
       field.Card = card;
 
       //card.CanBuy = true; //testing
@@ -106,10 +122,45 @@ namespace ations
       card.Image = Helpers.GetEventCardImage(card.Name, card.Age);
       return card;
     }
+    public static ACard MakeEventCard(string name)
+    {
+      var xcard = Helpers.GetEventCardX(name);
+      if (xcard != null)
+      {
+        var card = new ACard();
+        card.Type = xcard.astring("type", "event");
+        card.Brush = CT.typeColors[card.Type];
+        card.Name = xcard.astring("name");
+        card.Age = xcard.aint("age", 1);
+        card.X = xcard;
+        card.Image = Helpers.GetEventCardImage(card.Name, card.Age);
+        return card;
+      }
+      return null;
+    }
+    public static ACard MakeCard(string name = "archimedes", int age = 1) //for testing
+    {
+      var xcard = Helpers.GetCardX(name, age);
+      var type = xcard.astring("type");
+      var card = new ACard
+      {
+        Type = type,
+        Brush = CT.typeColors[type],
+        Name = name,
+        Age = age,
+        X = xcard,
+        Image = Helpers.GetCardImage(name, age),
+      };
+      card.ImageDeployObject = card.buildmil() ? Helpers.GetMiscImage("worker") :
+          card.wonder() ? Helpers.GetMiscImage("architect") : Helpers.GetMiscImage("cross");
+
+      return card;
+    }
+
 
     #region other safe helpers
     public event PropertyChangedEventHandler PropertyChanged; public void NotifyPropertyChanged([CallerMemberName] string propertyName = null) { this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName)); }
-    public override string ToString() { return Name + "("+Type+")"; }
+    public override string ToString() { return Name + "(" + Type + ")"; }
     #endregion
   }
 }

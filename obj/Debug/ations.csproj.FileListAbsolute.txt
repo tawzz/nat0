@@ -40,3 +40,4 @@ D:\dev\n\ations\ations\obj\Debug\ations.Properties.Resources.resources
 D:\dev\n\ations\ations\obj\Debug\ations.csproj.GenerateResource.Cache
 D:\dev\n\ations\ations\obj\Debug\ations.exe
 D:\dev\n\ations\ations\obj\Debug\ations.pdb
+D:\dev\n\ations\ations\obj\Debug\ations.csprojResolveAssemblyReference.cache

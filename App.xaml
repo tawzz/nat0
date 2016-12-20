@@ -4,10 +4,12 @@
     <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
     <local:BooleanToOpacityConverter x:Key="BooleanToOpacityConverter" />
     <local:BooleanToCursorConverter x:Key="BooleanToCursorConverter" />
+    <local:BooleanToBackgroundConverter x:Key="BooleanToBackgroundConverter" />
     <local:ReverseBooleanToVisibilityConverter x:Key="ReverseBooleanToVisibilityConverter" />
     <local:IndexToPositionConverter x:Key="IndexToPositionConverter" />
     <local:ItemContainerToZIndexConverter x:Key="ItemContainerToZIndexConverter" />
     <local:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
+    <local:NumberToVisibilityConverter x:Key="NumberToVisibilityConverter" />
 
     <ItemsPanelTemplate x:Key="UGrid1">
       <UniformGrid Rows="1" />
@@ -24,15 +26,18 @@
 
     <Style x:Key="ButtonStyle1" TargetType="{x:Type Button}">
       <!--<Setter Property="FocusVisualStyle" Value="{StaticResource FocusVisual}" />-->
-      <Setter Property="Background" Value="#B0000000" />
+      <Setter Property="Background" Value="#4F000000" />
       <Setter Property="BorderBrush" Value="Transparent" />
       <Setter Property="Foreground" Value="White" />
       <Setter Property="BorderThickness" Value="0" />
       <Setter Property="HorizontalContentAlignment" Value="Center" />
       <Setter Property="VerticalContentAlignment" Value="Center" />
+      <Setter Property="HorizontalAlignment" Value="Stretch" />
+      <Setter Property="VerticalAlignment" Value="Stretch" />
       <Setter Property="Padding" Value="20,2" />
-      <Setter Property="FontSize" Value="24" />
-      <Setter Property="Height" Value="60" />
+      <Setter Property="Margin" Value="12" />
+      <Setter Property="FontSize" Value="20" />
+      <!--<Setter Property="Height" Value="40" />-->
       <Setter Property="Template">
         <Setter.Value>
           <ControlTemplate TargetType="{x:Type Button}">
@@ -43,13 +48,15 @@
               <Trigger Property="IsDefaulted" Value="true">
               </Trigger>
               <Trigger Property="IsMouseOver" Value="true">
-                <Setter Property="FontSize" Value="32" />
-                <Setter Property="FontWeight" Value="Bold" />
+                <Setter Property="Background" TargetName="border" Value="Crimson" />
+                <!--<Setter Property="FontSize" Value="22" />
+                <Setter Property="FontWeight" Value="Bold" />-->
               </Trigger>
               <Trigger Property="IsPressed" Value="true">
                 <Setter Property="TextElement.Foreground" TargetName="contentPresenter" Value="Red" />
-                <Setter Property="FontSize" Value="32" />
-                <Setter Property="FontWeight" Value="Bold" />
+                <Setter Property="Background" TargetName="border" Value="Red" />
+                <!--<Setter Property="FontSize" Value="22" />
+                <Setter Property="FontWeight" Value="Bold" />-->
               </Trigger>
               <Trigger Property="IsEnabled" Value="false">
                 <Setter Property="Background" TargetName="border" Value="Transparent" />
@@ -57,6 +64,28 @@
               </Trigger>
             </ControlTemplate.Triggers>
           </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+    <Style x:Key="RadioButtonListBoxStyle" TargetType="{x:Type ListBox}">
+      <Setter Property="BorderBrush" Value="Transparent" />
+      <Setter Property="KeyboardNavigation.DirectionalNavigation" Value="Cycle" />
+      <Setter Property="ItemContainerStyle">
+        <Setter.Value>
+          <Style TargetType="{x:Type ListBoxItem}">
+            <Setter Property="Margin" Value="2, 2, 2, 0" />
+            <Setter Property="Template">
+              <Setter.Value>
+                <ControlTemplate>
+                  <Border Background="Transparent">
+                    <RadioButton Content="{TemplateBinding ContentPresenter.Content}" VerticalAlignment="Center" 
+                                 IsChecked="{Binding Path=IsSelected,RelativeSource={RelativeSource TemplatedParent},Mode=TwoWay}" />
+
+                  </Border>
+                </ControlTemplate>
+              </Setter.Value>
+            </Setter>
+          </Style>
         </Setter.Value>
       </Setter>
     </Style>

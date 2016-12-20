@@ -29,6 +29,7 @@ namespace ations
     public ObservableCollection<string> TypesAllowed { get; set; }
     public Thickness Margin { get { return margin; } set { margin = value; }}
     Thickness margin=new Thickness(265, 425, 1344, 186);
+    public bool IsEmpty { get { return Card == null || string.IsNullOrEmpty(Card.Name); } }
     public XElement X { get; set; }
 
     #region other safe helpers

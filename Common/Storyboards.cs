@@ -13,6 +13,7 @@ namespace ations
   public static class Storyboards
   {
     static EasingFunctionBase defaultEasing = new SineEase { EasingMode = EasingMode.EaseOut };
+
     public static Storyboard Scale(this FrameworkElement target, TimeSpan duration, Point from, Point to, EasingFunctionBase easing = null, bool autoreverse = false, int repeat = 1)
     {
       easing = easing ?? defaultEasing;
@@ -35,12 +36,6 @@ namespace ations
         to.X, duration, easing, false, 1));
       storyboard.Children.Add(GetDoubleAnimation(target, "(UIElement.RenderTransform).(TranslateTransform.Y)",
         to.Y, duration, easing, false, 1));
-      return storyboard;
-    }
-    public static Storyboard DoNothing(double msecs)
-    {
-      var storyboard = new Storyboard();
-      storyboard.Duration = TimeSpan.FromMilliseconds(msecs);
       return storyboard;
     }
     public static Storyboard Appear(this FrameworkElement target, TimeSpan duration, EasingFunctionBase easing = null)
@@ -71,6 +66,30 @@ namespace ations
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    #region not needed
+    public static Storyboard DoNothing(double msecs)
+    {
+      var storyboard = new Storyboard();
+      storyboard.Duration = TimeSpan.FromMilliseconds(msecs);
+      return storyboard;
+    }
     public static Storyboard Move(this FrameworkElement target, Point from, Point to, TimeSpan duration, EasingFunctionBase easing)
     {
       easing = easing ?? defaultEasing;
@@ -210,7 +229,7 @@ namespace ations
       var s = sender as Storyboard;
       s.Completed -= OnCompletedDefault;
     }
-
+    #endregion
 
   }
 }

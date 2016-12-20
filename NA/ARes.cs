@@ -15,6 +15,10 @@ namespace ations
     public int Num { get { return num; } set { num = value; NotifyPropertyChanged(); } }
     int num;
     public string Path { get; set; }
+    public bool IsSelectable { get { return isSelectable; } set { if (isSelectable != value) { isSelectable = value; NotifyPropertyChanged(); } } }
+    bool isSelectable;
+    public bool IsSelected { get { return isSelected; } set { if (isSelected != value) { isSelected = value; NotifyPropertyChanged(); } } }
+    bool isSelected;
 
     public bool VP { get { return Name == "vp"; } }
 

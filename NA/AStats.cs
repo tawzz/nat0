@@ -39,7 +39,7 @@ namespace ations
     int turmoils;
 
     public bool IsWar { get; set; }
-    public ACard WarCard { get { return warCard; } set { if (warCard != value) { warCard = value; NotifyPropertyChanged(); } } }
+    public ACard WarCard { get { return warCard; } set { warCard = value; NotifyPropertyChanged(); } } 
     ACard warCard;
     public Point WarPosition { get { return warPosition; } set { warPosition = value; NotifyPropertyChanged(); } }
     Point warPosition;
@@ -64,8 +64,8 @@ namespace ations
         if (card != null) WarCard = card;
       }
     }
-    public void UpdateRound()    {      UpdateRound(Round + 1);    }
-    public void UpdateRound(int round)    {      Round = round;     }
+    public void UpdateRound() { UpdateRound(Round + 1); }
+    public void UpdateRound(int round) { Round = round; }
     public void UpdateAge() { UpdateAge(Round / 2 + 1); }
     public void UpdateAge(int newage)
     {
@@ -76,13 +76,14 @@ namespace ations
         game.Progress.UpdateDeck(newage);
       }
     }
-    public void PickEventCard() 
+    public void PickEventCard()
     {
       if (EventCardDeck == null || EventCardDeck.Count() == 0) UpdateEventDeck(Age); // just in case run out of event cards (which doesnt normally happen)
       EventCard = ACard.MakeEventCard(EventCardDeck.First());
       Turmoils = Architects = EventCard.X.aint("architects") + game.NumPlayers - (game.NumPlayers <= 3 ? 1 : 2);
     }
-    public void UpdateEventDeck(int age=1)    {      EventCardDeck = Helpers.GetEventCardarrayX(age).OrderBy(x => Rand.N()).ToArray();    }
+    public void UpdateEventDeck(int age = 1) { EventCardDeck = Helpers.GetEventCardarrayX(age).OrderBy(x => Rand.N()).ToArray(); }
+
 
 
 
