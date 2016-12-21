@@ -78,37 +78,15 @@
     <Compile Include="Common\Converters\BooleanToBackgroundConverter.cs" />
     <Compile Include="Common\Converters\NumberToVisibilityConverter.cs" />
     <Compile Include="Common\Converters\NullToVisibilityConverter.cs" />
-    <Compile Include="NA\AAni.cs" />
-    <Compile Include="NA\AAnimations.cs" />
-    <Compile Include="NA\ACard.cs" />
-    <Compile Include="NA\ACiv.cs" />
-    <Compile Include="NA\AField.cs" />
-    <Compile Include="NA\AGame.cs" />
-    <Compile Include="NA\AGameControl.cs" />
-    <Compile Include="NA\APlayer.cs" />
-    <Compile Include="NA\AProgress.cs" />
-    <Compile Include="NA\AResDict.cs" />
-    <Compile Include="NA\AWGame.xaml.cs">
-      <DependentUpon>AWGame.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Common\Converters\BooleanToCursorConverter.cs" />
     <Compile Include="Common\Converters\IndexToPositionConverter.cs" />
     <Compile Include="Common\Converters\ItemContainerToZIndexConverter.cs" />
     <Compile Include="Common\Converters\BooleanToOpacityConverter.cs" />
     <Compile Include="Common\Converters\ReverseBooleanToVisibilityConverter.cs" />
     <Compile Include="Common\Storyboards.cs" />
-    <Compile Include="Nations\Commands.cs" />
-    <Page Include="NA\AWGame.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="NA\Window2.xaml">
+    <Page Include="NA\WGame.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
-    </Page>
-    <Page Include="NA\Window1.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Themes\Generic.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -121,23 +99,26 @@
     <Compile Include="Common\Controls\DockPanelSplitter.cs" />
     <Compile Include="Common\Extensions.cs" />
     <Compile Include="Common\Rand.cs" />
-    <Compile Include="Nations\Game_Engine.cs" />
-    <Compile Include="NA\Causes.cs" />
-    <Compile Include="NA\Helpers.cs" />
-    <Compile Include="NA\Levels.cs" />
-    <Compile Include="NA\AStats.cs" />
-    <Compile Include="NA\CT.cs" />
-    <Compile Include="NA\ARes.cs" />
-    <Compile Include="NA\Window2.xaml.cs">
-      <DependentUpon>Window2.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="NA\Window1.xaml.cs">
-      <DependentUpon>Window1.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="NA\AWorker.cs" />
-    <Compile Include="UCard.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="NA\Card.cs" />
+    <Compile Include="NA\CardType.cs" />
+    <Compile Include="NA\Causes.cs" />
+    <Compile Include="NA\Civ.cs" />
+    <Compile Include="NA\Field.cs" />
+    <Compile Include="NA\Game.cs" />
+    <Compile Include="NA\GameLoop.cs" />
+    <Compile Include="NA\Helpers.cs" />
+    <Compile Include="NA\Levels.cs" />
+    <Compile Include="NA\Player.cs" />
+    <Compile Include="NA\Progress.cs" />
+    <Compile Include="NA\Res.cs" />
+    <Compile Include="NA\ResDict.cs" />
+    <Compile Include="NA\Stats.cs" />
+    <Compile Include="NA\WGame.xaml.cs">
+      <DependentUpon>WGame.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="NA\Worker.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -667,6 +648,7 @@
       <Install>false</Install>
     </BootstrapperPackage>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
