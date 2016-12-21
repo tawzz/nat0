@@ -1,21 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <cards>
-  <card name="yurt" age="1" type="building" score="1">
-    <deploy>
-      <cost res="coal" n="1"></cost>
-    </deploy>
-    <prod>
-      <yield res="wheat" n="1"></yield>
-      <yield res="gold" n="1"></yield>
-    </prod>
-  </card>
+  <card name="yurt" age="1" type="building" score="1" deploy="1" wheat="1" gold="1"/>
   <card name="steppe" age="1" type="building" />
   <card name="mongolia_dyn1" type="dynasty">
-    <war>
-      <check auto="cost" res="any" n="2">
-        <cond op="defeated" players="any"></cond>
-      </check>
-    </war>
+    <war cause="player_defeated" eff="2 more resources"/>
   </card>
 </cards>
 

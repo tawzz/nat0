@@ -7,11 +7,7 @@
       </check>
     </round>
   </card>
-  <card name="alhambra" age="2" type="wonder" vp="1" mil="3" arch="1_1">
-    <round>
-      <yield res="architect" n="1"></yield>
-    </round>
-  </card>
+  <card name="alhambra" age="2" type="wonder" vp="1" mil="3" arch="1_1" architect="1"/>
   <card name="alhazen" age="2" type="advisor" mil="2">
     <round>
       <check auto="swap_progresscards" res="action" n="1" />

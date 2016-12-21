@@ -13,13 +13,13 @@ namespace ations
 {
   public class Player : INotifyPropertyChanged
   {
-    public ObservableCollection<Card> Cards { get; set; }
+    public ObservableCollection<Card> Cards { get; set; } //foreach field there is a card, either real or empty!
 
     public ResDict Res { get; set; }
     public int RaidValue { get { return raidValue; } set { if (raidValue != value) { raidValue = value; NotifyPropertyChanged(); } } }
     int raidValue=2;//testing TODO: compute!!!
     public ObservableCollection<Worker> ExtraWorkers { get; set; }//cost res, cost count, margin, is checked out
-    public Dictionary<string, bool> Defaulted { get; set; }
+    public Dictionary<string, int> Defaulted { get; set; } //to record by how much defaulted per resource in current round
     public Brush Brush { get; set; }
     public int Index { get; set; }
     public String Name { get; set; }
@@ -147,10 +147,57 @@ namespace ations
       Cards = Civ.GetCards();
       Res = Civ.GetResources();
       ExtraWorkers = Civ.GetExtraWorkers();
-      Defaulted = new Dictionary<string, bool>();
-
+      Defaulted = new Dictionary<string, int>();
 
       Books = Stability = Military = 0; //testing
+    }
+
+    public int UpdateResBy(string resname, int inc) //n pos or neg! returns new number
+    {
+      var newResCount = Res.updateBy(resname, inc);
+
+      //recalc pos on stats board:
+      if (resname == "book") Books = newResCount;
+      else if (resname == "military") Military = newResCount;
+      else if (resname == "stability") Stability = newResCount;
+
+      return newResCount;
+    }
+    public bool Pay(int cost, string resname="gold") //expect cost positive number!, gold is default resname
+    { //returns true if debt has been payed (even if defaulted), false if default in vp or cannot pay rest in books (>need picker!)
+      var rescount = Res.n(resname);
+      UpdateResBy(resname, -cost);
+      if (rescount < cost)
+      {
+        if (resname == "vp") return false; //this player cannot pay!
+        var diff = cost - rescount;
+        if (!Defaulted.ContainsKey(resname))
+        {
+          Defaulted.Add(resname, diff);
+          return Pay(1, "vp");
+        }
+        else Defaulted[resname] += diff;
+
+        if (resname == "book")  return false; //this player cannot pay in books!
+        return Pay(diff, "book");
+      }
+      return true; // this player has payed
+    }
+
+    public void AddCivCard(Card card, Field field)
+    {
+      Cards.Remove(field.Card);
+      Cards.Add(card);
+      Civ.Add(card, field);
+    }
+    public void MoveCivCard(Card card, Field fromField, Field toField)
+    {
+      // fromField will then contain empty card as in beginning
+      Cards.Remove(toField.Card);
+      toField.Card = card;
+      fromField.Card = Card.MakeEmptyCard(fromField, fromField.Type);
+      Cards.Add(fromField.Card);
+
     }
 
     public bool MoreThanOneWorkerAvailable()
@@ -163,22 +210,6 @@ namespace ations
     {
       w.IsCheckedOut = true;
       Res.inc("worker", 1);
-    }
-    public void Pay(int cost) { Pay("gold", cost); }
-    public void Pay(string res, int cost)
-    {
-      var num = Res.n(res);
-      if (num < cost)
-      {
-        var diff = Res.dec(res, num); // apy all in this resource first
-        if (!Defaulted.ContainsKey(res))
-        {
-          Defaulted.Add(res, true);
-          var vp_remaining = Res.dec("vp", 1);
-        }
-        Pay("book", cost - num);
-      }
-      else Res.dec(res, cost);
     }
     public int ComputeRaidValue()
     {

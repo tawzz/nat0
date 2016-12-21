@@ -26,7 +26,7 @@ namespace ations
   {
     #region constants
     public const int MAX_PLAYERS = 5;
-    public const int MAX_AGE = 2; 
+    public const int MAX_AGE = 2;
     public const int MAX_ROUNDS = 8;
     public static int[] LevelGrowth = { 4, 3, 2, 1 };
 
@@ -47,7 +47,7 @@ namespace ations
           mainPlayer = value;
           Message = "Hi!"; //testing!
           if (oldmain != null) oldmain.IsMainPlayer = false;
-          mainPlayer.IsMainPlayer = true;
+          if (mainPlayer != null) mainPlayer.IsMainPlayer = true;
           NotifyPropertyChanged();
         }
       }
@@ -91,7 +91,7 @@ namespace ations
       for (int i = 0; i < NumPlayers; i++) Players.Add(new Player(names[i], civs[i], brushes[i], Levels.Chieftain, i));
       MainPlayer = Players[0];
     }
-    
+
     #endregion
 
     #region initialize
@@ -118,26 +118,27 @@ namespace ations
 
     #endregion
 
-    #region  resource selection
+    #region  resource selection/update
 
     public ObservableCollection<Res> ResChoices { get; set; }
     public bool ShowResChoices { get { return showResChoices; } set { if (showResChoices != value) { showResChoices = value; NotifyPropertyChanged(); } } }
     bool showResChoices;
     public Res SelectedResource { get { return (Res)GetValue(SelectedResourceProperty); } set { SetValue(SelectedResourceProperty, value); } }
     public static readonly DependencyProperty SelectedResourceProperty = DependencyProperty.Register("SelectedResource", typeof(Res), typeof(Game), null);
+    public int Number { get; set; }
+    public Dictionary<string, int> NumEach { get; set; } //derzeit nicht in verwendung, fuer variable num resource selection
+
     public void ResourceUpdated(FrameworkElement ui)
     {
       var sb = Storyboards.Scale(ui, TimeSpan.FromSeconds(.3), new Point(1, 1), new Point(5, 2), null, true);
       AnimationQueue.Add(sb);
     }
-    public void NumDeployedUpdated(FrameworkElement ui) 
+    public void NumDeployedUpdated(FrameworkElement ui)
     {
       var sb = Storyboards.Scale(ui, TimeSpan.FromSeconds(.3), new Point(1, 1), new Point(5, 2), null, true);
       AnimationQueue.Add(sb);
     }
 
-    public int Number { get; set; }
-    public Dictionary<string, int> NumEach { get; set; } //derzeit nicht in verwendung, fuer variable num resource selection
 
     #endregion
 
@@ -180,20 +181,25 @@ namespace ations
     {
       foreach (var f in MainPlayer.Civ.Fields.Where(x => !x.IsEmpty)) f.Card.CanActivate = true; // refine!
     }
-    public void MarkArchitects() { CanTakeArchitect = ArchitectAvailable && CalcArchitectCost() >= 0; }
+    public void MarkArchitects() { CanTakeArchitect = ArchitectAvailable && MainPlayer.HasWIC && CalcCanAffordArchitect(); }
     public void MarkTurmoils() { CanTakeTurmoil = true; }
     public void MarkWorkers() { CanSelectWorker = MainPlayer.Res.n("worker") > 0 && CanDeploy; }
-    public void MarkPossiblePlaces(Field field)
+    public void MarkPossiblePlacesForProgressCard(string type)
     {
       UnmarkPlaces();
-      foreach (var f in GetPossiblePlacesForCard(field)) f.Card.CanActivate = true;
+      foreach (var f in GetPossiblePlacesForCard(type)) f.Card.CanActivate = true;
     }
-    public IEnumerable<Field> GetPossiblePlacesForCard(Field field)
+    public void MarkPossiblePlacesForWIC()
+    {
+      UnmarkPlaces();
+      foreach (var f in MainPlayer.Civ.Fields.Where(x=>x.Type == "wonder")) f.Card.CanActivate = true;
+    }
+    public IEnumerable<Field> GetPossiblePlacesForCard(string type)
     {
       Console.WriteLine(MainPlayer.Name);
-      var card = field.Card;
-      Debug.Assert(card != null, "GetPossiblePlacesForCard called with null card!");
-      return MainPlayer.Civ.Fields.Where(x => x.TypesAllowed.Contains(card.Type)).ToArray();
+      //var card = field.Card;
+      //Debug.Assert(card != null, "GetPossiblePlacesForCard called with null card!");
+      return MainPlayer.Civ.Fields.Where(x => x.TypesAllowed.Contains(type)).ToArray();
     }
     bool CalculateCanBuy(Field field)
     {
@@ -204,28 +210,27 @@ namespace ations
         card.Cost = 3 - field.Row; //ignores special rules
         canbuy = card.Cost <= MainPlayer.Res.n("gold");
         var type = card.Type;
-        if (type == "battle") canbuy = canbuy && MainPlayer.Cards.Where(x => x.Type == "military").Any(x => x.NumDeployed > 0);
+        if (type == "battle")
+        {
+          var milcards = MainPlayer.Cards.Where(x => x.Type == "military").ToArray();
+          var havemil = milcards.Any(x => x.NumDeployed > 0);
+          canbuy = canbuy && MainPlayer.Cards.Where(x => x.Type == "military").Any(x => x.NumDeployed > 0);
+        }
         if (type == "war") canbuy = canbuy && !Stats.IsWar;
         if (type == "colony") canbuy = canbuy && MainPlayer.Res.n("military") >= card.X.aint("milmin");
       }
       return canbuy;
     }
-    public int CalcArchitectCost() //returns -1 if cannot buy architect
+    public int CalcArchitectCost(Card card)
     {
-      if (ArchitectAvailable)
-      {
-        var wicField = MainPlayer.WIC;
-        var wicCard = MainPlayer.WIC.Card;
-        if (!wicField.IsEmpty && wicCard.Type == "wonder")
-        {
-          var archNeeded = wicCard.X.astring("arch").Split('_'); // returns eg{"2","2"}
-          var indexNeeded = archNeeded.Length - wicCard.NumDeployed - 1;
-          var coalNeeded = int.Parse(archNeeded[indexNeeded]);
-          if (MainPlayer.Res.n("coal") >= coalNeeded) return coalNeeded;
-        }
-      }
-      return -1;
+      Debug.Assert(card != null, "CalcArchitectCost for null card called!");
+      var costs = Card.GetArchCostArray(card);
+      var idx = card.NumDeployed;
+      Debug.Assert(idx <= costs.Length, "CalcArchitectCost for wonder that was already ready!!!");
+      return costs[idx];
     }
+    public int NumArchitects(Card card) { return Card.GetArchCostArray(card).Length; }
+    public bool CalcCanAffordArchitect() { return MainPlayer.Res.n("coal") >= CalcArchitectCost(MainPlayer.WIC.Card); }
     #endregion
 
     #region 2. get user click & select objects:
@@ -267,7 +272,7 @@ namespace ations
         SelectedProgressField = field;
         SelectedProgressField.Card.IsSelected = true;
         if (IsOneStepBuy(field)) { Message = "Buy " + field.Card.Name + "?"; SelectedAction = BuyProgressCard; }
-        else { Message = "Select Place on Civ Board"; MarkPossiblePlaces(field); SelectedAction = PartialBuy; }
+        else { Message = "Select Place on Civ Board"; MarkPossiblePlacesForProgressCard(field.Card.Type); SelectedAction = PartialBuy; }
       }
     }
     public void OnClickCivCard(Field field)
@@ -279,6 +284,11 @@ namespace ations
       if (PreviousSelectedCivField == SelectedCivField)
       {
         UnselectCiv(); UnselectPreviousCiv();
+      }
+      else if (field.Type == "wonder") //selecting place for wonder ready
+      {
+        field.Card.IsSelected = true;
+        Message = "You selected field for new wonder";
       }
       else if (SelectedProgressField != null && (field.Card.buildmil() || field.Card.colony()))
       { //Buy
@@ -315,7 +325,7 @@ namespace ations
     bool IsOneStepBuy(Field field)
     {
       var card = field.Card;
-      var possible = GetPossiblePlacesForCard(field).ToArray();
+      var possible = GetPossiblePlacesForCard(card.Type).ToArray();
       var isciv = card.civ();
       return !isciv || possible.Length == 1;
     }
@@ -331,8 +341,10 @@ namespace ations
     #endregion
 
     #region 3. perform resulting actions: SelectedAction, tasks
+    //umbauen zu:
+    //public enum ActionStep { PartialBuy, PartialDeploy,TakeArchitect,TakeTurmoil,BuyDeployFromField,DeployFromWorkers}
     public Action SelectedAction { get; set; }
-    public void PartialBuy() { }
+    public void PartialBuy() { }//dummy
     public void PartialDeploy()
     {
       if (SelectedCivField != null && PreviousSelectedCivField != null)
@@ -345,24 +357,38 @@ namespace ations
       }
       else Message = "You need to select a place on civ board!";
     }
-    public void TakeArchitect()
+    public void TakeArchitect() { }//dummy
+    public async Task TakeArchitectTask()
     {
-      // pay for architect
-      var cost = CalcArchitectCost();
-      MainPlayer.Pay("coal", cost);
-
-      // increase numdeployed auf karte
       var card = MainPlayer.WIC.Card;
       Debug.Assert(card != null, "TakeArchitect with empty wic!");
-      card.NumDeployed++;
 
-      // decrease num of architects
+      var cost = CalcArchitectCost(card);
+      MainPlayer.Pay(cost, "coal");
+
+      card.NumDeployed++;
+      if (card.NumDeployed >= NumArchitects(card)) await WonderReadyTask();
+
       Stats.Architects--;
 
       Message = MainPlayer.Name + " hired an architect";
     }
+    public async Task WonderReadyTask()
+    {
+      UnselectAll();
+      MarkPossiblePlacesForWIC();
+      Debug.Assert(SelectedCivField == null, "WonderReadyTask: started with SelectedCivField != null");
+      while (SelectedCivField == null)
+      {
+        Message = "pick a wonder space";
+        await WaitForButtonClick();
+      }
+      MainPlayer.MoveCivCard(MainPlayer.WIC.Card, MainPlayer.WIC, SelectedCivField);
+      SelectedCivField.Card.NumDeployed = 0;
+      //SelectedCivField = null;
+    }
     public void TakeTurmoil() { Message = "not implemented"; }
-    public void BuyProgressCard() { }
+    public void BuyProgressCard() { }//dummy
     public async Task BuyProgressCardTask()
     {
       var card = SelectedProgressField.Card;
@@ -372,8 +398,8 @@ namespace ations
 
       if (card.civ())
       {
-        if (fieldPlace == null) fieldPlace = GetPossiblePlacesForCard(fieldBuy).First();
-        MainPlayer.Civ.Add(card, fieldPlace);
+        if (fieldPlace == null) fieldPlace = GetPossiblePlacesForCard(fieldBuy.Card.Type).First();
+        MainPlayer.AddCivCard(card, fieldPlace);
         Progress.Remove(fieldBuy);
         MainPlayer.Pay(card.Cost);
       }
@@ -382,27 +408,34 @@ namespace ations
         Progress.Remove(fieldBuy);
         MainPlayer.Pay(card.Cost);
         if (card.war()) { Stats.UpdateWarPosition(MainPlayer, card); }
-        else if (card.golden())
-        {
-          var resname = card.X.astring("res");
-          var num = card.X.aint("n");
-          var canaffordvp = MainPlayer.Res.n("gold") >= Stats.Age;
-          if (canaffordvp)
-          {
-            await WaitForPickResourceCompleted(new string[] { resname, "vp" }, num, "golden age");
-            // pay for vp if picked that
-          }
-          else
-          {
-            MainPlayer.Res.inc(resname, num);
-          }
-        }
-        else if (card.battle())
-        {
-          await WaitForPickResourceCompleted(new string[] { "wheat", "coal", "book" }, MainPlayer.RaidValue, "battle");
-        }
+        else if (card.golden()) await BuyGoldenAgeTask(card.X.astring("res"), card.X.aint("n"));
+        //{
+        //  var resname = card.X.astring("res");
+        //  var num = card.X.aint("n");
+        //  var canaffordvp = MainPlayer.Res.n("gold") >= Stats.Age;
+        //  if (canaffordvp)
+        //  {
+        //    var res = await WaitForPickResourceCompleted(new string[] { resname, "vp" }, num, "golden age");
+        //    if (res.Name=="vp") MainPlayer.Pay(Stats.Age);
+        //  }
+        //else
+        //{
+        //  MainPlayer.UpdateResBy(resname, num);
+        //}
+        //}
+        else if (card.battle()) { await WaitForPickResourceCompleted(new string[] { "wheat", "coal", "book" }, MainPlayer.RaidValue, "battle"); }
       }
       Message = MainPlayer.Name + " bought " + card.Name;
+    }
+    public async Task BuyGoldenAgeTask(string resname, int num)
+    {
+      var canaffordvp = MainPlayer.Res.n("gold") >= Stats.Age;
+      if (canaffordvp)
+      {
+        var res = await WaitForPickResourceCompleted(new string[] { resname, "vp" }, num, "golden age");
+        if (res.Name == "vp") MainPlayer.Pay(Stats.Age);
+      }
+      else { MainPlayer.UpdateResBy(resname, num); }
     }
     public void DeployFromField()
     {
@@ -415,8 +448,7 @@ namespace ations
         targetCard.NumDeployed++;
         sourceCard.NumDeployed--;
         var deploymentCost = Stats.Age; //simplified
-        MainPlayer.Pay("coal", deploymentCost);
-        //MainPlayer.Res.dec("worker", 1);//TODO: ersetze durch Deploy in APlayer
+        MainPlayer.Pay(deploymentCost, "coal");
         Message = MainPlayer.Name + " deployed from " + sourceCard.Name + " to " + targetCard.Name;
       }
     }
@@ -425,7 +457,7 @@ namespace ations
       var card = SelectedCivField.Card;
       card.NumDeployed++;
       var deploymentCost = Stats.Age; //simplified
-      MainPlayer.Pay("coal", deploymentCost);
+      MainPlayer.Pay(deploymentCost, "coal");
       MainPlayer.Res.dec("worker", 1);//TODO: ersetze durch Deploy in APlayer
       Message = MainPlayer.Name + " deployed to " + card.Name;
     }
@@ -488,7 +520,7 @@ namespace ations
       }
       return SelectedResource;
     }
-    async Task WaitForPickResourceCompleted(IEnumerable<string> resnames, int num, string forWhat)
+    async Task<Res> WaitForPickResourceCompleted(IEnumerable<string> resnames, int num, string forWhat)
     {
       Debug.Assert(ResChoices != null && ResChoices.Count == 0, "ResChoices not cleared for growth resource pick");
       Debug.Assert(SelectedResource == null, "start resource pick with resource already selected!");
@@ -526,8 +558,11 @@ namespace ations
         Message = MainPlayer.Name + " picked " + wfree1.CostRes.ToCapital() + " worker";
         MainPlayer.CheckOutWorker(wfree1);
       }
-      else { MainPlayer.Res.inc(res.Name, Number); }
-
+      else
+      {
+        MainPlayer.UpdateResBy(res.Name, Number);
+      }
+      return res;
     }
 
     #endregion
@@ -623,151 +658,5 @@ namespace ations
 
 
 
-    //**********************************************************mist
-    //public void Growth()
-    //{
-    //  Title = "Growth";
-    //  var reslist = new List<string> { "wheat", "coal", "gold" };
-    //  var actionlist = new List<Action<string, int>> { AddRes, AddRes, AddRes };
-    //  var num = LevelGrowth[MainPlayer.Level];
-    //  var numlist = new List<int> { num, num, num };
-
-    //  TryAddWorkerPick(reslist, numlist, actionlist);
-
-    //  var picklist = new List<Pick>();
-    //  for(int i = 0; i < reslist.Count; i++)
-    //  {
-    //    picklist.Add(new Pick(reslist[i], numlist[i], actionlist[i]));
-    //  }
-
-    //  StartPickProcess(picklist, NextPlayer);
-    //}
-    //public void TryAddWorkerPick(List<string>reslist,List<int>numlist,List<Action<string,int>> actionlist)
-    //{
-    //  if (MainPlayer.ExtraWorkers.Count(x => !x.IsCheckedOut) > 0)
-    //  {
-    //    reslist.Add("worker");
-    //    actionlist.Add(WorkerType);
-    //    numlist.Add(1);
-    //  }
-    //}
-    //public Stack<List<Pick>> pickplan;
-    //public Action afterPickplanCompleted;
-    //public class Pick
-    //{
-    //  public string resname;
-    //  public int num;
-    //  public Action<string, int> action;
-    //  public Pick(string s, int n, Action<string, int> act) { resname = s; num = n; action = act; }
-    //  public override string ToString()
-    //  {
-    //    return resname + ", " + num + ", " + action;
-    //  }
-    //}
-    //public void StartPickProcess(List<Pick> picklist,Action onCompleted)
-    //{
-    //  pickplan = new Stack<List<Pick>>();
-    //  pickplan.Push(picklist);
-    //  afterPickplanCompleted = onCompleted;
-
-    //  ShowChoicePicker = true;
-    //  StartPicker();
-    //}
-    //public void StartPicker()
-    //{
-    //  var picklist1 = pickplan.Peek();
-    //  Debug.Assert(picklist1.Count > 0, "Empty picklist in StartPicker!!!");
-
-    //  // eliminate items from picklist that are unavailable
-    //  var newpicklist = new List<Pick>();
-    //  foreach(var pick in picklist1)
-    //  {
-    //    if (pick.resname == "worker" && )
-    //  }
-
-    //  // check dass picklist mehr als 1 pick hat
-    //  if (picklist1.Count == 1)
-    //  {
-    //    var pick = picklist1[0];
-    //    pick.action?.Invoke(pick.resname, pick.num);
-    //  }
-    //  // check ob ueberhaupt available! (workers or architects are limited!)
-
-
-    //  ResChoices.Clear();
-    //  foreach (var p in picklist1) { ResChoices.Add(new ARes(p.resname)); }
-    //}
-    //// hier wartet auf user to pick resource
-    //public void OnPick()
-    //{
-    //  var res = SelectedResource;
-    //  var picklist1 = pickplan.Peek();
-    //  var pick = picklist1.FirstOrDefault(x => x.resname == res.Name);
-    //  if (pick == null)
-    //  {
-    //    Message = "Programmierfehler!!!!! OnPick";
-    //  }
-    //  else
-    //  {
-    //    pick.action?.Invoke(pick.resname, pick.num);
-    //  }
-
-    //}
-    //public void AddRes(string resname, int n) { MainPlayer.Res.inc(resname, n); NextPick(); }
-    //public void WorkerType(string resname, int n)
-    //{
-    //  Message = "picked WORKER";
-    //  if (!MainPlayer.MoreThanOneWorkerAvailable())
-    //  {
-    //    var worker = MainPlayer.ExtraWorkers.FirstOrDefault(x => !x.IsCheckedOut);
-    //    Debug.Assert(worker != null, "no worker available (WorkerType)");
-    //    MainPlayer.CheckOutWorker(worker);
-    //    NextPick();
-    //  }
-    //  else
-    //  {
-    //    pickplan.Pop();
-    //    for (int i = 1; i < n; i++)
-    //    {
-    //      var picklist = new List<Pick>();
-
-    //    }
-    //    // muss n picklists in den plan geben, alle worker choices,1, danach AddWorkerOfType(resname,n);
-    //  }
-    //} // change stack and go on picking
-    //public void AddWorkerOfType(string resname,int n)
-    //{
-    //  var worker = MainPlayer.ExtraWorkers.FirstOrDefault(x => !x.IsCheckedOut && x.CostRes == resname);
-    //  Debug.Assert(worker != null, "no worker with picked resource as cost available (AddWorkerOfType)");
-    //  MainPlayer.CheckOutWorker(worker);
-    //  NextPick();
-    //}
-    //public void NextPick()
-    //{
-    //  pickplan.Pop();
-    //  if (pickplan.Count > 0) StartPicker(); else EndPickProcess();
-    //}
-    //public void EndPickProcess()
-    //{
-    //  ShowChoicePicker = false;
-    //  ResChoices.Clear();
-    //  SelectedResource = null;
-
-    //  afterPickplanCompleted?.Invoke();
-    //}
-    //void NextPlayer()
-    //{
-    //  playerIndex++; 
-    //  if (playerIndex >= NumPlayers)
-    //  {
-    //    MainPlayer = Players[0];
-    //    AfterAllPlayers?.Invoke();
-    //  }
-    //  else
-    //  {
-    //    MainPlayer = Players[playerIndex];
-    //    AllPlayers?.Invoke();
-    //  }
-    //}
   }
 }

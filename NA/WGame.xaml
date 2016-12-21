@@ -105,7 +105,8 @@
               <ItemsControl Background="{x:Null}" Panel.ZIndex="2" ItemsSource="{Binding Players}" ItemsPanel="{StaticResource GridPanel}">
                 <ItemsControl.ItemTemplate>
                   <DataTemplate>
-                    <Ellipse Fill="{Binding Brush}" Width="50" Height="50" HorizontalAlignment="Left" VerticalAlignment="Top" RenderTransformOrigin="0.5,0.5">
+                    <Ellipse Fill="{Binding Brush}" Width="50" Height="50" HorizontalAlignment="Left" VerticalAlignment="Top" 
+                             RenderTransformOrigin="0.5,0.5">
                       <Ellipse.ToolTip>
                         <ToolTip Placement="Left" Content="{Binding Books}" />
                       </Ellipse.ToolTip>

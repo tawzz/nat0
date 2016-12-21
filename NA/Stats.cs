@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows;
@@ -20,7 +21,7 @@ namespace ations
     public int Age { get { return age; } set { if (age != value) { age = value % (Game.MAX_AGE + 1); NotifyPropertyChanged(); } } }
     int age;
 
-    public XElement[] EventCardDeck { get; set; }
+    public List<XElement> EventCardDeck { get; set; }
     public Card EventCard { get { return eventCard; } set { eventCard = value; NotifyPropertyChanged(); } }
     Card eventCard;
     public int Architects { get { return architects; } set { architects = value; NotifyPropertyChanged(); } }
@@ -70,9 +71,10 @@ namespace ations
     {
       if (EventCardDeck == null || EventCardDeck.Count() == 0) UpdateEventDeck(Age); // just in case run out of event cards (which doesnt normally happen)
       EventCard = Card.MakeEventCard(EventCardDeck.First());
+      EventCardDeck.RemoveAt(0);
       Turmoils = Architects = EventCard.X.aint("architects") + game.NumPlayers - (game.NumPlayers <= 3 ? 1 : 2);
     }
-    public void UpdateEventDeck(int age = 1) { EventCardDeck = Helpers.GetEventCardarrayX(age).OrderBy(x => Rand.N()).ToArray(); }
+    public void UpdateEventDeck(int age = 1) { EventCardDeck = Helpers.GetEventCardarrayX(age).OrderBy(x => Rand.N()).ToList(); }
 
 
 

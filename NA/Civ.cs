@@ -78,7 +78,7 @@ namespace ations
       foreach (var res in resarr)
       {
         var name = res.astring("name");
-        result.set(name,res.aint("n"));
+        result.set(name, res.aint("n"));
       }
       return result;
     }
@@ -91,7 +91,7 @@ namespace ations
       {
         var costres = res.astring("res");
         var marginLeft = WorkerMargins.ContainsKey(Name) ? WorkerMargins[Name][i] : WorkerMargins["default"][i++];
-        var margin = new Thickness(marginLeft-6, 8, 0, 0);
+        var margin = new Thickness(marginLeft - 6, 8, 0, 0);
         result.Add(new Worker(costres, res.aint("n"), margin, false)); //testing
       }
       return result;

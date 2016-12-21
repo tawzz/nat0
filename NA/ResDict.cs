@@ -30,10 +30,10 @@ namespace ations
     public Res get(string resname) { EnsureRes(resname); return dict[resname]; }
     public void set(string resname, int val) { EnsurePos(val); EnsureRes(resname); dict[resname].Num = val; }
 
-    // dec and inc expect pos value! dec will return new res num if >=0, or set res num to 0 and return neg difference (=default)
-    public int dec(string resname, int val) { EnsurePos(val); EnsureRes(resname); var num = dict[resname].Num; num -= val; dict[resname].Num = Math.Max(0, num); return num; }
-    public int inc(string resname, int val) { EnsurePos(val); EnsureRes(resname); return dict[resname].Num += val; }
-
+    // dec and inc expect pos value! return new count
+    public int dec(string resname, int val) { EnsurePos(val); return updateBy(resname, -val); }
+    public int inc(string resname, int val) { EnsurePos(val); return updateBy(resname, val); }
+    public int updateBy(string resname, int val) { EnsureRes(resname); var n = dict[resname].Num + val; return dict[resname].Num = Math.Max(0, n); }
 
     public event PropertyChangedEventHandler PropertyChanged; public void NotifyPropertyChanged([CallerMemberName] string propertyName = null) { this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName)); }
   }

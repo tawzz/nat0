@@ -1,29 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <cards>
-  <card name="kaba" age="1" type="building" maxdeploy="1" score="2">
-    <deploy>
-      <cost res="coal" n="2"></cost>
-    </deploy>
-    <prod>
-      <yield res="gold" n="2"></yield>
-      <yield res="book" n="2"></yield>
-    </prod>
-  </card>
-  <card name="bazaar" age="1" type="building" score="1">
-    <deploy>
-      <cost res="coal" n="2"></cost>
-    </deploy>
-    <prod>
-      <yield res="gold" n="1"></yield>
-      <yield res="wheat" n="1"></yield>
-    </prod>
-  </card>
+  <card name="kaba" age="1" type="building" maxdeploy="1" score="2"  deploy="2" gold="2" book="2" />
+  <card name="bazaar" age="1" type="building" score="1"  deploy="2" gold="1" wheat="1"/>
   <card name="arabia_dyn1" type="dynasty">
-    <round>
-      <check auto="may" res="worker" n="1">
-        <cond op="buy" type="battle"></cond>
-      </check>
-    </round>
+    <round cause="buy battle" mode="opt" worker="1"/>
   </card>
 </cards>
 

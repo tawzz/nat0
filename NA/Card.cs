@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Media;
@@ -29,6 +30,19 @@ namespace ations
     public bool IsSelected { get { return (bool)GetValue(IsSelectedProperty); } set { SetValue(IsSelectedProperty, value); } }
     public static readonly DependencyProperty IsSelectedProperty = DependencyProperty.Register("IsSelected", typeof(bool), typeof(Card), null);
 
+    public static Card MakeEmptyCard(Field field, string type)
+    {
+      var card = new Card();
+
+      card.Type = type;
+      card.Brush = CardType.typeColors[card.Type];
+      card.Age = 1;
+      card.Image = Helpers.GetEmptyCardImage(type);
+      card.X = field.X;
+      field.Card = card;
+
+      return card;
+    }
     public static Card MakeCivCard(Field field, string civ)
     {
       /* example of cards in a civ xml:
@@ -157,6 +171,8 @@ namespace ations
       return card;
     }
 
+    public static int[] GetArchCostArray(Card card) { return GetArchCostArray(card.X); }
+    public static int[] GetArchCostArray(XElement xcard) { return xcard.astring("arch").Split('_').Select(x => int.Parse(x)).ToArray(); }
 
     #region other safe helpers
     public event PropertyChangedEventHandler PropertyChanged; public void NotifyPropertyChanged([CallerMemberName] string propertyName = null) { this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName)); }

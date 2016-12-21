@@ -31,7 +31,7 @@ namespace ations
     {
       var xfile = GetX("cards/xml/eventcards.xml");
       var e1 = xfile.Elements().ToArray(); //the 4 ages
-      foreach(var el in e1)
+      foreach (var el in e1)
       {
         var xcard = el.Elements().FirstOrDefault(x => x.astring("name") == name);
         if (xcard != null) return xcard;
@@ -82,6 +82,8 @@ namespace ations
       bmp.EndInit();
       return bmp;
     }
+
+
     public static int aint(this XElement el, string attributeName, int defaultValue = 0)
     {
       var att = el.Attribute(attributeName);

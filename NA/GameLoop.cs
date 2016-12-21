@@ -11,14 +11,29 @@ namespace ations
   public partial class Game : DependencyObject, INotifyPropertyChanged
   {
     #region  settings for control flow: change to determine game ablauf(eg how many rounds...)    
-    int rounds = 1;
-    int[] turnrounds = { 1, 1, 0 }; // not used for now! how many times players take turns, set to 100 when indeterminate (finish by passing)
-    int[] actPerMoveDefault = { 1, 3, 0 }; // how many actions does this player have each turn (eg sun tzu: 2 actions in first turn)
+    int rounds = 8;
+    int defaultNumActions = 1;
     int longDelay = 500, shortDelay = 100, minAnimationDuration = 1000; // default wait times 
-    int ipl, iph, ird, iturnround, iact, moveCounter; bool gov; // gameloop counters
+    int ipl, iph, ird, iact; // gameloop counters
+
+    //unused:
+    //int iturnround, moveCounter; bool gov;
+    //int[] turnrounds = { 1, 1, 0 }; // not used for now! how many times players take turns, set to 100 when indeterminate (finish by passing)
+    //int[] actPerMoveDefault = { 1, 1, 0 }; // how many actions does this player have each turn by default (eg sun tzu: 2 actions in first turn)
     #endregion
 
     #region gameloop parts
+
+    async Task RoundAgeProgressTask()
+    {
+      Title = "Round " + (ird + 1) + ": Growth"; LongMessage = "round " + ird + " is starting..."; iph = 0;
+
+      Stats.UpdateRound();
+      Stats.UpdateAge();
+      await WaitForRoundMarkerAnimationCompleted();
+
+      Progress.Deal();
+    }
     async Task GrowthPhaseTask()
     {
       //growth phase --------------------------
@@ -47,32 +62,21 @@ namespace ations
       }
       LongMessage = "growth phase ending..."; await Task.Delay(longDelay); LongMessage = "growth phase over!"; Console.WriteLine("\t" + LongMessage);
     }
-    async Task RoundAgeProgressTask()
-    {
-      Debug.Assert(iph == 0, "iph != 0 at beginning of round!!!");
-
-      iph = 0; Title = "Round " + (ird + 1) + ", Phase " + iph + ": Growth"; LongMessage = "round " + ird + " is starting...";
-
-      Stats.UpdateRound();
-      Stats.UpdateAge();
-      await WaitForRoundMarkerAnimationCompleted();
-
-      Progress.Deal();
-    }
-    void EventAndBeforePlayerActions()
+    void NewEvent()
     {
       Stats.PickEventCard();
 
-      //player action phase --------------------------
-      iph = 1; Title = "Round " + (ird + 1) + ", Phase " + iph + ": Player Actions"; LongMessage = "round " + ird + " is starting..."; Message = "click activated objects (cursor = hand) to perform actions";
-      iturnround = 0;
-      foreach (var pl in Players) pl.HasPassed = false;
+    }
+    void StartOfPlayerActions()
+    {
+      Title = "Round " + (ird + 1) + ": Player Actions"; LongMessage = "round " + ird + " is starting..."; Message = "click activated objects (cursor = hand) to perform actions"; iph = 1;
+      foreach (var pl in Players) { pl.HasPassed = false; pl.Defaulted.Clear(); }
       ipl = 0;
       MainPlayer = Players[ipl];
     }
-    void StartOfPlayer()
+    void StartOfPlayerTurn()
     {
-      MainPlayer.NumActions = actPerMoveDefault[iph]; //testing //ignore sun tzu
+      MainPlayer.NumActions = defaultNumActions; 
     }
     void StartOfAction()
     {
@@ -82,156 +86,146 @@ namespace ations
       SelectedAction = null;
       MarkAllPlayerChoices();
     }
+    async Task ProcessActionTask() //ugly, need to restructure
+    {
+      if (PassClicked) { MainPlayer.HasPassed = true; UnselectAll(); } // next player turn
+      else if (CancelClicked) { UnselectAll(); await Task.Delay(longDelay); }
+
+      else if (SelectedAction == TakeArchitect)
+      {
+        await TakeArchitectTask();
+        await WaitForAnimationQueueCompleted();
+        iact++;
+        UnselectAll();
+      }
+
+      else if (SelectedAction == BuyProgressCard)
+      {
+        await BuyProgressCardTask();
+        await WaitForAnimationQueueCompleted();
+        iact++;
+        UnselectAll();
+      }
+
+      else if (SelectedAction == PartialBuy) // progresscard has been selected, need select civ place
+      {
+        while (!CancelClicked && !PassClicked && SelectedCivField == null)
+        {
+          Message = "select place for card (PartialBuy)";
+          await WaitFor3ButtonClick();
+        }
+        if (CancelClicked) UnselectAll();
+        else if (PassClicked) { MainPlayer.HasPassed = true; UnselectAll(); }
+        else if (SelectedAction == BuyProgressCard)
+        {
+          await BuyProgressCardTask();
+          await WaitForAnimationQueueCompleted();
+          iact++;
+          UnselectAll();
+        }
+        else if (SelectedAction != null)
+        {
+          SelectedAction();
+          await WaitForAnimationQueueCompleted();
+          iact++;
+          UnselectAll(); // action completed
+        }
+      }
+      //************ end buy progress card action ****************************************
+
+      else if (SelectedAction == PartialDeploy) // partial information, need more selections
+      {
+        while (!CancelClicked && !PassClicked && !WorkerSelected && PreviousSelectedCivField == null)
+        {
+          await Task.Delay(200);
+          await WaitFor3ButtonClick();
+        }
+        if (CancelClicked) UnselectAll();
+        else if (PassClicked) { MainPlayer.HasPassed = true; UnselectAll(); }
+        else if (SelectedAction != null)
+        {
+          SelectedAction();
+          await WaitForAnimationQueueCompleted();
+          iact++;
+          UnselectAll(); // action completed
+        }
+      }
+      else if (SelectedAction != null)
+      {
+        SelectedAction();
+        //await RunSelectedAction(); // SelectedAction();
+        await WaitForAnimationQueueCompleted();
+        iact++;
+        UnselectAll(); // action completed
+      }
+
+
+
+    }
+    void EndOfAction()
+    {
+      PassClicked = OkStartClicked = CancelClicked = false;//clear buttons
+      UnselectAll();//end action
+    }
+    void EndOfPlayerTurn()
+    {
+      iact = 0;//reset action counter
+
+      //select new player
+      var plarr = Players.SkipWhile(x => x != MainPlayer).Skip(1).SkipWhile(x => x.HasPassed).ToArray();
+      MainPlayer = plarr.FirstOrDefault() ?? Players.SkipWhile(x => x.HasPassed).FirstOrDefault() ?? Players[0];
+    }
+    void EndOfPlayerActions() { }
+    async Task ProductionTask()
+    {
+      Title = "Round " + (ird + 1) + ": Production"; LongMessage = "round " + ird + " production is starting..."; iph = 2;
+      Message = "Production...";
+      await Task.Delay(longDelay);
+    }
+
     #endregion
 
     public async void GameLoop()
     {
       try
       {
-        IsOkStartEnabled = false; IsRunning = true; gov = false;
+        IsOkStartEnabled = false; IsRunning = true; //gov = false; use later
         while (ird < rounds)
         {
           await RoundAgeProgressTask(); // do not comment  
+          await GrowthPhaseTask(); //comment to go directly to action phase
+          NewEvent(); // do not comment
 
-          //await GrowthPhaseComplete(); //comment to go directly to action phase
-
-          EventAndBeforePlayerActions(); // do not comment
-
-          while (MainPlayer != null)
+          StartOfPlayerActions();// do not comment
+          while (!MainPlayer.HasPassed)
           {
-            StartOfPlayer();
+            StartOfPlayerTurn();
 
             while (iact < MainPlayer.NumActions && !MainPlayer.HasPassed)
             {
               StartOfAction();
-
               await WaitFor3ButtonClick();
-
-              if (PassClicked) { MainPlayer.HasPassed = true; UnselectAll(); } // next player turn
-              else if (CancelClicked) { UnselectAll(); await Task.Delay(longDelay); }
-
-              //************ buy progress card action ****************************************
-              else if (SelectedAction == BuyProgressCard)
-              {
-                await BuyProgressCardTask();
-                await WaitForAnimationQueueCompleted();
-                iact++;
-                UnselectAll();
-              }
-              else if (SelectedAction == PartialBuy) // progresscard has been selected, need select civ place
-              {
-                while (!CancelClicked && !PassClicked && SelectedCivField == null)
-                {
-                  //                  await Task.Delay(100);
-                  Message = "select place for card (PartialBuy)";
-                  await WaitFor3ButtonClick();
-                }
-                if (CancelClicked) UnselectAll();
-                else if (PassClicked) { MainPlayer.HasPassed = true; UnselectAll(); }
-                else if (SelectedAction == BuyProgressCard)
-                {
-                  await BuyProgressCardTask();
-                  await WaitForAnimationQueueCompleted();
-                  iact++;
-                  UnselectAll();
-                }
-                else if (SelectedAction != null)
-                {
-                  SelectedAction();
-                  await WaitForAnimationQueueCompleted();
-                  iact++;
-                  UnselectAll(); // action completed
-                }
-              }
-              //************ end buy progress card action ****************************************
-
-              else if (SelectedAction == PartialDeploy) // partial information, need more selections
-              {
-                while (!CancelClicked && !PassClicked && !WorkerSelected && PreviousSelectedCivField == null)
-                {
-                  await Task.Delay(200);
-                  await WaitFor3ButtonClick();
-                }
-                if (CancelClicked) UnselectAll();
-                else if (PassClicked) { MainPlayer.HasPassed = true; UnselectAll(); }
-                else if (SelectedAction != null)
-                {
-                  SelectedAction();
-                  await WaitForAnimationQueueCompleted();
-                  iact++;
-                  UnselectAll(); // action completed
-                }
-              }
-              else if (SelectedAction != null)
-              {
-                SelectedAction();
-                //await RunSelectedAction(); // SelectedAction();
-                await WaitForAnimationQueueCompleted();
-                iact++;
-                UnselectAll(); // action completed
-              }
-
-
-              //clear buttons
-              PassClicked = OkStartClicked = CancelClicked = false;
-
-
-              //end action
-              UnselectAll();
+              await ProcessActionTask();
+              EndOfAction();
             }
-            //end player action
-            iact = 0;
-            ipl = (ipl + 1) % NumPlayers;
-            MainPlayer = Players.First(x => !x.HasPassed && x.Index >= ipl);
+
+            EndOfPlayerTurn();
           }
+          EndOfPlayerActions();
 
+          await ProductionTask();
+
+          Message = "END OF ROUND - press ok to continue..." + ird;
           await WaitForButtonClick();
-
-          //await DoStuffAtEndOfRound();
           ird++;
         }
-        LongMessage = "game is over";
+        LongMessage = Message = "GAME OVER!";
       }
       catch (Exception e)
       {
         LongMessage = "interrupt!!!: " + e.Message;
       }
     }
-
-
-    //public void BuyProgressCard()
-    //{
-    //  var card = SelectedProgressField.Card;
-    //  var fieldBuy = SelectedProgressField;
-    //  var fieldPlace = SelectedCivField;
-    //  card.CanBuy = false;
-
-    //  if (card.civ())
-    //  {
-    //    if (fieldPlace == null) fieldPlace = GetPossiblePlacesForCard(fieldBuy).First();
-    //    MainPlayer.Civ.Add(card, fieldPlace);
-    //    Progress.Remove(fieldBuy);
-    //    MainPlayer.Pay(card.Cost);
-    //  }
-    //  else
-    //  {
-    //    Progress.Remove(fieldBuy);
-    //    MainPlayer.Pay(card.Cost);
-    //    if (card.war()) { Stats.UpdateWarPosition(MainPlayer, card); }
-    //    else if (card.golden()) BuyGoldenAge(card);
-    //    else if (card.battle())
-    //    {
-    //      //LongMessage = "TODO!!!! resource picker invokation";
-    //      WaitForPickResourceCompletedSync(new string[] { "wheat", "coal", "book" }, MainPlayer.RaidValue, "battle");
-
-    //      //AAnimations.AfterAnimation = null; // (x) => NextPlayer(); // ani in ui ausgeloest onResourceUpdate
-    //      //PrepareResourcePicker(new string[] { "wheat", "coal", "book" }, MainPlayer.RaidValue, "battle");
-    //    }
-    //  }
-    //  Message = MainPlayer.Name + " bought " + card.Name;
-
-    //}
-
 
   }
 }
