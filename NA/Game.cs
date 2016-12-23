@@ -258,7 +258,7 @@ namespace ations
     //player action parts
     #region 1. determine what user can do & enable
     public bool ArchitectAvailable { get { return (Stats.Architects > 0 || MainPlayer.HasPrivateArchitect); } }
-    public bool CanTakeArchitect { get { return canTakeArchitect; } set { if (value) { Message=MainPlayer.Name; } canTakeArchitect = value; NotifyPropertyChanged(); } }
+    public bool CanTakeArchitect { get { return canTakeArchitect; } set { if (value) { Message = MainPlayer.Name; } canTakeArchitect = value; NotifyPropertyChanged(); } }
     bool canTakeArchitect;
     public bool CanTakeTurmoil { get { return canTakeTurmoil; } set { canTakeTurmoil = value; NotifyPropertyChanged(); } }
     bool canTakeTurmoil;
@@ -305,7 +305,7 @@ namespace ations
     public void MarkPossiblePlacesForWIC()
     {
       UnmarkPlaces();
-      foreach (var f in MainPlayer.Civ.Fields.Where(x=>x.Type == "wonder")) f.Card.CanActivate = true;
+      foreach (var f in MainPlayer.Civ.Fields.Where(x => x.Type == "wonder")) f.Card.CanActivate = true;
     }
     public IEnumerable<Field> GetPossiblePlacesForCard(string type)
     {
@@ -367,13 +367,16 @@ namespace ations
     }
     public void OnClickWorker(Res res)
     {
-      //if (CanSelectWorker)// eliminate check
-      //{
+      Debug.Assert(CanSelectWorker, "OnClickWorker with CanSelectWorker == false!");
+
+      if (WorkerSelected) { UnselectWorker(); if (SelectedCivField != null) Message = "choose deploy source"; }
+      else
+      {
         WorkerSelected = true;
         UnselectTurmoils(); UnselectArchitects(); UnselectProgress(); UnselectPreviousCiv();
-        if (SelectedCivField != null) { Message = "Deploy?"; }//SelectedAction = DeployAvailableWorker; }
+        if (SelectedCivField != null) { Message = "Deploy?"; }
         else { Message = "Select a field to which to deploy"; }//SelectedAction = PartialDeploy; }
-      //}
+      }
     }
     public void OnClickProgressCard(Field field)
     {
@@ -390,57 +393,81 @@ namespace ations
     }
     public void OnClickCivCard(Field field)
     {
-      UnselectTurmoils();
-      PreviousSelectedCivField = SelectedCivField;
-      SelectedCivField = field;
-
-      if (PreviousSelectedCivField == SelectedCivField)
-      {
-        UnselectCiv(); UnselectPreviousCiv();
-      }
-      else if (field.Type == "wonder") //selecting place for wonder ready
-      {
-        field.Card.IsSelected = true;
-        Message = "You selected field for new wonder";
-      }
-      else if (SelectedProgressField != null && (field.Card.buildmil() || field.Card.colony()))
-      { //Buy
-        UnselectWorker(); UnselectArchitects(); UnselectPreviousCiv();
-        field.Card.IsSelected = true;
-        Message = "Buy " + SelectedProgressField.Card.Name + "?";
-        //SelectedAction = BuyProgressCard;
-      }
-      else if (field.Index == CardType.WIC && CanTakeArchitect)
-      { //Architect
-        UnselectProgress(); UnselectWorker(); UnselectPreviousCiv();
-        field.Card.IsSelected = true;
-        Message = "Take Architect?";
-        ArchitectSelected = true;
-        //SelectedAction = TakeArchitect;
-      }
-      else if (CanDeploy && field.Card.buildmil())
-      { //Deploy
-        UnselectProgress(); UnselectArchitects();
-        field.Card.IsSelected = true;
-        if (WorkerSelected) { Message = "Deploy?"; }// SelectedAction = DeployAvailableWorker; }
-        else if (PreviousSelectedCivField != null)
-        {
-          if (field.Card.NumDeployed > 0)
-          {
-            Message = "Deploy?";
-            //SelectedAction = DeployFromField;
-          }
-          else UnselectPreviousCiv();
-        }
-        else { Message = "Select deploy source"; }//SelectedAction = PartialDeploy; }
-      }
+      Debug.Assert(field != null && field.Card != null, "OnClickCivCard null!!!!!");
+      if (field.Card.buildmil()) OnClickBuildMil(field);
+      else if (field.Card.colony()) OnClickColony(field);
+      else if (field.Card.wonder()) OnClickWonder(field);
+      else if (field.Card.natural()) TryPrepareCardActivation(field);
+      else if (field.Card.adv()) TryPrepareCardActivation(field);
+      else if (field.Card.dyn()) OnClickDynasty(field);
     }
+    public void OnClickBuildMil(Field field)
+    {
+      Debug.Assert(!(SelectedCivField == null && PreviousSelectedCivField != null), "selected civ field null but previous NOT!");
+
+      UnselectTurmoils(); UnselectArchitects();
+
+      if (PreviousSelectedCivField != null && field == PreviousSelectedCivField) { UnselectPreviousCiv(); }
+      else if (SelectedCivField != null && field == SelectedCivField) { UnselectCiv(); SelectedCivField = PreviousSelectedCivField; UnselectPreviousCiv(); }
+      else if (SelectedProgressField != null)
+      {
+        if (SelectedCivField != null) { UnselectCiv(); SelectCivField(field); }
+        if (IsOneStepBuy(SelectedProgressField)) UnselectProgress(); else PrepareBuyAction(field);
+      }
+      else if (SelectedCivField != null)
+      {
+        if (SelectedCivField.Card.buildmil())
+        {
+          if (field.Card.NumDeployed > 0) //clicked on valid deploy source (target selected)
+          {
+            if (WorkerSelected) { UnselectWorker(); SelectCivField(field); Message = "Deploy from field " + field.Card.Name + "?"; }
+            else { SelectCivField(field); Message = "Deploy from field " + field.Card.Name + "?"; }
+          }
+          else //clickd on another potential deploy target
+          {
+            UnselectCiv();
+            SelectCivField(field);
+            if (WorkerSelected) { Message = "deploy worker to " + field.Card.Name + "?"; }
+          }
+        }
+        else { UnselectCiv(); SelectCivField(field); Message = "select deploy source"; }
+      }
+      else if (WorkerSelected) { SelectCivField(field); Message= "deploy worker to " + field.Card.Name + "?"; }
+      else { SelectCivField(field); Message = "select deploy source"; }
+      // build mil cannot be activated
+      // make sure it never happens that two civ fields and a worker are selected!
+
+    }
+    public void OnClickColony(Field field)
+    {
+      // can be either placement or activation try
+      if (SelectedProgressField != null) PrepareBuyAction(field);
+      else TryPrepareCardActivation(field);
+    }
+    public void OnClickDynasty(Field field)
+    {
+
+    }
+    private void OnClickWonder(Field field)
+    {
+      if (ArchitectSelected) { Message = "You selected field for new wonder"; UnselectCiv(); SelectCivField(field); }
+      else TryPrepareCardActivation(field);
+    }
+
     bool IsOneStepBuy(Field field)
     {
       var card = field.Card;
       var possible = GetPossiblePlacesForCard(card.Type).ToArray();
       var isciv = card.civ();
       return !isciv || possible.Length == 1;
+    }
+    public void TryPrepareCardActivation(Field field) { UnselectAll(); SelectCivField(field); Message = "Can this card be activated?!?"; }
+    void SelectCivField(Field field) { UnselectPreviousCiv(); PreviousSelectedCivField = SelectedCivField; SelectedCivField = field; field.Card.IsSelected = true; }
+    void PrepareBuyAction(Field field)
+    {
+      UnselectWorker(); UnselectArchitects(); UnselectPreviousCiv();
+      SelectCivField(field);// field.Card.IsSelected = true;
+      Message = "Buy " + SelectedProgressField.Card.Name + "?";
     }
 
     Field SelectedProgressField { get; set; }
@@ -479,9 +506,7 @@ namespace ations
         Message = "pick a wonder space";
         await WaitForButtonClick();
       }
-      MainPlayer.MoveCivCard(MainPlayer.WICField.Card, MainPlayer.WICField, SelectedCivField);
-      SelectedCivField.Card.NumDeployed = 0;
-      //SelectedCivField = null;
+      MainPlayer.WonderReady(SelectedCivField);
     }
     public async Task TakeTurmoilTask() { Message = "not implemented"; await Task.Delay(200); }
     public async Task BuyProgressCardTask()
@@ -494,9 +519,13 @@ namespace ations
       if (card.civ())
       {
         if (fieldPlace == null) fieldPlace = GetPossiblePlacesForCard(fieldBuy.Card.Type).First();
-        MainPlayer.AddCivCard(card, fieldPlace);
+        Debug.Assert(fieldPlace != null, "BuyProgressCard: so ein MIST!!!!");
+        var needRaidUpdate = MainPlayer.AddCivCard(card, fieldPlace);
         Progress.Remove(fieldBuy);
         MainPlayer.Pay(card.Cost);
+
+        //actions after buy building/military
+        if (needRaidUpdate) { MainPlayer.RecomputeRaid(); }//TODO: special modifications to raid if necessary
       }
       else
       {
@@ -507,6 +536,26 @@ namespace ations
         else if (card.battle()) { await WaitForPickResourceCompleted(new string[] { "wheat", "coal", "book" }, MainPlayer.RaidValue, "battle"); }
       }
       Message = MainPlayer.Name + " bought " + card.Name;
+      //actions after buy building/military
+
+
+      //weired!!!!!!!!!!!!!!!!!!!! vs hat da irgendwo ein breakpoint falsch?!?
+      var iscol = card.colony();
+      var isadv = card.adv();
+      var iscoloradv = iscol || isadv;
+      if (iscoloradv)
+      {
+        int n = 4;
+        MainPlayer.UpdateStabAndMil();
+      }
+      else
+      {
+        int n = 5;
+      }
+
+      //if (card.colony() || card.adv()) { MainPlayer.UpdateStabAndMil(); }
+      Message += " success!";
+
     }
     public async Task BuyGoldenAgeTask(string resname, int num)
     {
@@ -520,27 +569,31 @@ namespace ations
     }
     public void DeployFromField()
     {
-      //need to check if that field even has workers on it! for now, no effect but action wasted if try to deploy from empty card
-      // geht leicht: wenn 2te civCard selected, unmark erste ausser wenn moegliches deployment
       var sourceCard = SelectedCivField.Card;
       var targetCard = PreviousSelectedCivField.Card;
-      if (sourceCard.NumDeployed > 0) //do this check earlier!
-      {
-        targetCard.NumDeployed++;
-        sourceCard.NumDeployed--;
-        var deploymentCost = Stats.Age; //simplified
-        MainPlayer.Pay(deploymentCost, "coal");
-        Message = MainPlayer.Name + " deployed from " + sourceCard.Name + " to " + targetCard.Name;
-      }
+      sourceCard.NumDeployed--;
+
+      DeployTo(targetCard);
+      //targetCard.NumDeployed++;
+      //var deploymentCost = Stats.Age; //simplified
+      //MainPlayer.Pay(deploymentCost, "coal");
+
+      Message = MainPlayer.Name + " deployed from " + sourceCard.Name + " to " + targetCard.Name;
     }
     public void DeployAvailableWorker()
     {
       var card = SelectedCivField.Card;
+      MainPlayer.DeployWorker();
+      DeployTo(card);
+      Message = MainPlayer.Name + " deployed to " + card.Name;
+    }
+    public void DeployTo(Card card)
+    {
       card.NumDeployed++;
       var deploymentCost = Stats.Age; //simplified
       MainPlayer.Pay(deploymentCost, "coal");
-      MainPlayer.Res.dec("worker", 1);//TODO: ersetze durch Deploy in APlayer
-      Message = MainPlayer.Name + " deployed to " + card.Name;
+      MainPlayer.UpdateStabAndMil();
+      if (card.mil()) MainPlayer.RecomputeRaid(); //recheck special cards
     }
 
     async Task WaitSeconds(double secs) { int delay = (int)(secs * 1000); await Task.Delay(delay); }
@@ -593,7 +646,7 @@ namespace ations
     #endregion
 
     #region 4. cleanup selections & enablings
-    public void UnselectAll() { UnselectProgress(); UnselectCiv(); UnselectPreviousCiv(); UnselectArchitects(); UnselectTurmoils(); UnselectWorker(); }
+    public void UnselectAll() { UnselectProgress(); UnselectPreviousCiv(); UnselectCiv(); UnselectArchitects(); UnselectTurmoils(); UnselectWorker(); }
     void UnselectProgress()
     {
       if (SelectedProgressField != null)
@@ -612,9 +665,11 @@ namespace ations
     }
     void UnselectPreviousCiv()
     {
+      Debug.Assert(!(PreviousSelectedCivField != null && PreviousSelectedCivField.Card == null), "UnselectPreviousSelectedField: card=null");
+
       if (PreviousSelectedCivField != null)
       {
-        if (PreviousSelectedCivField.Card != null) PreviousSelectedCivField.Card.IsSelected = false;
+        PreviousSelectedCivField.Card.IsSelected = false;
         PreviousSelectedCivField = null;
       }
     }

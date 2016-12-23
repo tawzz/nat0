@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <cards>
   <card name="buffalo_horde" age="1" type="building" maxdeploy="1" score="1" deploy="1" wheat="4"/>
-  <card name="brave" age="1" type="military" nbattle="2" score="1" military="1"  deploy="1" gold="1"/>
+  <card name="brave" age="1" type="military" raid="2" score="1" military="1"  deploy="1" gold="1"/>
   <card name="teepee" age="1" type="building" score="1" deploy="1" coal="1" book="1"/>
   <card name="adobe" age="1" type="building" stability="2" score="1" deploy="1" />
   <card name="america_dyn1" type="dynasty">

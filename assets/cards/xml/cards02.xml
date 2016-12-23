@@ -25,14 +25,14 @@
   <card name="battle_of_poitiers" age="2" type="battle" ></card>
   <card name="battle_of_tannenberg" age="2" type="battle" ></card>
   <card name="byzantine_arab_war" age="2" type="war" res="book" n="3" ></card>
-  <card name="camel_archer" age="2" type="military" nbattle="4" score="1_1_2" military="5" stability="-1" deploy="2" />
+  <card name="camel_archer" age="2" type="military" raid="4" score="1_1_2" military="5" stability="-1" deploy="2" />
   <card name="castle" age="2" type="building" score="1_1_1" stability="3" deploy="2" coal="1"/>
-  <card name="cataphract" age="2" type="military" nbattle="4" score="1_1_2" military="6"  deploy="2" coal="-2" />
+  <card name="cataphract" age="2" type="military" raid="4" score="1_1_2" military="6"  deploy="2" coal="-2" />
   <card name="cathedral" age="2" type="building" score="1_1_1" stability="2" />
   <card name="chichen_itza" age="2" type="wonder" vp="1" arch="2_2" >
     <round cause="buy war" vp="1"/>
   </card>
-  <card name="cho_ko_nu" age="2" type="military" nbattle="4" score="1_1_2" military="5"  deploy="2" gold="1"/>
+  <card name="cho_ko_nu" age="2" type="military" raid="4" score="1_1_2" military="5"  deploy="2" gold="1"/>
   <card name="compass" age="2" type="golden" res="coal" n="2" />
   <card name="crusader_states" age="2" type="colony" vp="2" milmin="13" military="3" ></card>
   <card name="divina_commedia" age="2" type="golden" res="book" n="2" />
@@ -58,7 +58,7 @@
       </check>
     </war>
   </card>
-  <card name="greek_fire_galley" age="2" type="military" nbattle="4" score="1_1_2" military="6" filename="assets\graphics\cards\progress\age2\age2_greek_fire_galley.jpg">
+  <card name="greek_fire_galley" age="2" type="military" raid="4" score="1_1_2" military="6" filename="assets\graphics\cards\progress\age2\age2_greek_fire_galley.jpg">
     <deploy>
       <cost res="coal" n="2"></cost>
     </deploy>
@@ -100,7 +100,7 @@
       <yield res="book" n="1"></yield>
     </prod>
   </card>
-  <card name="horse_archer" age="2" type="military" nbattle="4" score="1_1_2" military="5" >
+  <card name="horse_archer" age="2" type="military" raid="4" score="1_1_2" military="5" >
     <deploy>
       <cost res="coal" n="2"></cost>
     </deploy>
@@ -109,7 +109,7 @@
     </prod>
   </card>
   <card name="hundred_years_war" age="2" type="war" res="wheat" n="5" ></card>
-  <card name="knight" age="2" type="military" nbattle="4" score="1_1_2" military="5" >
+  <card name="knight" age="2" type="military" raid="4" score="1_1_2" military="5" >
     <deploy>
       <cost res="coal" n="2"></cost>
     </deploy>
@@ -124,12 +124,12 @@
       <yield res="book" n="3"></yield>
     </prod>
   </card>
-  <card name="longbowman" age="2" type="military" nbattle="4" score="1_1_2" military="4" >
+  <card name="longbowman" age="2" type="military" raid="4" score="1_1_2" military="4" >
     <deploy>
       <cost res="coal" n="2"></cost>
     </deploy>
   </card>
-  <card name="longships" age="2" type="military" nbattle="4" score="1_1_2" military="5" >
+  <card name="longships" age="2" type="military" raid="4" score="1_1_2" military="5" >
     <deploy>
       <cost res="coal" n="2"></cost>
     </deploy>

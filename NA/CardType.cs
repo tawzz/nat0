@@ -19,6 +19,8 @@ namespace ations
     public static bool buildmil(this Card c) { return c.Type == "military"||c.Type =="building"; }
     public static bool wonder(this string s) { return s == "wonder"; }
     public static bool wonder(this Card c) { return c.Type == "wonder"; }
+    public static bool natural(this string s) { return s == "natural"; }
+    public static bool natural(this Card c) { return c.Type == "natural"; }
     public static bool colony(this string s) { return s == "colony"; }
     public static bool colony(this Card c) { return c.Type == "colony"; }
     public static bool war(this string s) { return s == "war"; }

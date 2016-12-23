@@ -195,7 +195,7 @@ namespace ations
     public int[] GetArchCostArray { get { return X.astring("arch").Split('_').Select(x => int.Parse(x)).ToArray(); } }
     public int GetMilitary { get { return X.aint("military", 0); } }
     public int GetStability { get { return X.aint("stability", 0); } }
-
+    public int GetRaid { get{ return X.aint("raid"); } }
 
 
 

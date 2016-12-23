@@ -26,19 +26,19 @@ namespace ations
       Rows = 3;
       Cols = cols;
       Image = Helpers.GetProgressboardImage();
-      Fields = new Field[Rows*Cols];
+      Fields = new Field[Rows * Cols];
       Margin = new Thickness(72, 50, 576 - 190 * (Cols - 4), -6); //fuer uniformgrid
       for (int r = 0; r < Rows; r++)
         for (int c = 0; c < Cols; c++)
           Fields[r * Cols + c] = new Field { Index = r * Cols + c, Row = r, Col = c };
       Cards = new ObservableCollection<Card>();
     }
-    public void UpdateDeck(int age=1)
+    public void UpdateDeck(int age = 1)
     {
       if (age > Game.MAX_AGE) throw new Exception("Cannot UpdateDeck for age " + age + "!!!!!");
       Deck = Helpers.GetCardarrayX(age).OrderBy(x => Rand.N()).ToArray();
     }
-    public void Deal(int age=1)
+    public void Deal(int age = 1)
     {
       if (Deck == null || Deck.Length < Rows * Cols) UpdateDeck(age);
 
@@ -46,7 +46,7 @@ namespace ations
       var row1 = Fields.Take(Cols).Where(x => !x.IsEmpty).Select(x => x.Card).ToArray();// Cards.Take(Cols).Where(x=>!x.ToArray();
       var num = Rows * Cols - row1.Count(); //Rows*Cols;
 
-      var cards = Deck.Take(num).Select(x=>Card.MakeCard(x)).ToArray();
+      var cards = Deck.Take(num).Select(x => Card.MakeCard(x)).ToArray();
       cards = cards.Concat(row1).ToArray();
       Deck = Deck.Skip(num).ToArray();
 
@@ -56,12 +56,7 @@ namespace ations
         {
           var idx = r * Cols + c;
           Fields[idx].Card = cards[idx];
-          //var card = Card.MakeProgressCard(xcards[idx], Fields[idx]);
-          //if (string.IsNullOrEmpty(card.Name))
-          //{
-          //  card.Name = "unknown card";
-          //}
-          //TODO* card.Cost = 3 * (3 - r); //cards of row 3 not affordable unless picked gold! nur zum testen! 3-r;
+          cards[idx].Cost = 3 - r;
           Cards.Add(cards[idx]);
         }
     }

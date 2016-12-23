@@ -28,12 +28,12 @@ namespace ations
     }
     void EnsurePos(int n) { Debug.Assert(n >= 0, "resource val must be positive: " + n + ", (EnsurePos)"); }
     public Res get(string resname) { EnsureRes(resname); return dict[resname]; }
-    public void set(string resname, int val) { EnsurePos(val); EnsureRes(resname); dict[resname].Num = val; }
+    public void set(string resname, int val) { EnsureRes(resname); dict[resname].Num = val; }
 
     // dec and inc expect pos value! return new count
-    public int dec(string resname, int val) { EnsurePos(val); return updateBy(resname, -val); }
-    public int inc(string resname, int val) { EnsurePos(val); return updateBy(resname, val); }
-    public int updateBy(string resname, int val) { EnsureRes(resname); var n = dict[resname].Num + val; return dict[resname].Num = Math.Max(0, n); }
+    //public int dec(string resname, int val) { EnsurePos(val); return updateBy(resname, -val); }
+    public int inc(string resname, int val) { EnsureRes(resname); EnsurePos(val); return dict[resname].Num += val; }// updateBy(resname, val); }
+    //public int updateBy(string resname, int val) { EnsureRes(resname); var n = dict[resname].Num + val; return dict[resname].Num = Math.Max(0, n); }
 
     public event PropertyChangedEventHandler PropertyChanged; public void NotifyPropertyChanged([CallerMemberName] string propertyName = null) { this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName)); }
   }

@@ -8,6 +8,7 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Diagnostics;
 
 namespace ations
 {
@@ -16,8 +17,7 @@ namespace ations
     public ObservableCollection<Card> Cards { get; set; } //foreach field there is a card, either real or empty!
 
     public ResDict Res { get; set; }
-    public int RaidValue { get { return raidValue; } set { if (raidValue != value) { raidValue = value; NotifyPropertyChanged(); } } }
-    int raidValue = 2;//testing TODO: compute!!!
+    public int RaidValue { get { return Res.n("raid"); } set { if (Res.n("raid") != value) { Res.set("raid", value); NotifyPropertyChanged(); } } }
     public ObservableCollection<Worker> ExtraWorkers { get; set; }//cost res, cost count, margin, is checked out
     public Dictionary<string, int> Defaulted { get; set; } //to record by how much defaulted per resource in current round
     public Brush Brush { get; set; }
@@ -36,7 +36,7 @@ namespace ations
     public Field WICField { get { return Civ.Fields[CardType.WIC]; } }
     public Card WIC { get { return HasWIC ? WICField.Card : null; } }
     public bool HasPrivateArchitect { get { return false; } } //gehoert zu checks
-    #region positioning on stats board
+    #region Military, Stability, and Books (resource + positioning on stats board), LevelPosition
     public Point LevelPosition { get; set; }
     static int[] LevelOffsetX = { 20, 50, 20, 50 };
     static int[] LevelOffsetY = { 20, 80, 140, 200 };
@@ -153,18 +153,19 @@ namespace ations
       Books = Stability = Military = 0; //testing
     }
 
-    public int UpdateResBy(string resname, int inc) //n pos or neg! returns new number
+    public int UpdateResBy(string resname, int inc) // to pay with default, use Pay instead!
     {
-      var newResCount = Res.updateBy(resname, inc);
+      Debug.Assert(resname != "worker" || Res.n("worker") + inc >= 0, "UpdateResBy: neg #workers!!! ");
 
-      //recalc pos on stats board:
-      if (resname == "book") Books = newResCount;
-      else if (resname == "military") Military = newResCount;
-      else if (resname == "stability") Stability = newResCount;
+      if (resname == "stability") { Stability += inc; return Stability; }
 
-      return newResCount;
+      var newcount = Math.Max(0, Res.n(resname) + inc);
+      if (resname == "book") Books = newcount;
+      else if (resname == "military") Military = newcount;
+      else Res.set(resname, newcount);
+      return newcount;
     }
-    public bool Pay(int cost, string resname = "gold") //expect cost positive number!, gold is default resname
+    public bool Pay(int cost, string resname = "gold") //expect cost positive number!
     { //returns true if debt has been payed (even if defaulted), false if default in vp or cannot pay rest in books (>need picker!)
       var rescount = Res.n(resname);
       UpdateResBy(resname, -cost);
@@ -184,13 +185,33 @@ namespace ations
       }
       return true; // this player has payed
     }
-
-    public void AddCivCard(Card card, Field field)
+    public void DeployWorker(int num = 1) { UpdateResBy("worker", -num); }
+    public void UndeployWorker(int num = 1) { if (num!=0)UpdateResBy("worker", num); }
+    public void CheckOutWorker(Worker w)
     {
+      w.IsCheckedOut = true;
+      Res.inc("worker", 1);
+    }
+    public bool AddCivCard(Card card, Field field)
+    {
+      var covered = field.Card;
+      var needRaidUpdate = covered.NumDeployed > 0 && covered.mil();
+      UndeployWorker(field.Card.NumDeployed); // add workers to pool
       Cards.Remove(field.Card);
       Cards.Add(card);
       Civ.Add(card, field);
+      return needRaidUpdate;
     }
+    public void WonderReady(Field targetField)
+    {
+      WIC.NumDeployed = 0;//remove architects from card
+      MoveCivCard(WIC, WICField, targetField);
+      UpdateStabAndMil();
+    }
+    public void UpdateStabAndMil() { Military = CalcMilitary(); Stability = CalcStability(); }
+    public void RecomputeRaid() { RaidValue = CalcRaidFromMilWorkers(); } //ignores special cards that mod raid! >add that
+
+
     public void MoveCivCard(Card card, Field fromField, Field toField)
     {
       // fromField will then contain empty card as in beginning
@@ -198,39 +219,33 @@ namespace ations
       toField.Card = card;
       fromField.Card = Card.MakeEmptyCard(fromField, fromField.Type);
       Cards.Add(fromField.Card);
-
     }
 
-    public bool MoreThanOneWorkerAvailable()
-    {
-      var wfree1 = ExtraWorkers.FirstOrDefault(x => !x.IsCheckedOut);
-      var wfree2 = ExtraWorkers.LastOrDefault(x => !x.IsCheckedOut);
-      return (wfree1.CostRes != wfree2.CostRes);
-    }
-    public void CheckOutWorker(Worker w)
-    {
-      w.IsCheckedOut = true;
-      Res.inc("worker", 1);
-    }
-    public int ComputeRaidValue()
+    //public bool MoreThanOneExtraWorkerType()
+    //{
+    //  var wfree1 = ExtraWorkers.FirstOrDefault(x => !x.IsCheckedOut);
+    //  var wfree2 = ExtraWorkers.LastOrDefault(x => !x.IsCheckedOut);
+    //  return (wfree1.CostRes != wfree2.CostRes);
+    //}
+    public int CalcRaidFromMilWorkers()
     {
       var milcards = Cards.Where(x => x.mil()).ToArray();
-      var maxraid = milcards.Max(x => x.NumDeployed > 0 ? x.X.aint("battle") : 0);
+      var maxraid = milcards.Max(x => x.NumDeployed > 0 ? x.GetRaid : 0);
       return maxraid;
     }
-    public void CalcMilitary()
+    public int CalcMilitary()
     {
       var mil = 0;
       foreach (var c in Cards.Where(x => x != WIC)) { var factor = c.buildmil() ? c.NumDeployed : 1; mil += c.GetMilitary * factor; }
       foreach (var w in ExtraWorkers.Where(x => x.IsCheckedOut)) { if (w.CostRes == "military") { mil -= w.Cost; } }
-      Military = mil; //add dyn or other special rules
+      return mil; //add dyn or other special rules
     }
-    public void CalcStability()
+    public int CalcStability()
     {
       var stab = 0;
       foreach (var c in Cards.Where(x => x != WIC)) { var factor = c.buildmil() ? c.NumDeployed : 1; stab += c.GetStability * factor; }
       foreach (var w in ExtraWorkers.Where(x => x.IsCheckedOut)) { if (w.CostRes == "stability") { stab -= w.Cost; } }
-      Stability = stab; //add dyn or other special rules
+      return stab; //add dyn or other special rules
     }
 
     #region other safe helpers

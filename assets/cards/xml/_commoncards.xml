@@ -2,6 +2,6 @@
 <cards>
   <card name="quarry" age="1" type="building" score="1" deploy="1" coal="1" gold="1"/>
   <card name="farm" age="1" type="building" score="1" deploy="1" coal="1" wheat="1"/>
-  <card name="axeman" age="1" type="military" nbattle="2" score="1" military="2" deploy="1" wheat="-1"/>
+  <card name="axeman" age="1" type="military" raid="2" score="1" military="2" deploy="1" wheat="-1"/>
 </cards>
 

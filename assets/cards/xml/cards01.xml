@@ -2,7 +2,7 @@
 <cards>
   <card name="aeneid" age="1" type="golden" res="book" n="2" />
   <card name="aqueduct" age="1" type="building" score="1_1" stability="1" deploy="1" wheat="2"/>
-  <card name="archer" age="1" type="military" nbattle="4" score="1_1" military="2" deploy="1"/>
+  <card name="archer" age="1" type="military" raid="4" score="1_1" military="2" deploy="1"/>
   <card name="archimedes" age="1" type="advisor" private_architect="1" coal="1"/>
   <card name="armenia" age="1" type="colony" vp="0" milmin="6" coal="2"/>
   <card name="augustus" age="1" type="advisor" military="1">
@@ -18,7 +18,7 @@
   </card>
   <card name="brewery" age="1" type="building" score="1_1" deploy="1" wheat="2" book="1"/>
   <card name="buddha" age="1" type="advisor" stability="3" coal="1" eff="skip_first_turn" />
-  <card name="chariot" age="1" type="military" nbattle="3" score="1_1" military="3" deploy="1" gold="-1"/>
+  <card name="chariot" age="1" type="military" raid="3" score="1_1" military="3" deploy="1" gold="-1"/>
   <card name="city_wall" age="1" type="building" score="1_1" stability="1" deploy="1" coal="2"/>
   <card name="coinage" age="1" type="golden" res="coal" n="2" />
   <card name="colosseum" age="1" type="wonder" vp="1" military="3" arch="2_2">
@@ -29,7 +29,7 @@
   <card name="cyrus_the_great" age="1" type="advisor">
     <if cause="bought colony" gold="3"/>
   </card>
-  <card name="elephant" age="1" type="military" nbattle="3" score="1_1" military="4" deploy="1" wheat="-2" />
+  <card name="elephant" age="1" type="military" raid="3" score="1_1" military="4" deploy="1" wheat="-2" />
   <card name="forge" age="1" type="building" score="1_1" deploy="1" coal="2" wheat="1"/>
   <card name="forum" age="1" type="building" score="1_1" deploy="1" gold="2" wheat="1" />
   <card name="gaul" age="1" type="colony" vp="0" milmin="7" deploy="1" wheat="2"/>
@@ -46,13 +46,13 @@
   </card>
   <card name="hindu_kush" age="1" type="colony" vp="0" milmin="9" cola="3"/>
   <card name="hispania" age="1" type="colony" vp="0" milmin="4" wheat="2"/>
-  <card name="hoplite" age="1" type="military" nbattle="3" score="1_1" military="3" deploy="1" coal="-1"/>
+  <card name="hoplite" age="1" type="military" raid="3" score="1_1" military="3" deploy="1" coal="-1"/>
   <card name="hunnic_invasions" age="1" type="war" res="wheat" n="4"/>
   <card name="hyksos_invasion" age="1" type="war" res="coal" n="4" />
-  <card name="immortal" age="1" type="military" nbattle="3" score="1_1" military="3" stability="-1" deploy="1"/>
+  <card name="immortal" age="1" type="military" raid="3" score="1_1" military="3" stability="-1" deploy="1"/>
   <card name="iron_working" age="1" type="golden" res="coal" n="2" />
   <card name="israel" age="1" type="colony" vp="0" milmin="5" book="2"/>
-  <card name="legionary" age="1" type="military" nbattle="3" score="1_1" military="3" deploy="1" wheat="-1"/>
+  <card name="legionary" age="1" type="military" raid="3" score="1_1" military="3" deploy="1" wheat="-1"/>
   <card name="library" age="1" type="building" score="1_1" deploy="1" book="2" gold="1"/>
   <card name="lighthouse" age="1" type="building" score="1_1" deploy="1" gold="2" coal="1"/>
   <card name="lyceum" age="1" type="building" score="1_1" deploy="1" book="2" coal="1"/>
@@ -73,7 +73,7 @@
       </action>
     </round>
   </card>
-  <card name="phalanx" age="1" type="military" nbattle="3" score="1_1" military="4" deploy="1" coal="-2"/>
+  <card name="phalanx" age="1" type="military" raid="3" score="1_1" military="4" deploy="1" coal="-2"/>
   <card name="punic_wars" age="1" type="war" res="wheat" n="6" />
   <card name="pyramids" age="1" type="wonder" vp="3" arch="2_1_0" gold="2" wheat="-2"/>
   <card name="qin_shi_huang" age="1" type="advisor" wheat="3" >
@@ -103,7 +103,7 @@
   <card name="the_odyssey" age="1" type="golden" res="book" n="2" />
   <card name="the_oracle" age="1" type="wonder" vp="1" arch="2_1" stability="2"/>
   <card name="three_kingdoms" age="1" type="war" res="gold" n="5"/>
-  <card name="trireme" age="1" type="military" nbattle="3" score="1_1" military="3" deploy="2"/>
+  <card name="trireme" age="1" type="military" raid="3" score="1_1" military="3" deploy="2"/>
   <card name="warring_states" age="1" type="war" res="book" n="3" />
   <card name="wars_of_alexander" age="1" type="war" res="wheat" n="2" />
   <card name="ziggurat" age="1" type="building" score="1_1" stability="2" deploy="1" coal="1"/>

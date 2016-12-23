@@ -11,7 +11,7 @@ namespace ations
   public partial class Game : DependencyObject, INotifyPropertyChanged
   {
     #region  settings for control flow: change to determine game ablauf(eg how many rounds...)    
-    int rounds = 8;
+    int rounds = 2;
     int defaultNumActions = 1;
     int longDelay = 500, shortDelay = 100, minAnimationDuration = 1000; // default wait times 
     int ipl, iph, ird, iact; // gameloop counters
@@ -76,8 +76,7 @@ namespace ations
       {
         pl.HasPassed = false;
         pl.Defaulted.Clear();
-        pl.CalcMilitary();
-        pl.CalcStability();
+        pl.UpdateStabAndMil();
       }
 
       ipl = 0;
@@ -95,8 +94,11 @@ namespace ations
       //SelectedAction = null;
       MarkAllPlayerChoices();
     }
+
     async Task<bool> ProcessActionTask() //hier kommen action specific checks rein oder in die Tasks, vielleicht noch besser
     {
+      Debug.Assert(MainPlayer.Civ.Fields.All(x => x.Card != null), "ProcessActionTask: civ card null!!!");
+
       if (CancelClicked) { UnselectAll(); await Task.Delay(longDelay); return false; }
       else if (PassClicked) { MainPlayer.HasPassed = true; }
       else if (ArchitectSelected) { await TakeArchitectTask(); }
@@ -104,11 +106,12 @@ namespace ations
       else if (SelectedProgressField != null && SelectedCivField != null) { await BuyProgressCardTask(); }
       else if (SelectedProgressField != null && IsOneStepBuy(SelectedProgressField)) { await BuyProgressCardTask(); }
       else if (WorkerSelected && SelectedCivField != null) { DeployAvailableWorker(); }
-      else if (SelectedCivField != null && PreviousSelectedCivField != null) { DeployFromField(); }
+      else if (SelectedCivField != null && PreviousSelectedCivField != null && SelectedCivField.Card.NumDeployed > 0) { DeployFromField(); }
       else return false;
 
       return true;
     }
+
     void EndOfAction()
     {
       iact++;
