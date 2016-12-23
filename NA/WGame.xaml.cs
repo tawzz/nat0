@@ -97,5 +97,17 @@ namespace ations
       if (res.IsSelectable) Game.OnClickWorker(res);
     }
 
+    Choice lastChoice;
+    private void OnChoiceSelected(object sender, SelectionChangedEventArgs e)
+    {
+      var newchoice = (sender as ListBox).SelectedItem as Choice;
+      if (newchoice != null)
+      {
+        if (lastChoice != null) lastChoice.IsSelected = false;
+        newchoice.IsSelected = true;
+        Game.SelectedChoice = lastChoice = newchoice;
+
+      }
+    }
   }
 }

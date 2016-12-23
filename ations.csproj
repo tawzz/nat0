@@ -104,6 +104,7 @@
     <Compile Include="NA\Card.cs" />
     <Compile Include="NA\CardType.cs" />
     <Compile Include="NA\Causes.cs" />
+    <Compile Include="NA\Choice.cs" />
     <Compile Include="NA\Civ.cs" />
     <Compile Include="NA\Field.cs" />
     <Compile Include="NA\Game.cs" />

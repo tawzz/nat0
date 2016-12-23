@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <cards>
   <card name="temple" age="1" type="building" score="1" deploy="1" book="1" gold="1"/>
-  <card name="caravan" age="1" type="building" stab="1" score="1" deploy="1" gold="1"/>
+  <card name="caravan" age="1" type="building" stability="1" score="1" deploy="1" gold="1"/>
   <card name="egypt_dyn1" type="dynasty" private_architect="1"/>
 </cards>
 

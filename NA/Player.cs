@@ -17,7 +17,7 @@ namespace ations
 
     public ResDict Res { get; set; }
     public int RaidValue { get { return raidValue; } set { if (raidValue != value) { raidValue = value; NotifyPropertyChanged(); } } }
-    int raidValue=2;//testing TODO: compute!!!
+    int raidValue = 2;//testing TODO: compute!!!
     public ObservableCollection<Worker> ExtraWorkers { get; set; }//cost res, cost count, margin, is checked out
     public Dictionary<string, int> Defaulted { get; set; } //to record by how much defaulted per resource in current round
     public Brush Brush { get; set; }
@@ -32,8 +32,9 @@ namespace ations
     public bool HasPassed { get { return hasPassed; } set { if (hasPassed != value) { hasPassed = value; NotifyPropertyChanged(); } } }
     bool hasPassed;
 
-    public bool HasWIC { get { return !Civ.Fields[CardType.WIC].IsEmpty; } }
-    public Field WIC { get { return Civ.Fields[CardType.WIC]; } }
+    public bool HasWIC { get { return !WICField.IsEmpty; } }
+    public Field WICField { get { return Civ.Fields[CardType.WIC]; } }
+    public Card WIC { get { return HasWIC ? WICField.Card : null; } }
     public bool HasPrivateArchitect { get { return false; } } //gehoert zu checks
     #region positioning on stats board
     public Point LevelPosition { get; set; }
@@ -107,7 +108,7 @@ namespace ations
         if (books != value)
         {
           books = value;
-          Res.set("book",value);
+          Res.set("book", value);
           var b = value % 50;
           var x = BooksOffsetX0;
           x = b < 10 ? x + b * BooksX + 4 * Index //ok
@@ -163,7 +164,7 @@ namespace ations
 
       return newResCount;
     }
-    public bool Pay(int cost, string resname="gold") //expect cost positive number!, gold is default resname
+    public bool Pay(int cost, string resname = "gold") //expect cost positive number!, gold is default resname
     { //returns true if debt has been payed (even if defaulted), false if default in vp or cannot pay rest in books (>need picker!)
       var rescount = Res.n(resname);
       UpdateResBy(resname, -cost);
@@ -178,7 +179,7 @@ namespace ations
         }
         else Defaulted[resname] += diff;
 
-        if (resname == "book")  return false; //this player cannot pay in books!
+        if (resname == "book") return false; //this player cannot pay in books!
         return Pay(diff, "book");
       }
       return true; // this player has payed
@@ -214,10 +215,23 @@ namespace ations
     public int ComputeRaidValue()
     {
       var milcards = Cards.Where(x => x.mil()).ToArray();
-      var maxraid = milcards.Max(x => x.NumDeployed > 0 ? x.X.aint("battle"):0);
+      var maxraid = milcards.Max(x => x.NumDeployed > 0 ? x.X.aint("battle") : 0);
       return maxraid;
     }
-
+    public void CalcMilitary()
+    {
+      var mil = 0;
+      foreach (var c in Cards.Where(x => x != WIC)) { var factor = c.buildmil() ? c.NumDeployed : 1; mil += c.GetMilitary * factor; }
+      foreach (var w in ExtraWorkers.Where(x => x.IsCheckedOut)) { if (w.CostRes == "military") { mil -= w.Cost; } }
+      Military = mil; //add dyn or other special rules
+    }
+    public void CalcStability()
+    {
+      var stab = 0;
+      foreach (var c in Cards.Where(x => x != WIC)) { var factor = c.buildmil() ? c.NumDeployed : 1; stab += c.GetStability * factor; }
+      foreach (var w in ExtraWorkers.Where(x => x.IsCheckedOut)) { if (w.CostRes == "stability") { stab -= w.Cost; } }
+      Stability = stab; //add dyn or other special rules
+    }
 
     #region other safe helpers
     public event PropertyChangedEventHandler PropertyChanged; public void NotifyPropertyChanged([CallerMemberName] string propertyName = null) { this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName)); }

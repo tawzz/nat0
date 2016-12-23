@@ -99,6 +99,7 @@ namespace ations
     void Initialize()
     {
       ResChoices = new ObservableCollection<Res>();
+      Choices = new ObservableCollection<ations.Choice>();
       AnimationQueue = new List<Storyboard>();
 
       NumPlayers = 2;
@@ -113,8 +114,64 @@ namespace ations
     public void SetupForStart() //called after initialization
     {
       Title = "Nations Start!"; Message = "press Start!"; Caption = "Start"; LongMessage = "game initialization complete";
-      IsOkStartEnabled = true; Kickoff = GameLoop;
+      IsOkStartEnabled = true; Kickoff = GameLoop;//Tester;// testing
     }
+
+    #endregion
+
+    #region choice selection
+    public ObservableCollection<Choice> Choices { get; set; }
+    public bool ShowChoices { get { return showChoices; } set { showChoices = value; NotifyPropertyChanged(); } }
+    bool showChoices;
+    public Choice SelectedChoice { get { return (Choice)GetValue(SelectedChoiceProperty); } set { SetValue(SelectedChoiceProperty, value); } }
+    public static readonly DependencyProperty SelectedChoiceProperty = DependencyProperty.Register("SelectedChoice", typeof(Choice), typeof(Game), null);
+
+    public async void Tester() { Title = "Testing..."; LongMessage = Message = "TESTING CHOICE PICKER!!!"; await TestChoices(); }
+    public async Task TestChoices()
+    {
+      IsOkStartEnabled = false; IsRunning = true;
+
+      var choice = await WaitForPickChoiceCompleted(new string[] { "pick 3 coal", "go last", "steal a card from opponent" }, "event");
+
+      Message = choice.Text + " = your pick";
+      //Choices.Add(new Choice { Text = "pick 3 gold" });
+      //Choices.Add(new Choice { Text = "go first" });
+      //ShowChoices = true;
+      //await Task.Delay(longDelay);
+      //await WaitForButtonClick();
+      //var choice = SelectedChoice;
+      //if (choice != null) Message = "you picked " + SelectedChoice.Text; else Message = "NO Choice picked!";
+
+    }
+    async Task<Choice> WaitForPickChoiceCompleted(IEnumerable<string> choiceTexts, string forWhat)
+    {
+      Debug.Assert(Choices != null && Choices.Count == 0, "Choices null or not cleared for choice picker");
+      Debug.Assert(SelectedChoice == null, "start choice picker with choice already selected!");
+
+      foreach (var text in choiceTexts) Choices.Add(new Choice { Text = text });
+      ShowChoices = true; Caption = "Pick"; Message = MainPlayer.Name + ", pick " + forWhat + " choice";
+
+      var choice = await MakeSureUserPicksAChoice();
+
+      ShowChoices = false; Choices.Clear(); SelectedChoice = null;
+      Message = MainPlayer.Name + " picked " + choice.Text.ToCapital();
+
+      return choice;
+    }
+    async Task<Choice> MakeSureUserPicksAChoice()
+    {
+      while (SelectedChoice == null)
+      {
+        if (Interrupt) throw (new Exception("STOPPED BY PLAYER!"));
+        await Task.Delay(shortDelay);
+        await WaitForButtonClick();
+
+        var choice = SelectedChoice;
+        if (choice == null) { Message = "YOU DID NOT PICK ANYTHING!"; }
+      }
+      return SelectedChoice;
+    }
+
 
     #endregion
 
@@ -138,6 +195,62 @@ namespace ations
       var sb = Storyboards.Scale(ui, TimeSpan.FromSeconds(.3), new Point(1, 1), new Point(5, 2), null, true);
       AnimationQueue.Add(sb);
     }
+    async Task<Res> MakeSureUserPicksAResource()
+    {
+      while (SelectedResource == null)
+      {
+        await Task.Delay(shortDelay);
+        await WaitForButtonClick();
+
+        var res = SelectedResource;
+        if (res == null) { Message = "YOU DID NOT PICK ANYTHING!"; }
+      }
+      return SelectedResource;
+    }
+    async Task<Res> WaitForPickResourceCompleted(IEnumerable<string> resnames, int num, string forWhat)
+    {
+      Debug.Assert(ResChoices != null && ResChoices.Count == 0, "ResChoices not cleared for growth resource pick");
+      Debug.Assert(SelectedResource == null, "start resource pick with resource already selected!");
+
+      foreach (var rname in resnames) ResChoices.Add(new Res(rname));
+      Number = num;
+      ShowResChoices = true; Caption = "Pick"; Message = MainPlayer.Name + ", pick " + forWhat + " resource";
+
+      var res = await MakeSureUserPicksAResource();
+
+      ShowResChoices = false; ResChoices.Clear(); SelectedResource = null;
+      Message = MainPlayer.Name + " picked " + res.Name.ToCapital();
+
+      if (res.Name == "vp") Number = 1;
+
+      if (res.Name == "worker")
+      {
+        var workers = MainPlayer.ExtraWorkers;
+        var wfree1 = workers.FirstOrDefault(x => !x.IsCheckedOut);
+        var wfree2 = workers.LastOrDefault(x => !x.IsCheckedOut);
+        if (wfree1.CostRes != wfree2.CostRes)
+        {
+          Debug.Assert(ResChoices != null && ResChoices.Count == 0, "ResChoices not cleared for worker pick");
+          Debug.Assert(SelectedResource == null, "start worker pick with resource already selected!");
+
+          var resarr = MainPlayer.ExtraWorkers.Where(x => !x.IsCheckedOut).Select(x => x.CostRes).Distinct().ToArray();
+          foreach (var rname in resarr) ResChoices.Add(new Res(rname));
+          ShowResChoices = true; Message = "pick worker type";
+
+          res = await MakeSureUserPicksAResource();
+          ShowResChoices = false; ResChoices.Clear(); SelectedResource = null;
+
+          if (res.Name == wfree2.CostRes) wfree1 = wfree2;
+        }
+        Message = MainPlayer.Name + " picked " + wfree1.CostRes.ToCapital() + " worker";
+        MainPlayer.CheckOutWorker(wfree1);
+      }
+      else
+      {
+        MainPlayer.UpdateResBy(res.Name, Number);
+      }
+      return res;
+    }
 
 
     #endregion
@@ -145,7 +258,7 @@ namespace ations
     //player action parts
     #region 1. determine what user can do & enable
     public bool ArchitectAvailable { get { return (Stats.Architects > 0 || MainPlayer.HasPrivateArchitect); } }
-    public bool CanTakeArchitect { get { return canTakeArchitect; } set { canTakeArchitect = value; NotifyPropertyChanged(); } }
+    public bool CanTakeArchitect { get { return canTakeArchitect; } set { if (value) { Message=MainPlayer.Name; } canTakeArchitect = value; NotifyPropertyChanged(); } }
     bool canTakeArchitect;
     public bool CanTakeTurmoil { get { return canTakeTurmoil; } set { canTakeTurmoil = value; NotifyPropertyChanged(); } }
     bool canTakeTurmoil;
@@ -224,13 +337,13 @@ namespace ations
     public int CalcArchitectCost(Card card)
     {
       Debug.Assert(card != null, "CalcArchitectCost for null card called!");
-      var costs = Card.GetArchCostArray(card);
+      var costs = card.GetArchCostArray;
       var idx = card.NumDeployed;
       Debug.Assert(idx <= costs.Length, "CalcArchitectCost for wonder that was already ready!!!");
       return costs[idx];
     }
-    public int NumArchitects(Card card) { return Card.GetArchCostArray(card).Length; }
-    public bool CalcCanAffordArchitect() { return MainPlayer.Res.n("coal") >= CalcArchitectCost(MainPlayer.WIC.Card); }
+    public int NumArchitects(Card card) { return card.GetArchCostArray.Length; }
+    public bool CalcCanAffordArchitect() { return MainPlayer.Res.n("coal") >= CalcArchitectCost(MainPlayer.WICField.Card); }
     #endregion
 
     #region 2. get user click & select objects:
@@ -243,24 +356,24 @@ namespace ations
       UnselectProgress(); UnselectCiv(); UnselectPreviousCiv(); UnselectTurmoils(); UnselectWorker();
       Message = "Take Architect?";
       ArchitectSelected = true;
-      SelectedAction = TakeArchitect;
+      //SelectedAction = TakeArchitect;
     }
     public void OnClickTurmoils()
     {
       UnselectProgress(); UnselectCiv(); UnselectArchitects(); UnselectWorker();
       Message = "Take Turmoil?";
       TurmoilSelected = true;
-      SelectedAction = TakeTurmoil;
+      //SelectedAction = TakeTurmoil;
     }
     public void OnClickWorker(Res res)
     {
-      if (CanSelectWorker)// eliminate check
-      {
+      //if (CanSelectWorker)// eliminate check
+      //{
         WorkerSelected = true;
         UnselectTurmoils(); UnselectArchitects(); UnselectProgress(); UnselectPreviousCiv();
-        if (SelectedCivField != null) { Message = "Deploy?"; SelectedAction = DeployAvailableWorker; }
-        else { Message = "Select a field to which to deploy"; SelectedAction = PartialDeploy; }
-      }
+        if (SelectedCivField != null) { Message = "Deploy?"; }//SelectedAction = DeployAvailableWorker; }
+        else { Message = "Select a field to which to deploy"; }//SelectedAction = PartialDeploy; }
+      //}
     }
     public void OnClickProgressCard(Field field)
     {
@@ -271,8 +384,8 @@ namespace ations
       {
         SelectedProgressField = field;
         SelectedProgressField.Card.IsSelected = true;
-        if (IsOneStepBuy(field)) { Message = "Buy " + field.Card.Name + "?"; SelectedAction = BuyProgressCard; }
-        else { Message = "Select Place on Civ Board"; MarkPossiblePlacesForProgressCard(field.Card.Type); SelectedAction = PartialBuy; }
+        if (IsOneStepBuy(field)) { Message = "Buy " + field.Card.Name + "?"; }//        SelectedAction = BuyProgressCard; }
+        else { Message = "Select Place on Civ Board"; MarkPossiblePlacesForProgressCard(field.Card.Type); }// SelectedAction = PartialBuy; }
       }
     }
     public void OnClickCivCard(Field field)
@@ -294,8 +407,8 @@ namespace ations
       { //Buy
         UnselectWorker(); UnselectArchitects(); UnselectPreviousCiv();
         field.Card.IsSelected = true;
-        Message = "Buy " + field.Card.Name + "?";
-        SelectedAction = BuyProgressCard;
+        Message = "Buy " + SelectedProgressField.Card.Name + "?";
+        //SelectedAction = BuyProgressCard;
       }
       else if (field.Index == CardType.WIC && CanTakeArchitect)
       { //Architect
@@ -303,23 +416,23 @@ namespace ations
         field.Card.IsSelected = true;
         Message = "Take Architect?";
         ArchitectSelected = true;
-        SelectedAction = TakeArchitect;
+        //SelectedAction = TakeArchitect;
       }
       else if (CanDeploy && field.Card.buildmil())
       { //Deploy
         UnselectProgress(); UnselectArchitects();
         field.Card.IsSelected = true;
-        if (WorkerSelected) { Message = "Deploy?"; SelectedAction = DeployAvailableWorker; }
+        if (WorkerSelected) { Message = "Deploy?"; }// SelectedAction = DeployAvailableWorker; }
         else if (PreviousSelectedCivField != null)
         {
           if (field.Card.NumDeployed > 0)
           {
             Message = "Deploy?";
-            SelectedAction = DeployFromField;
+            //SelectedAction = DeployFromField;
           }
           else UnselectPreviousCiv();
         }
-        else { Message = "Select deploy source"; SelectedAction = PartialDeploy; }
+        else { Message = "Select deploy source"; }//SelectedAction = PartialDeploy; }
       }
     }
     bool IsOneStepBuy(Field field)
@@ -341,26 +454,9 @@ namespace ations
     #endregion
 
     #region 3. perform resulting actions: SelectedAction, tasks
-    //umbauen zu:
-    //public enum ActionStep { PartialBuy, PartialDeploy,TakeArchitect,TakeTurmoil,BuyDeployFromField,DeployFromWorkers}
-    public Action SelectedAction { get; set; }
-    public void PartialBuy() { }//dummy
-    public void PartialDeploy()
-    {
-      if (SelectedCivField != null && PreviousSelectedCivField != null)
-      {
-        DeployFromField();
-      }
-      else if (SelectedCivField != null && WorkerSelected)
-      {
-        DeployAvailableWorker();
-      }
-      else Message = "You need to select a place on civ board!";
-    }
-    public void TakeArchitect() { }//dummy
     public async Task TakeArchitectTask()
     {
-      var card = MainPlayer.WIC.Card;
+      var card = MainPlayer.WICField.Card;
       Debug.Assert(card != null, "TakeArchitect with empty wic!");
 
       var cost = CalcArchitectCost(card);
@@ -383,12 +479,11 @@ namespace ations
         Message = "pick a wonder space";
         await WaitForButtonClick();
       }
-      MainPlayer.MoveCivCard(MainPlayer.WIC.Card, MainPlayer.WIC, SelectedCivField);
+      MainPlayer.MoveCivCard(MainPlayer.WICField.Card, MainPlayer.WICField, SelectedCivField);
       SelectedCivField.Card.NumDeployed = 0;
       //SelectedCivField = null;
     }
-    public void TakeTurmoil() { Message = "not implemented"; }
-    public void BuyProgressCard() { }//dummy
+    public async Task TakeTurmoilTask() { Message = "not implemented"; await Task.Delay(200); }
     public async Task BuyProgressCardTask()
     {
       var card = SelectedProgressField.Card;
@@ -409,20 +504,6 @@ namespace ations
         MainPlayer.Pay(card.Cost);
         if (card.war()) { Stats.UpdateWarPosition(MainPlayer, card); }
         else if (card.golden()) await BuyGoldenAgeTask(card.X.astring("res"), card.X.aint("n"));
-        //{
-        //  var resname = card.X.astring("res");
-        //  var num = card.X.aint("n");
-        //  var canaffordvp = MainPlayer.Res.n("gold") >= Stats.Age;
-        //  if (canaffordvp)
-        //  {
-        //    var res = await WaitForPickResourceCompleted(new string[] { resname, "vp" }, num, "golden age");
-        //    if (res.Name=="vp") MainPlayer.Pay(Stats.Age);
-        //  }
-        //else
-        //{
-        //  MainPlayer.UpdateResBy(resname, num);
-        //}
-        //}
         else if (card.battle()) { await WaitForPickResourceCompleted(new string[] { "wheat", "coal", "book" }, MainPlayer.RaidValue, "battle"); }
       }
       Message = MainPlayer.Name + " bought " + card.Name;
@@ -507,62 +588,6 @@ namespace ations
       //sb.Completed += (s, _) => testcompleted(sb, testui); // brauche garkein completed in wirklichkeit! nur testing!
       sb.Begin();
       while (sb.GetCurrentState() == ClockState.Active && sb.GetCurrentTime() < sb.Duration) { await Task.Delay(200); }
-    }
-    async Task<Res> MakeSureUserPicksAResource()
-    {
-      while (SelectedResource == null)
-      {
-        await Task.Delay(shortDelay);
-        await WaitForButtonClick();
-
-        var res = SelectedResource;
-        if (res == null) { Message = "YOU DID NOT PICK ANYTHING!"; }
-      }
-      return SelectedResource;
-    }
-    async Task<Res> WaitForPickResourceCompleted(IEnumerable<string> resnames, int num, string forWhat)
-    {
-      Debug.Assert(ResChoices != null && ResChoices.Count == 0, "ResChoices not cleared for growth resource pick");
-      Debug.Assert(SelectedResource == null, "start resource pick with resource already selected!");
-
-      foreach (var rname in resnames) ResChoices.Add(new Res(rname));
-      Number = num;
-      ShowResChoices = true; Caption = "Pick"; Message = MainPlayer.Name + ", pick " + forWhat + " resource";
-
-      var res = await MakeSureUserPicksAResource();
-
-      ShowResChoices = false; ResChoices.Clear(); SelectedResource = null;
-      Message = MainPlayer.Name + " picked " + res.Name.ToCapital();
-
-      if (res.Name == "vp") Number = 1;
-
-      if (res.Name == "worker")
-      {
-        var workers = MainPlayer.ExtraWorkers;
-        var wfree1 = workers.FirstOrDefault(x => !x.IsCheckedOut);
-        var wfree2 = workers.LastOrDefault(x => !x.IsCheckedOut);
-        if (wfree1.CostRes != wfree2.CostRes)
-        {
-          Debug.Assert(ResChoices != null && ResChoices.Count == 0, "ResChoices not cleared for worker pick");
-          Debug.Assert(SelectedResource == null, "start worker pick with resource already selected!");
-
-          var resarr = MainPlayer.ExtraWorkers.Where(x => !x.IsCheckedOut).Select(x => x.CostRes).Distinct().ToArray();
-          foreach (var rname in resarr) ResChoices.Add(new Res(rname));
-          ShowResChoices = true; Message = "pick worker type";
-
-          res = await MakeSureUserPicksAResource();
-          ShowResChoices = false; ResChoices.Clear(); SelectedResource = null;
-
-          if (res.Name == wfree2.CostRes) wfree1 = wfree2;
-        }
-        Message = MainPlayer.Name + " picked " + wfree1.CostRes.ToCapital() + " worker";
-        MainPlayer.CheckOutWorker(wfree1);
-      }
-      else
-      {
-        MainPlayer.UpdateResBy(res.Name, Number);
-      }
-      return res;
     }
 
     #endregion

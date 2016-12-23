@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <cards>
-  <card name="stele" age="1" type="building" stab="1" score="1"  deploy="1" book="1" gold="1"/>
+  <card name="stele" age="1" type="building" stability="1" score="1"  deploy="1" book="1" gold="1"/>
   <card name="ethiopia_dyn1" type="dynasty">
     <player_order eff="add military to stability"/>
   </card>

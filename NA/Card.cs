@@ -171,8 +171,18 @@ namespace ations
       return card;
     }
 
-    public static int[] GetArchCostArray(Card card) { return GetArchCostArray(card.X); }
-    public static int[] GetArchCostArray(XElement xcard) { return xcard.astring("arch").Split('_').Select(x => int.Parse(x)).ToArray(); }
+    //access info on this card from xml
+    public int[] GetArchCostArray { get { return X.astring("arch").Split('_').Select(x => int.Parse(x)).ToArray(); } }
+    public int GetMilitary { get { return X.aint("military", 0); } }
+    public int GetStability { get { return X.aint("stability", 0); } }
+
+
+
+
+    //TODO: mach daraus non static
+    //public static int[] GetArchCostArray(Card card) { return GetArchCostArray(card.X); }
+    //public static int[] GetArchCostArray(XElement xcard) { return xcard.astring("arch").Split('_').Select(x => int.Parse(x)).ToArray(); }
+
 
     #region other safe helpers
     public event PropertyChangedEventHandler PropertyChanged; public void NotifyPropertyChanged([CallerMemberName] string propertyName = null) { this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName)); }

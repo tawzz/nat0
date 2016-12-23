@@ -33,6 +33,7 @@ namespace ations
       await WaitForRoundMarkerAnimationCompleted();
 
       Progress.Deal();
+
     }
     async Task GrowthPhaseTask()
     {
@@ -70,97 +71,43 @@ namespace ations
     void StartOfPlayerActions()
     {
       Title = "Round " + (ird + 1) + ": Player Actions"; LongMessage = "round " + ird + " is starting..."; Message = "click activated objects (cursor = hand) to perform actions"; iph = 1;
-      foreach (var pl in Players) { pl.HasPassed = false; pl.Defaulted.Clear(); }
+
+      foreach (var pl in Players)
+      {
+        pl.HasPassed = false;
+        pl.Defaulted.Clear();
+        pl.CalcMilitary();
+        pl.CalcStability();
+      }
+
       ipl = 0;
       MainPlayer = Players[ipl];
     }
     void StartOfPlayerTurn()
     {
-      MainPlayer.NumActions = defaultNumActions; 
+      MainPlayer.NumActions = defaultNumActions;
     }
     void StartOfAction()
     {
       Caption = "Ok";
       Message = MainPlayer.Name + ", choose action";
       AnimationQueue.Clear();
-      SelectedAction = null;
+      //SelectedAction = null;
       MarkAllPlayerChoices();
     }
-    async Task ProcessActionTask() //ugly, need to restructure
+    async Task<bool> ProcessActionTask() //hier kommen action specific checks rein oder in die Tasks, vielleicht noch besser
     {
-      if (PassClicked) { MainPlayer.HasPassed = true; UnselectAll(); } // next player turn
-      else if (CancelClicked) { UnselectAll(); await Task.Delay(longDelay); }
+      if (CancelClicked) { UnselectAll(); await Task.Delay(longDelay); return false; }
+      else if (PassClicked) { MainPlayer.HasPassed = true; }
+      else if (ArchitectSelected) { await TakeArchitectTask(); }
+      else if (TurmoilSelected) { await TakeTurmoilTask(); }
+      else if (SelectedProgressField != null && SelectedCivField != null) { await BuyProgressCardTask(); }
+      else if (SelectedProgressField != null && IsOneStepBuy(SelectedProgressField)) { await BuyProgressCardTask(); }
+      else if (WorkerSelected && SelectedCivField != null) { DeployAvailableWorker(); }
+      else if (SelectedCivField != null && PreviousSelectedCivField != null) { DeployFromField(); }
+      else return false;
 
-      else if (SelectedAction == TakeArchitect)
-      {
-        await TakeArchitectTask();
-        await WaitForAnimationQueueCompleted();
-        iact++;
-        UnselectAll();
-      }
-
-      else if (SelectedAction == BuyProgressCard)
-      {
-        await BuyProgressCardTask();
-        await WaitForAnimationQueueCompleted();
-        iact++;
-        UnselectAll();
-      }
-
-      else if (SelectedAction == PartialBuy) // progresscard has been selected, need select civ place
-      {
-        while (!CancelClicked && !PassClicked && SelectedCivField == null)
-        {
-          Message = "select place for card (PartialBuy)";
-          await WaitFor3ButtonClick();
-        }
-        if (CancelClicked) UnselectAll();
-        else if (PassClicked) { MainPlayer.HasPassed = true; UnselectAll(); }
-        else if (SelectedAction == BuyProgressCard)
-        {
-          await BuyProgressCardTask();
-          await WaitForAnimationQueueCompleted();
-          iact++;
-          UnselectAll();
-        }
-        else if (SelectedAction != null)
-        {
-          SelectedAction();
-          await WaitForAnimationQueueCompleted();
-          iact++;
-          UnselectAll(); // action completed
-        }
-      }
-      //************ end buy progress card action ****************************************
-
-      else if (SelectedAction == PartialDeploy) // partial information, need more selections
-      {
-        while (!CancelClicked && !PassClicked && !WorkerSelected && PreviousSelectedCivField == null)
-        {
-          await Task.Delay(200);
-          await WaitFor3ButtonClick();
-        }
-        if (CancelClicked) UnselectAll();
-        else if (PassClicked) { MainPlayer.HasPassed = true; UnselectAll(); }
-        else if (SelectedAction != null)
-        {
-          SelectedAction();
-          await WaitForAnimationQueueCompleted();
-          iact++;
-          UnselectAll(); // action completed
-        }
-      }
-      else if (SelectedAction != null)
-      {
-        SelectedAction();
-        //await RunSelectedAction(); // SelectedAction();
-        await WaitForAnimationQueueCompleted();
-        iact++;
-        UnselectAll(); // action completed
-      }
-
-
-
+      return true;
     }
     void EndOfAction()
     {
@@ -193,7 +140,7 @@ namespace ations
         while (ird < rounds)
         {
           await RoundAgeProgressTask(); // do not comment  
-          await GrowthPhaseTask(); //comment to go directly to action phase
+          //await GrowthPhaseTask(); //comment to go directly to action phase
           NewEvent(); // do not comment
 
           StartOfPlayerActions();// do not comment
@@ -204,8 +151,17 @@ namespace ations
             while (iact < MainPlayer.NumActions && !MainPlayer.HasPassed)
             {
               StartOfAction();
-              await WaitFor3ButtonClick();
-              await ProcessActionTask();
+
+              var actionComplete = false;
+              while (!actionComplete)
+              {
+                await WaitFor3ButtonClick();
+                actionComplete = await ProcessActionTask();
+              }
+              await WaitForAnimationQueueCompleted();
+              iact++;
+              UnselectAll();
+
               EndOfAction();
             }
 
@@ -215,7 +171,7 @@ namespace ations
 
           await ProductionTask();
 
-          Message = "END OF ROUND - press ok to continue..." + ird;
+          Message = "END OF ROUND " + (ird+1) +" - press ok to continue...";
           await WaitForButtonClick();
           ird++;
         }
