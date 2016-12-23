@@ -42,20 +42,27 @@ namespace ations
     {
       if (Deck == null || Deck.Length < Rows * Cols) UpdateDeck(age);
 
-      var cards = Deck.Take(Rows * Cols).ToArray();
-      Deck = Deck.Skip(Rows * Cols).ToArray();
+      //preserve cards from 1. row
+      var row1 = Fields.Take(Cols).Where(x => !x.IsEmpty).Select(x => x.Card).ToArray();// Cards.Take(Cols).Where(x=>!x.ToArray();
+      var num = Rows * Cols - row1.Count(); //Rows*Cols;
+
+      var cards = Deck.Take(num).Select(x=>Card.MakeCard(x)).ToArray();
+      cards = cards.Concat(row1).ToArray();
+      Deck = Deck.Skip(num).ToArray();
+
       Cards.Clear();
       for (int r = 0; r < Rows; r++)
         for (int c = 0; c < Cols; c++)
         {
           var idx = r * Cols + c;
-          var card = Card.MakeProgressCard(cards[idx], Fields[idx]);
-          if (string.IsNullOrEmpty(card.Name))
-          {
-            card.Name = "unknown card";
-          }
+          Fields[idx].Card = cards[idx];
+          //var card = Card.MakeProgressCard(xcards[idx], Fields[idx]);
+          //if (string.IsNullOrEmpty(card.Name))
+          //{
+          //  card.Name = "unknown card";
+          //}
           //TODO* card.Cost = 3 * (3 - r); //cards of row 3 not affordable unless picked gold! nur zum testen! 3-r;
-          Cards.Add(card);
+          Cards.Add(cards[idx]);
         }
     }
     public void Remove(Field field)

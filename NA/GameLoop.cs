@@ -111,8 +111,9 @@ namespace ations
     }
     void EndOfAction()
     {
+      iact++;
+      UnselectAll();
       PassClicked = OkStartClicked = CancelClicked = false;//clear buttons
-      UnselectAll();//end action
     }
     void EndOfPlayerTurn()
     {
@@ -158,10 +159,8 @@ namespace ations
                 await WaitFor3ButtonClick();
                 actionComplete = await ProcessActionTask();
               }
-              await WaitForAnimationQueueCompleted();
-              iact++;
-              UnselectAll();
 
+              await WaitForAnimationQueueCompleted();
               EndOfAction();
             }
 

@@ -104,7 +104,7 @@ namespace ations
       return card;
 
     }
-    public static Card MakeProgressCard(XElement xcard, Field field)
+    public static Card MakeCard(XElement xcard)
     {
       var name = xcard.astring("name");
       var type = xcard.astring("type");
@@ -120,6 +120,26 @@ namespace ations
       };
       card.ImageDeployObject = card.buildmil() ? Helpers.GetMiscImage("worker") :
           card.wonder() ? Helpers.GetMiscImage("architect") : Helpers.GetMiscImage("cross");
+
+      return card;
+    }
+    public static Card MakeProgressCard(XElement xcard, Field field)
+    {
+      var card = MakeCard(xcard);
+      //var name = xcard.astring("name");
+      //var type = xcard.astring("type");
+      //int age = xcard.aint("age", 1);
+      //var card = new Card
+      //{
+      //  Type = type,
+      //  Brush = CardType.typeColors[type],
+      //  Name = name,
+      //  Age = age,
+      //  X = xcard,
+      //  Image = Helpers.GetCardImage(name, age),
+      //};
+      //card.ImageDeployObject = card.buildmil() ? Helpers.GetMiscImage("worker") :
+      //    card.wonder() ? Helpers.GetMiscImage("architect") : Helpers.GetMiscImage("cross");
       field.Card = card;
 
       //card.CanBuy = true; //testing
