@@ -1,3 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
+<cards>
+  <card name="anna_komnene" age="2" type="advisor" military="2" book="1" eff="no_military_upkeep" />
+  <card name="ball_court" age="2" type="building" score="1_1_1" deploy="2" gold="3" wheat="1"/>
+  <card name="battle_of_manzikert" age="2" type="battle" ></card>
+  <card name="byzantine_arab_war" age="2" type="war" res="book" n="3" ></card>
+  <card name="camel_archer" age="2" type="military" raid="4" score="1_1_2" military="5" stability="-1" deploy="2" />
+  <card name="castle" age="2" type="building" score="1_1_1" stability="3" deploy="2" coal="1"/>
 
 </cards>

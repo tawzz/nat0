@@ -21,6 +21,7 @@ namespace ations
 {
   public static class Extensions
   {
+    public static IEnumerable<T> Plus<T>(this IEnumerable<T> list, T elem) { var result = list.ToList();result.Add(elem); return result;}
     public static T FindFirstVisual<T>(this DependencyObject obj) where T : DependencyObject
     {
       if (obj is T) return (T)obj;

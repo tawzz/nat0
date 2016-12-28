@@ -9,6 +9,7 @@ using System.Windows.Controls.Primitives;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace ations
 {
@@ -155,6 +156,7 @@ namespace ations
 
     public int UpdateResBy(string resname, int inc) // to pay with default, use Pay instead!
     {
+      if (inc == 0) return Res.n(resname);
       Debug.Assert(resname != "worker" || Res.n("worker") + inc >= 0, "UpdateResBy: neg #workers!!! ");
 
       if (resname == "stability") { Stability += inc; return Stability; }
@@ -165,7 +167,7 @@ namespace ations
       else Res.set(resname, newcount);
       return newcount;
     }
-    public bool Pay(int cost, string resname = "gold") //expect cost positive number!
+    public bool Pay(int cost, string resname = "gold") 
     { //returns true if debt has been payed (even if defaulted), false if default in vp or cannot pay rest in books (>need picker!)
       var rescount = Res.n(resname);
       UpdateResBy(resname, -cost);
@@ -210,7 +212,33 @@ namespace ations
     }
     public void UpdateStabAndMil() { Military = CalcMilitary(); Stability = CalcStability(); }
     public void RecomputeRaid() { RaidValue = CalcRaidFromMilWorkers(); } //ignores special cards that mod raid! >add that
+    public Res[] CalcNetBasicProduction()
+    {
+      List<Res> result = new List<Res>();
+      foreach (var c in Cards.Where(x => x != WIC))
+      {
+        List<Tuple<string, int>> tuples = c.GetResourceTuples();
+        var factor = c.buildmil() ? c.NumDeployed : 1;
+        if (factor == 0) continue;
+        foreach (var res in tuples)
+        {
+          var n = res.Item2*factor;
+          var resname = res.Item1;
+          Console.WriteLine("production: " + Name + " card: " + c.Name + ", res: " + resname + " by " + n);
+          if (result.All(x => x.Name != resname)) result.Add(new Res(resname, n)); else result.FirstOrDefault(x => x.Name == resname).Num += n;
+        }
+      }
+      foreach (var w in ExtraWorkers.Where(x => x.IsCheckedOut))
+      {
+        if (w.CostRes != "military" && w.CostRes != "stability")
+        {
+          if (result.All(x => x.Name != w.CostRes)) result.Add(new Res(w.CostRes, -w.Cost)); else result.FirstOrDefault(x => x.Name == w.CostRes).Num += -w.Cost;
+          Pay(w.Cost, w.CostRes);
+        }
+      }
 
+      return result.Where(x=>x.Num!=0).ToArray(); // return only resources that changed
+    }
 
     public void MoveCivCard(Card card, Field fromField, Field toField)
     {
@@ -220,13 +248,6 @@ namespace ations
       fromField.Card = Card.MakeEmptyCard(fromField, fromField.Type);
       Cards.Add(fromField.Card);
     }
-
-    //public bool MoreThanOneExtraWorkerType()
-    //{
-    //  var wfree1 = ExtraWorkers.FirstOrDefault(x => !x.IsCheckedOut);
-    //  var wfree2 = ExtraWorkers.LastOrDefault(x => !x.IsCheckedOut);
-    //  return (wfree1.CostRes != wfree2.CostRes);
-    //}
     public int CalcRaidFromMilWorkers()
     {
       var milcards = Cards.Where(x => x.mil()).ToArray();
@@ -248,9 +269,35 @@ namespace ations
       return stab; //add dyn or other special rules
     }
 
-    #region other safe helpers
     public event PropertyChangedEventHandler PropertyChanged; public void NotifyPropertyChanged([CallerMemberName] string propertyName = null) { this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName)); }
     public override string ToString() { return Name; }
-    #endregion
+
+    //public async Task BasicProduction(bool defaultPenalty = true)
+    //{
+    //  foreach (var c in Cards.Where(x => x != WIC))
+    //  {
+    //    List<Tuple<string, int>> tuples = c.GetResourceTuples();
+    //    var factor = c.buildmil() ? c.NumDeployed : 1;
+    //    if (factor == 0) continue;
+    //    foreach (var res in tuples)
+    //    {
+    //      var n = res.Item2;
+    //      var resname = res.Item1;
+    //      Console.WriteLine("production: " + Name + " card: " + c.Name + ", res: " + resname + " by " + n);
+    //      if (n < 0 && defaultPenalty) Pay(-n * factor, resname); else UpdateResBy(resname, n * factor);
+    //      await Task.Delay(100);
+    //    }
+    //  }
+    //  foreach (var w in ExtraWorkers.Where(x => x.IsCheckedOut))
+    //  {
+    //    if (w.CostRes != "military" && w.CostRes != "stability") { Pay(w.Cost, w.CostRes); }
+    //  }
+    //}
+    //public bool MoreThanOneExtraWorkerType()
+    //{
+    //  var wfree1 = ExtraWorkers.FirstOrDefault(x => !x.IsCheckedOut);
+    //  var wfree2 = ExtraWorkers.LastOrDefault(x => !x.IsCheckedOut);
+    //  return (wfree1.CostRes != wfree2.CostRes);
+    //}
   }
 }

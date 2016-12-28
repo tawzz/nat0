@@ -10,6 +10,8 @@
     <local:ItemContainerToZIndexConverter x:Key="ItemContainerToZIndexConverter" />
     <local:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
     <local:NumberToVisibilityConverter x:Key="NumberToVisibilityConverter" />
+    <local:NumberToStringConverter x:Key="NumberToStringConverter" />
+    <local:NumberToBrushConverter x:Key="NumberToBrushConverter" />
 
     <ItemsPanelTemplate x:Key="UGrid1">
       <UniformGrid Rows="1" />

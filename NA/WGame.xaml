@@ -304,11 +304,11 @@
                            HorizontalAlignment="Left"
                            VerticalAlignment="Top"
                            Margin="43,6,0,0">
-                <StackPanel Cursor="{Binding CanTakeArchitect,Converter={StaticResource BooleanToCursorConverter}}"
+                <StackPanel Cursor="{Binding ArchitectEnabled,Converter={StaticResource BooleanToCursorConverter}}"
                             x:Name="spArchitects"
                             Margin="2"
                             MouseLeftButtonUp="OnClickArchitects">
-                  <!--Background="{Binding CanTakeArchitect, Converter={StaticResource BooleanToBackgroundConverter}}"-->
+                  <!--Background="{Binding ArchitectEnabled, Converter={StaticResource BooleanToBackgroundConverter}}"-->
                   <Grid x:Name="gridArchitects">
                     <Ellipse Fill="White"
                              Width="70"
@@ -326,11 +326,11 @@
                          Opacity="1"
                          Height="50" />
                 </StackPanel>
-                <StackPanel Cursor="{Binding CanTakeTurmoil,Converter={StaticResource BooleanToCursorConverter}}"
+                <StackPanel Cursor="{Binding TurmoilEnabled,Converter={StaticResource BooleanToCursorConverter}}"
                             x:Name="spTurmoils"
                             Margin="2"
                             MouseLeftButtonUp="OnClickTurmoils">
-                  <!--Background="{Binding CanTakeTurmoil, Converter={StaticResource BooleanToBackgroundConverter}}"-->
+                  <!--Background="{Binding TurmoilEnabled, Converter={StaticResource BooleanToBackgroundConverter}}"-->
                   <Grid x:Name="gridTurmoils">
                     <Ellipse Fill="White"
                              Width="70"
@@ -517,7 +517,7 @@
                 <DataTemplate>
                   <Grid Margin="{Binding Margin}"
                         Background="Black">
-                    <Button IsEnabled="{Binding Card.CanActivate}"
+                    <Button IsEnabled="{Binding Card.IsEnabled}"
                             Click="OnClickCivCard"
                             Margin="-4"
                             Visibility="{Binding Card, Converter={StaticResource NullToVisibilityConverter}}"
@@ -629,7 +629,7 @@
                   <DataTemplate>
                     <Button IsEnabled="{Binding IsSelectable}"
                             Margin="0,14,0,0"
-                            Click="OnClickResource"
+                            Click="OnClickCivResource"
                             Background="Transparent">
                       <Button.Template>
                         <ControlTemplate TargetType="{x:Type Button}">
@@ -816,21 +816,86 @@
                  VerticalAlignment="Center"
                  Margin="20,30"
                  HorizontalAlignment="Center" />
-        <ListBox Grid.Row="1"
-                 BorderBrush="Transparent"
+
+        <ListBox x:Name="listPickChoice" Grid.Row="1" BorderBrush="Transparent"
+                 Visibility="{Binding ShowChoices, Converter={StaticResource BooleanToVisibilityConverter}}"
                  Background="{Binding MainPlayer.Brush}"
-                 ItemContainerStyle="{StaticResource StyleChoices}"
                  ItemsSource="{Binding Choices}"
-                 SelectionChanged="OnChoiceSelected"
-                 HorizontalContentAlignment="Stretch"
-                 VerticalContentAlignment="Stretch"
-                 ScrollViewer.HorizontalScrollBarVisibility="Hidden"
-                 Margin="4"
-                 HorizontalAlignment="Center"
-                 ItemsPanel="{StaticResource UGrid1Column}" />
+                 SelectedItem="{Binding SelectedChoice, Mode=TwoWay}"
+                 VerticalAlignment="Center"
+                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                 HorizontalAlignment="Center">
+          <ListBox.ItemContainerStyle>
+            <Style TargetType="ListBoxItem">
+              <Setter Property="Template">
+                <Setter.Value>
+                  <ControlTemplate TargetType="ListBoxItem">
+                    <Grid>
+                      <Border x:Name="border"
+                              BorderThickness="1"
+                              BorderBrush="Gray"
+                              Cursor="Hand"
+                              CornerRadius="4"
+                              Margin="12,8">
+                        <TextBlock TextWrapping="Wrap"
+                                   Text="{Binding Text}"
+                                   TextAlignment="Center"
+                                   Foreground="White"
+                                   Padding="4" />
+                      </Border>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                      <DataTrigger Binding="{Binding IsSelected}"
+                                   Value="True">
+                        <Setter Property="Background"
+                                TargetName="border"
+                                Value="#0D000000" />
+                        <Setter Property="BorderBrush"
+                                TargetName="border"
+                                Value="Yellow" />
+                      </DataTrigger>
+                    </ControlTemplate.Triggers>
+                  </ControlTemplate>
+                </Setter.Value>
+              </Setter>
+            </Style>
+          </ListBox.ItemContainerStyle>
+        </ListBox>
+
+        <ItemsControl x:Name="listProduction"
+                 Grid.Row="1"
+                 BorderBrush="Transparent"
+                 Visibility="{Binding ShowProduction, Converter={StaticResource BooleanToVisibilityConverter}}"
+                 Background="{Binding MainPlayer.Brush}"
+                 ItemsSource="{Binding NetProduction}"
+                 VerticalAlignment="Center"
+                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                 HorizontalAlignment="Center">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate>
+              <Grid>
+                <Border x:Name="border"
+                        BorderThickness="1"
+                        BorderBrush="Gray"
+                        CornerRadius="4"
+                        Margin="12,8">
+                  <StackPanel Orientation="Horizontal">
+                    <TextBlock TextWrapping="Wrap"
+                               Text="{Binding Num,Converter={StaticResource NumberToStringConverter},ConverterParameter='You gain {0}/You lose {0}'}"
+                               TextAlignment="Center"
+                               Foreground="{Binding Num,Converter={StaticResource NumberToBrushConverter}}"
+                               Padding="4" />
+                    <Image Source="{Binding Path}"
+                           Height="30" />
+                  </StackPanel>
+                </Border>
+              </Grid>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
 
         <Border Grid.Row="2"
-                Background="#70000000">
+                Background="#30000000">
           <TextBlock x:Name="tTodo"
                      Text="{Binding Message}"
                      Foreground="White"
@@ -849,7 +914,8 @@
                    BasedOn="{StaticResource ButtonStyle1}" />
           </Grid.Resources>
 
-          <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+          <StackPanel Orientation="Horizontal"
+                      HorizontalAlignment="Center">
             <Button Content="{Binding Caption}"
                     Click="OnClickButton"
                     MinWidth="100"
@@ -878,7 +944,7 @@
       <!-- progress -->
       <Grid x:Name="gProgress"
             Background="{Binding MainPlayer.Brush}">
-        <Viewbox>
+        <Viewbox x:Name="vbProgress">
           <Grid Width="1412"
                 Height="964"
                 DataContext="{Binding Progress}">
@@ -892,7 +958,7 @@
                         Height="264"
                         HorizontalAlignment="Left"
                         VerticalAlignment="Top">
-                    <Button IsEnabled="{Binding Card.CanBuy}"
+                    <Button IsEnabled="{Binding Card.IsEnabled}"
                             Click="OnClickProgressCard"
                             Margin="-4"
                             Visibility="{Binding Card, Converter={StaticResource NullToVisibilityConverter}}"
@@ -991,7 +1057,145 @@
             </ItemsControl>
           </Grid>
         </Viewbox>
+        <ToggleButton IsChecked="{Binding ElementName=cardMagnifier, Path=IsOpen}"
+                      Content="magnify!"
+                      HorizontalAlignment="Right"
+                      VerticalAlignment="Top"
+                      Padding="6,0,6,6"
+                      Background="Transparent"
+                      Foreground="White" />
       </Grid>
     </DockPanel>
+
+    <Popup Placement="Center"
+           HorizontalAlignment="Stretch"
+           VerticalAlignment="Stretch"
+           AllowsTransparency="True"
+           PopupAnimation="Fade"
+           x:Name="cardMagnifier">
+      <Grid>
+        <Viewbox HorizontalAlignment="Stretch"
+                 VerticalAlignment="Stretch">
+          <Grid Width="1412"
+                Height="964"
+                DataContext="{Binding Progress}">
+            <Image Source="{Binding Image}" />
+            <ItemsControl ItemsSource="{Binding Fields}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                  <Grid Background="Transparent"
+                        Width="172"
+                        Height="264"
+                        HorizontalAlignment="Left"
+                        VerticalAlignment="Top">
+                    <Button IsEnabled="{Binding Card.IsEnabled}"
+                            Click="OnClickProgressCard"
+                            Margin="-4"
+                            Visibility="{Binding Card, Converter={StaticResource NullToVisibilityConverter}}"
+                            Background="Transparent">
+                      <Button.Template>
+                        <ControlTemplate TargetType="{x:Type Button}">
+                          <Border x:Name="border"
+                                  BorderBrush="Transparent"
+                                  BorderThickness="4"
+                                  Background="Transparent"
+                                  SnapsToDevicePixels="true">
+                            <Grid x:Name="contentPresenter"
+                                  Focusable="False">
+                              <Image Source="{Binding Card.Image}"
+                                     Stretch="Fill" />
+                              <Border BorderBrush="{Binding Card.Brush}"
+                                      BorderThickness="12"
+                                      CornerRadius="4" />
+                            </Grid>
+                          </Border>
+                          <ControlTemplate.Triggers>
+                            <DataTrigger Binding="{Binding Card.IsSelected}"
+                                         Value="True">
+                              <Setter Property="BorderBrush"
+                                      TargetName="border"
+                                      Value="Yellow" />
+                              <Setter Property="BorderThickness"
+                                      TargetName="border"
+                                      Value="24" />
+                              <!--<Setter Property="Margin" TargetName="border" Value="-16" />-->
+                              <Setter Property="Background"
+                                      TargetName="border"
+                                      Value="Yellow" />
+                            </DataTrigger>
+                            <!--Property="IsChecked" Value="true">
+                              <Setter Property="BorderBrush" TargetName="border" Value="Yellow" />
+                              <Setter Property="BorderThickness" TargetName="border" Value="24" />
+                              <Setter Property="Margin" TargetName="border" Value="-16" />
+                              <Setter Property="Background" TargetName="border" Value="Yellow" />
+                            </DataTrigger>-->
+                            <!--<Trigger Property="IsChecked" Value="false">
+                              <Setter Property="BorderBrush" TargetName="border" Value="SpringGreen" />
+                              <Setter Property="BorderThickness" TargetName="border" Value="24" />
+                              <Setter Property="Margin" TargetName="border" Value="-16" />
+                              <Setter Property="Background" TargetName="border" Value="Yellow" />
+                            </Trigger>-->
+                            <Trigger Property="IsPressed"
+                                     Value="true">
+                              <Setter Property="OpacityMask"
+                                      TargetName="border"
+                                      Value="#A0000000" />
+                              <Setter Property="BorderBrush"
+                                      TargetName="border"
+                                      Value="#A0000000" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled"
+                                     Value="true">
+                              <Setter Property="Cursor"
+                                      TargetName="border"
+                                      Value="Hand" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled"
+                                     Value="false">
+                              <Setter Property="Cursor"
+                                      TargetName="border"
+                                      Value="Hand" />
+                              <Setter Property="Opacity"
+                                      TargetName="contentPresenter"
+                                      Value=".9" />
+                            </Trigger>
+                          </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                      </Button.Template>
+                    </Button>
+                    <Grid.ToolTip>
+                      <Grid Margin="-6,-4"
+                            ClipToBounds="true">
+                        <Image Source="{Binding Card.Image}" />
+                        <Border BorderBrush="{Binding Card.Brush}"
+                                BorderThickness="16" />
+                        <TextBlock Text="{Binding Card.Name}"
+                                   Foreground="Red"
+                                   FontWeight="Bold" />
+                      </Grid>
+                    </Grid.ToolTip>
+                  </Grid>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+              <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                  <UniformGrid Rows="3"
+                               Columns="{Binding Cols}"
+                               Margin="{Binding Margin}" />
+                </ItemsPanelTemplate>
+              </ItemsControl.ItemsPanel>
+            </ItemsControl>
+          </Grid>
+        </Viewbox>
+        <Button Content="Close"
+                Click="OnMagnifyClose"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Top"
+                FontSize="24"
+                FontWeight="Bold"
+                Foreground="White"
+                Background="Transparent" />
+      </Grid>
+    </Popup>
   </Grid>
 </Window>

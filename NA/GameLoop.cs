@@ -5,15 +5,16 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Media.Imaging;
 
 namespace ations
 {
   public partial class Game : DependencyObject, INotifyPropertyChanged
   {
-    #region  settings for control flow: change to determine game ablauf(eg how many rounds...)    
-    int rounds = 2;
+    #region  settings for gameloop (eg how many rounds...)    
+    int rounds = 4;
     int defaultNumActions = 1;
-    int longDelay = 500, shortDelay = 100, minAnimationDuration = 1000; // default wait times 
+    int longDelay = 400, shortDelay = 100, minAnimationDuration = 1000; // default wait times 
     int ipl, iph, ird, iact; // gameloop counters
 
     //unused:
@@ -22,7 +23,7 @@ namespace ations
     //int[] actPerMoveDefault = { 1, 1, 0 }; // how many actions does this player have each turn by default (eg sun tzu: 2 actions in first turn)
     #endregion
 
-    #region gameloop parts
+    #region gameloop start of round
 
     async Task RoundAgeProgressTask()
     {
@@ -68,6 +69,10 @@ namespace ations
       Stats.PickEventCard();
 
     }
+
+    #endregion
+
+    #region gameloop player actions
     void StartOfPlayerActions()
     {
       Title = "Round " + (ird + 1) + ": Player Actions"; LongMessage = "round " + ird + " is starting..."; Message = "click activated objects (cursor = hand) to perform actions"; iph = 1;
@@ -89,33 +94,36 @@ namespace ations
     void StartOfAction()
     {
       Caption = "Ok";
-      Message = MainPlayer.Name + ", choose action";
       AnimationQueue.Clear();
-      //SelectedAction = null;
-      MarkAllPlayerChoices();
+      SetStartActionContext();
     }
 
-    async Task<bool> ProcessActionTask() //hier kommen action specific checks rein oder in die Tasks, vielleicht noch besser
+    async Task ActionLoop()
     {
-      Debug.Assert(MainPlayer.Civ.Fields.All(x => x.Card != null), "ProcessActionTask: civ card null!!!");
+      int testCounter = 0;
+      while (!ActionComplete)
+      {
+        UpdateUI();
+        await WaitForThreeButtonClick();
 
-      if (CancelClicked) { UnselectAll(); await Task.Delay(longDelay); return false; }
-      else if (PassClicked) { MainPlayer.HasPassed = true; }
-      else if (ArchitectSelected) { await TakeArchitectTask(); }
-      else if (TurmoilSelected) { await TakeTurmoilTask(); }
-      else if (SelectedProgressField != null && SelectedCivField != null) { await BuyProgressCardTask(); }
-      else if (SelectedProgressField != null && IsOneStepBuy(SelectedProgressField)) { await BuyProgressCardTask(); }
-      else if (WorkerSelected && SelectedCivField != null) { DeployAvailableWorker(); }
-      else if (SelectedCivField != null && PreviousSelectedCivField != null && SelectedCivField.Card.NumDeployed > 0) { DeployFromField(); }
-      else return false;
-
-      return true;
+        if (CancelClicked) { Message = "Action Canceled!"; SetStartActionContext(); await Task.Delay(longDelay); }
+        else if (PassClicked) { Message = MainPlayer.Name + " Passed"; DisableAndUnselectAll(); await Task.Delay(longDelay); MainPlayer.HasPassed = true; ActionComplete = true; }
+        else if (ActionComplete)
+        {  //achtung: reihenfolge wichtig bei folgenden clauses
+          if (ArchitectSelected) { await TakeArchitectTask(); }
+          else if (TurmoilSelected) { await TakeTurmoilTask(); }
+          else if (ProgressField != null) { await BuyProgressCardTask(); }
+          else if (WorkerSelected && DeployTarget != null) { DeployAvailableWorker(); }
+          else if (DeploySource != null && DeployTarget != null) { DeployFromField(); }
+        }
+        else LongMessage = "action incomplete... please complete your action " + (++testCounter);
+      }
     }
 
     void EndOfAction()
     {
       iact++;
-      UnselectAll();
+      DisableAndUnselectAll();// UnselectAll();
       PassClicked = OkStartClicked = CancelClicked = false;//clear buttons
     }
     void EndOfPlayerTurn()
@@ -126,11 +134,46 @@ namespace ations
       var plarr = Players.SkipWhile(x => x != MainPlayer).Skip(1).SkipWhile(x => x.HasPassed).ToArray();
       MainPlayer = plarr.FirstOrDefault() ?? Players.SkipWhile(x => x.HasPassed).FirstOrDefault() ?? Players[0];
     }
-    void EndOfPlayerActions() { }
+    void EndOfPlayerActions() { ipl = 0;  }
+
+    #endregion
+
+    #region gameloop end of round
+
     async Task ProductionTask()
     {
       Title = "Round " + (ird + 1) + ": Production"; LongMessage = "round " + ird + " production is starting..."; iph = 2;
       Message = "Production...";
+      Debug.Assert(ipl == 0, "production phase not starting with ipl != 0!");
+      NetProduction.Clear();
+      ShowProduction = true;
+      while (ipl < NumPlayers)
+      {
+        MainPlayer = Players[ipl];
+
+        await Task.Delay(shortDelay);
+
+        Res[] netProduction = MainPlayer.CalcNetBasicProduction();
+        foreach(var res in netProduction)
+        {
+          MainPlayer.Pay(-res.Num, res.Name);
+          NetProduction.Add(res);
+          //make mods to production?
+          //react to defaults
+          await Task.Delay(shortDelay);
+          await WaitForAnimationQueueCompleted();
+        }
+
+        ipl++;
+
+        //falls defaults da sind, muss multichoicepicker aktivieren um abzubezahlen
+        Message = "next player...";
+        await WaitForButtonClick();
+        NetProduction.Clear();
+      }
+      LongMessage = "production phase ending..."; await Task.Delay(longDelay); LongMessage = "production phase over!"; Console.WriteLine("\t" + LongMessage);
+      ShowProduction = false;
+
       await Task.Delay(longDelay);
     }
 
@@ -140,42 +183,34 @@ namespace ations
     {
       try
       {
-        IsOkStartEnabled = false; IsRunning = true; //gov = false; use later
+        IsOkStartEnabled = false; IsRunning = true;
         while (ird < rounds)
         {
-          await RoundAgeProgressTask(); // do not comment  
-          //await GrowthPhaseTask(); //comment to go directly to action phase
-          NewEvent(); // do not comment
-
-          StartOfPlayerActions();// do not comment
+          await RoundAgeProgressTask();
+          await GrowthPhaseTask(); //comment to go directly to action phase
+          NewEvent();
+          StartOfPlayerActions();
           while (!MainPlayer.HasPassed)
           {
             StartOfPlayerTurn();
-
             while (iact < MainPlayer.NumActions && !MainPlayer.HasPassed)
             {
+              // action starts here *******************************************************
               StartOfAction();
-
-              var actionComplete = false;
-              while (!actionComplete)
-              {
-                await WaitFor3ButtonClick();
-                actionComplete = await ProcessActionTask();
-              }
-
+              await ActionLoop();
               await WaitForAnimationQueueCompleted();
               EndOfAction();
+              // action ends here *******************************************************
             }
-
             EndOfPlayerTurn();
           }
           EndOfPlayerActions();
 
           await ProductionTask();
 
-          Message = "END OF ROUND " + (ird+1) +" - press ok to continue...";
+          Message = "round end! press ok to continue...";
           await WaitForButtonClick();
-          ird++;
+          ird++;ipl = 0;iph = 0;
         }
         LongMessage = Message = "GAME OVER!";
       }

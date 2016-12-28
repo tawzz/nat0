@@ -34,7 +34,7 @@ namespace ations
 
     #region other safe helpers
     public event PropertyChangedEventHandler PropertyChanged; public void NotifyPropertyChanged([CallerMemberName] string propertyName = null) { this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName)); }
-    public override string ToString() { return Type; }
+    public override string ToString() { return Card!=null?Card.ToString(): Type; }
     #endregion
   }
 }

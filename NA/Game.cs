@@ -99,6 +99,7 @@ namespace ations
     void Initialize()
     {
       ResChoices = new ObservableCollection<Res>();
+      NetProduction = new ObservableCollection<Res>();
       Choices = new ObservableCollection<ations.Choice>();
       AnimationQueue = new List<Storyboard>();
 
@@ -110,39 +111,32 @@ namespace ations
       SetupForStart();
       //Stats.WarCard = ACard.MakeCard("hyksos_invasion", 1); //testing design
       //Stats.EventCard = ACard.MakeEventCard("attila"); //testing design
+
+
+
     }
     public void SetupForStart() //called after initialization
     {
       Title = "Nations Start!"; Message = "press Start!"; Caption = "Start"; LongMessage = "game initialization complete";
       IsOkStartEnabled = true; Kickoff = GameLoop;//Tester;// testing
+
+      ////testing
+      //Choices.Add(new Choice { Text = "Upgrade Dynasty erst einmal als ganz langer choices der sicher 3 zeilen braucht" });
+      //Choices.Add(new Choice { Text = "Upgrade Dynasty" });
+      //Choices.Add(new Choice { Text = "Take 2 Gold" });
+      //ShowChoices = true;
     }
 
     #endregion
 
     #region choice selection
+
     public ObservableCollection<Choice> Choices { get; set; }
     public bool ShowChoices { get { return showChoices; } set { showChoices = value; NotifyPropertyChanged(); } }
     bool showChoices;
     public Choice SelectedChoice { get { return (Choice)GetValue(SelectedChoiceProperty); } set { SetValue(SelectedChoiceProperty, value); } }
     public static readonly DependencyProperty SelectedChoiceProperty = DependencyProperty.Register("SelectedChoice", typeof(Choice), typeof(Game), null);
 
-    public async void Tester() { Title = "Testing..."; LongMessage = Message = "TESTING CHOICE PICKER!!!"; await TestChoices(); }
-    public async Task TestChoices()
-    {
-      IsOkStartEnabled = false; IsRunning = true;
-
-      var choice = await WaitForPickChoiceCompleted(new string[] { "pick 3 coal", "go last", "steal a card from opponent" }, "event");
-
-      Message = choice.Text + " = your pick";
-      //Choices.Add(new Choice { Text = "pick 3 gold" });
-      //Choices.Add(new Choice { Text = "go first" });
-      //ShowChoices = true;
-      //await Task.Delay(longDelay);
-      //await WaitForButtonClick();
-      //var choice = SelectedChoice;
-      //if (choice != null) Message = "you picked " + SelectedChoice.Text; else Message = "NO Choice picked!";
-
-    }
     async Task<Choice> WaitForPickChoiceCompleted(IEnumerable<string> choiceTexts, string forWhat)
     {
       Debug.Assert(Choices != null && Choices.Count == 0, "Choices null or not cleared for choice picker");
@@ -172,14 +166,16 @@ namespace ations
       return SelectedChoice;
     }
 
-
     #endregion
 
-    #region  resource selection/update
+    #region  resource selection/update/production
 
     public ObservableCollection<Res> ResChoices { get; set; }
+    public ObservableCollection<Res> NetProduction { get; set; }
     public bool ShowResChoices { get { return showResChoices; } set { if (showResChoices != value) { showResChoices = value; NotifyPropertyChanged(); } } }
     bool showResChoices;
+    public bool ShowProduction { get { return showProduction; } set { if (showProduction != value) { showProduction = value; NotifyPropertyChanged(); } } }
+    bool showProduction;
     public Res SelectedResource { get { return (Res)GetValue(SelectedResourceProperty); } set { SetValue(SelectedResourceProperty, value); } }
     public static readonly DependencyProperty SelectedResourceProperty = DependencyProperty.Register("SelectedResource", typeof(Res), typeof(Game), null);
     public int Number { get; set; }
@@ -255,58 +251,17 @@ namespace ations
 
     #endregion
 
-    //player action parts
-    #region 1. determine what user can do & enable
-    public bool ArchitectAvailable { get { return (Stats.Architects > 0 || MainPlayer.HasPrivateArchitect); } }
-    public bool CanTakeArchitect { get { return canTakeArchitect; } set { if (value) { Message = MainPlayer.Name; } canTakeArchitect = value; NotifyPropertyChanged(); } }
-    bool canTakeArchitect;
-    public bool CanTakeTurmoil { get { return canTakeTurmoil; } set { canTakeTurmoil = value; NotifyPropertyChanged(); } }
-    bool canTakeTurmoil;
-    public bool CanDeploy { get { return MainPlayer.Res.n("coal") > Stats.Age; } } //simplified
-    public bool CanSelectWorker { get { return MainPlayer.Res.get("worker").IsSelectable; } set { MainPlayer.Res.get("worker").IsSelectable = value; NotifyPropertyChanged(); } }
-    public bool CanBuyProgressCard { get { return canBuyProgressCard; } set { if (canBuyProgressCard != value) { canBuyProgressCard = value; NotifyPropertyChanged(); } } }
-    bool canBuyProgressCard;
-    public bool CanPlaceCard { get { return canPlaceCard; } set { if (canPlaceCard != value) { canPlaceCard = value; NotifyPropertyChanged(); } } }
-    bool canPlaceCard;
+    #region helpers
 
-    public bool IsOkStartEnabled { get { return isOkStartEnabled; } set { if (isOkStartEnabled != value) { isOkStartEnabled = value; NotifyPropertyChanged(); } } }
-    bool isOkStartEnabled;
-    public bool IsPassEnabled { get { return isPassEnabled; } set { if (isPassEnabled != value) { isPassEnabled = value; NotifyPropertyChanged(); } } }
-    bool isPassEnabled;
-    public bool IsCancelEnabled { get { return isCancelEnabled; } set { if (isCancelEnabled != value) { isCancelEnabled = value; NotifyPropertyChanged(); } } }
-    bool isCancelEnabled;
+    public void RandomPlayerOrder()
+    {
+      var plarr = Players.OrderBy(x => Rand.N()).ToArray();
+      Players.Clear();
+      foreach (var pl in plarr) Players.Add(pl);
+      for (int i = 0; i < Players.Count; i++) Players[i].Index = i;
+      MainPlayer = Players[0];
+    }
 
-    public void MarkAllPlayerChoices()
-    {
-      MarkPossibleProgressCards();
-      MarkCiv(); //TODO: check which cards can be activated
-      MarkArchitects();
-      MarkTurmoils();
-      MarkWorkers();
-
-    }
-    public void MarkPossibleProgressCards()
-    {
-      UnmarkProgresscards();
-      foreach (var f in Progress.Fields.Where(x => x.Card != null)) f.Card.CanBuy = CalculateCanBuy(f);
-    }
-    public void MarkCiv()
-    {
-      foreach (var f in MainPlayer.Civ.Fields.Where(x => !x.IsEmpty)) f.Card.CanActivate = true; // refine!
-    }
-    public void MarkArchitects() { CanTakeArchitect = ArchitectAvailable && MainPlayer.HasWIC && CalcCanAffordArchitect(); }
-    public void MarkTurmoils() { CanTakeTurmoil = true; }
-    public void MarkWorkers() { CanSelectWorker = MainPlayer.Res.n("worker") > 0 && CanDeploy; }
-    public void MarkPossiblePlacesForProgressCard(string type)
-    {
-      UnmarkPlaces();
-      foreach (var f in GetPossiblePlacesForCard(type)) f.Card.CanActivate = true;
-    }
-    public void MarkPossiblePlacesForWIC()
-    {
-      UnmarkPlaces();
-      foreach (var f in MainPlayer.Civ.Fields.Where(x => x.Type == "wonder")) f.Card.CanActivate = true;
-    }
     public IEnumerable<Field> GetPossiblePlacesForCard(string type)
     {
       Console.WriteLine(MainPlayer.Name);
@@ -342,118 +297,56 @@ namespace ations
       Debug.Assert(idx <= costs.Length, "CalcArchitectCost for wonder that was already ready!!!");
       return costs[idx];
     }
+    public bool ArchitectAvailable { get { return (Stats.Architects > 0 || MainPlayer.HasPrivateArchitect); } }
     public int NumArchitects(Card card) { return card.GetArchCostArray.Length; }
     public bool CalcCanAffordArchitect() { return MainPlayer.Res.n("coal") >= CalcArchitectCost(MainPlayer.WICField.Card); }
-    #endregion
+    public bool CanDeploy { get { return MainPlayer.Res.n("coal") > Stats.Age; } } //simplified
 
-    #region 2. get user click & select objects:
-    public bool OkStartClicked { get; set; }
-    public bool CancelClicked { get; set; }
-    public bool PassClicked { get; set; }
-
-    public void OnClickArchitects()
+    void UpdateContextAndMessage(List<Step> steps)
     {
-      UnselectProgress(); UnselectCiv(); UnselectPreviousCiv(); UnselectTurmoils(); UnselectWorker();
-      Message = "Take Architect?";
-      ArchitectSelected = true;
-      //SelectedAction = TakeArchitect;
-    }
-    public void OnClickTurmoils()
-    {
-      UnselectProgress(); UnselectCiv(); UnselectArchitects(); UnselectWorker();
-      Message = "Take Turmoil?";
-      TurmoilSelected = true;
-      //SelectedAction = TakeTurmoil;
-    }
-    public void OnClickWorker(Res res)
-    {
-      Debug.Assert(CanSelectWorker, "OnClickWorker with CanSelectWorker == false!");
-
-      if (WorkerSelected) { UnselectWorker(); if (SelectedCivField != null) Message = "choose deploy source"; }
-      else
+      if (steps.Count > 0)
       {
-        WorkerSelected = true;
-        UnselectTurmoils(); UnselectArchitects(); UnselectProgress(); UnselectPreviousCiv();
-        if (SelectedCivField != null) { Message = "Deploy?"; }
-        else { Message = "Select a field to which to deploy"; }//SelectedAction = PartialDeploy; }
+        Context = steps.Last().Context;
+        Message = Edit(Info.Text);
       }
+      else { ClearStepSequence(); }
     }
-    public void OnClickProgressCard(Field field)
+    void UpdateUI(ctx context = ctx.none)
     {
-      UnselectCiv(); UnselectPreviousCiv(); UnselectArchitects(); UnselectWorker(); UnselectTurmoils();
-      var isNewField = field != SelectedProgressField;
-      UnselectProgress();
-      if (isNewField)
-      {
-        SelectedProgressField = field;
-        SelectedProgressField.Card.IsSelected = true;
-        if (IsOneStepBuy(field)) { Message = "Buy " + field.Card.Name + "?"; }//        SelectedAction = BuyProgressCard; }
-        else { Message = "Select Place on Civ Board"; MarkPossiblePlacesForProgressCard(field.Card.Type); }// SelectedAction = PartialBuy; }
-      }
+      if (context == ctx.none) context = Context; // take current context
+      DisableAndUnselectAll();
+      EnableAndSelectForContext(context);
     }
-    public void OnClickCivCard(Field field)
+    void EnableAndSelectForContext(ctx context)
     {
-      Debug.Assert(field != null && field.Card != null, "OnClickCivCard null!!!!!");
-      if (field.Card.buildmil()) OnClickBuildMil(field);
-      else if (field.Card.colony()) OnClickColony(field);
-      else if (field.Card.wonder()) OnClickWonder(field);
-      else if (field.Card.natural()) TryPrepareCardActivation(field);
-      else if (field.Card.adv()) TryPrepareCardActivation(field);
-      else if (field.Card.dyn()) OnClickDynasty(field);
+      MarkAllPlayerChoicesAccordingToContext(context);
+      foreach (var st in Steps) Select(st.Click, st.Obj);
     }
-    public void OnClickBuildMil(Field field)
+    void Select(cl click, object obj = null)
     {
-      Debug.Assert(!(SelectedCivField == null && PreviousSelectedCivField != null), "selected civ field null but previous NOT!");
-
-      UnselectTurmoils(); UnselectArchitects();
-
-      if (PreviousSelectedCivField != null && field == PreviousSelectedCivField) { UnselectPreviousCiv(); }
-      else if (SelectedCivField != null && field == SelectedCivField) { UnselectCiv(); SelectedCivField = PreviousSelectedCivField; UnselectPreviousCiv(); }
-      else if (SelectedProgressField != null)
-      {
-        if (SelectedCivField != null) { UnselectCiv(); SelectCivField(field); }
-        if (IsOneStepBuy(SelectedProgressField)) UnselectProgress(); else PrepareBuyAction(field);
-      }
-      else if (SelectedCivField != null)
-      {
-        if (SelectedCivField.Card.buildmil())
-        {
-          if (field.Card.NumDeployed > 0) //clicked on valid deploy source (target selected)
-          {
-            if (WorkerSelected) { UnselectWorker(); SelectCivField(field); Message = "Deploy from field " + field.Card.Name + "?"; }
-            else { SelectCivField(field); Message = "Deploy from field " + field.Card.Name + "?"; }
-          }
-          else //clickd on another potential deploy target
-          {
-            UnselectCiv();
-            SelectCivField(field);
-            if (WorkerSelected) { Message = "deploy worker to " + field.Card.Name + "?"; }
-          }
-        }
-        else { UnselectCiv(); SelectCivField(field); Message = "select deploy source"; }
-      }
-      else if (WorkerSelected) { SelectCivField(field); Message= "deploy worker to " + field.Card.Name + "?"; }
-      else { SelectCivField(field); Message = "select deploy source"; }
-      // build mil cannot be activated
-      // make sure it never happens that two civ fields and a worker are selected!
-
+      if (obj is Field) { (obj as Field).Card.IsSelected = true; }
+      else if (click == cl.worker) { (obj as Res).IsSelected = WorkerSelected = true; }
+      else if (click == cl.arch) { ArchitectSelected = true; }
+      else if (click == cl.turm) { TurmoilSelected = true; }
+      //else if (click == cl.pass) { MainPlayer.HasPassed = true; } //noch nicht aktiv
     }
-    public void OnClickColony(Field field)
+    string Edit(string text)
     {
-      // can be either placement or activation try
-      if (SelectedProgressField != null) PrepareBuyAction(field);
-      else TryPrepareCardActivation(field);
+      var obj0 = Steps.First().Obj;
+      var obj1 = Steps.Count > 1 ? Steps[1].Obj : null;
+      if (obj0 != null) text = text.Replace("$0", obj0.ToString().StringBefore("("));
+      if (obj1 != null) text = text.Replace("$1", obj1.ToString().StringBefore("("));
+      text = text.Replace("_", " ");
+      return text;
     }
-    public void OnClickDynasty(Field field)
+    IEnumerable<Step> EraseAllStepsBeforeAndIncludingObject(object obj)
     {
-
+      var result = Steps.TakeWhile(x => x.Obj != obj).ToList();
+      // undo possible side effects from erased steps (actions)
+      var erased = Steps.SkipWhile(x => x.Obj != obj).ToList();
+      foreach (var st in erased) st.Info.UndoProcess?.Invoke();
+      return result;
     }
-    private void OnClickWonder(Field field)
-    {
-      if (ArchitectSelected) { Message = "You selected field for new wonder"; UnselectCiv(); SelectCivField(field); }
-      else TryPrepareCardActivation(field);
-    }
-
     bool IsOneStepBuy(Field field)
     {
       var card = field.Card;
@@ -461,280 +354,30 @@ namespace ations
       var isciv = card.civ();
       return !isciv || possible.Length == 1;
     }
-    public void TryPrepareCardActivation(Field field) { UnselectAll(); SelectCivField(field); Message = "Can this card be activated?!?"; }
-    void SelectCivField(Field field) { UnselectPreviousCiv(); PreviousSelectedCivField = SelectedCivField; SelectedCivField = field; field.Card.IsSelected = true; }
-    void PrepareBuyAction(Field field)
+
+    public void DisableAndUnselectAll()
     {
-      UnselectWorker(); UnselectArchitects(); UnselectPreviousCiv();
-      SelectCivField(field);// field.Card.IsSelected = true;
-      Message = "Buy " + SelectedProgressField.Card.Name + "?";
+      TurmoilSelected = ArchitectSelected = WorkerSelected = false;
+      ArchitectEnabled = TurmoilEnabled = WorkerEnabled = false;
+      foreach (var f in Progress.Fields) if (f.Card != null) { f.Card.IsEnabled = f.Card.IsSelected = false; }
+      foreach (var f in MainPlayer.Civ.Fields) if (f.Card != null) { f.Card.IsEnabled = f.Card.IsSelected = false; }
+    }
+    void SetStartActionContext()
+    {
+      Context = ctx.start;
+      Message = MainPlayer.Name + ", choose action";
+      ClearStepSequence();
+    }
+    void ClearStepSequence()
+    {
+      Steps.Clear();
+      Info = null;
+      ActionComplete = false;
     }
 
-    Field SelectedProgressField { get; set; }
-    Field SelectedCivField { get; set; }
-    Field PreviousSelectedCivField { get; set; }
-    public bool ArchitectSelected { get { return architectSelected; } set { if (architectSelected != value) { architectSelected = value; NotifyPropertyChanged(); } } }
-    bool architectSelected;
-    public bool TurmoilSelected { get { return turmoilSelected; } set { if (turmoilSelected != value) { turmoilSelected = value; NotifyPropertyChanged(); } } }
-    bool turmoilSelected;
-    public bool WorkerSelected { get { return MainPlayer.Res.get("worker").IsSelected; } set { MainPlayer.Res.get("worker").IsSelected = value; NotifyPropertyChanged(); } }
-    #endregion
-
-    #region 3. perform resulting actions: SelectedAction, tasks
-    public async Task TakeArchitectTask()
-    {
-      var card = MainPlayer.WICField.Card;
-      Debug.Assert(card != null, "TakeArchitect with empty wic!");
-
-      var cost = CalcArchitectCost(card);
-      MainPlayer.Pay(cost, "coal");
-
-      card.NumDeployed++;
-      if (card.NumDeployed >= NumArchitects(card)) await WonderReadyTask();
-
-      Stats.Architects--;
-
-      Message = MainPlayer.Name + " hired an architect";
-    }
-    public async Task WonderReadyTask()
-    {
-      UnselectAll();
-      MarkPossiblePlacesForWIC();
-      Debug.Assert(SelectedCivField == null, "WonderReadyTask: started with SelectedCivField != null");
-      while (SelectedCivField == null)
-      {
-        Message = "pick a wonder space";
-        await WaitForButtonClick();
-      }
-      MainPlayer.WonderReady(SelectedCivField);
-    }
-    public async Task TakeTurmoilTask() { Message = "not implemented"; await Task.Delay(200); }
-    public async Task BuyProgressCardTask()
-    {
-      var card = SelectedProgressField.Card;
-      var fieldBuy = SelectedProgressField;
-      var fieldPlace = SelectedCivField;
-      card.CanBuy = false;
-
-      if (card.civ())
-      {
-        if (fieldPlace == null) fieldPlace = GetPossiblePlacesForCard(fieldBuy.Card.Type).First();
-        Debug.Assert(fieldPlace != null, "BuyProgressCard: so ein MIST!!!!");
-        var needRaidUpdate = MainPlayer.AddCivCard(card, fieldPlace);
-        Progress.Remove(fieldBuy);
-        MainPlayer.Pay(card.Cost);
-
-        //actions after buy building/military
-        if (needRaidUpdate) { MainPlayer.RecomputeRaid(); }//TODO: special modifications to raid if necessary
-      }
-      else
-      {
-        Progress.Remove(fieldBuy);
-        MainPlayer.Pay(card.Cost);
-        if (card.war()) { Stats.UpdateWarPosition(MainPlayer, card); }
-        else if (card.golden()) await BuyGoldenAgeTask(card.X.astring("res"), card.X.aint("n"));
-        else if (card.battle()) { await WaitForPickResourceCompleted(new string[] { "wheat", "coal", "book" }, MainPlayer.RaidValue, "battle"); }
-      }
-      Message = MainPlayer.Name + " bought " + card.Name;
-      //actions after buy building/military
-
-
-      //weired!!!!!!!!!!!!!!!!!!!! vs hat da irgendwo ein breakpoint falsch?!?
-      var iscol = card.colony();
-      var isadv = card.adv();
-      var iscoloradv = iscol || isadv;
-      if (iscoloradv)
-      {
-        int n = 4;
-        MainPlayer.UpdateStabAndMil();
-      }
-      else
-      {
-        int n = 5;
-      }
-
-      //if (card.colony() || card.adv()) { MainPlayer.UpdateStabAndMil(); }
-      Message += " success!";
-
-    }
-    public async Task BuyGoldenAgeTask(string resname, int num)
-    {
-      var canaffordvp = MainPlayer.Res.n("gold") >= Stats.Age;
-      if (canaffordvp)
-      {
-        var res = await WaitForPickResourceCompleted(new string[] { resname, "vp" }, num, "golden age");
-        if (res.Name == "vp") MainPlayer.Pay(Stats.Age);
-      }
-      else { MainPlayer.UpdateResBy(resname, num); }
-    }
-    public void DeployFromField()
-    {
-      var sourceCard = SelectedCivField.Card;
-      var targetCard = PreviousSelectedCivField.Card;
-      sourceCard.NumDeployed--;
-
-      DeployTo(targetCard);
-      //targetCard.NumDeployed++;
-      //var deploymentCost = Stats.Age; //simplified
-      //MainPlayer.Pay(deploymentCost, "coal");
-
-      Message = MainPlayer.Name + " deployed from " + sourceCard.Name + " to " + targetCard.Name;
-    }
-    public void DeployAvailableWorker()
-    {
-      var card = SelectedCivField.Card;
-      MainPlayer.DeployWorker();
-      DeployTo(card);
-      Message = MainPlayer.Name + " deployed to " + card.Name;
-    }
-    public void DeployTo(Card card)
-    {
-      card.NumDeployed++;
-      var deploymentCost = Stats.Age; //simplified
-      MainPlayer.Pay(deploymentCost, "coal");
-      MainPlayer.UpdateStabAndMil();
-      if (card.mil()) MainPlayer.RecomputeRaid(); //recheck special cards
-    }
-
-    async Task WaitSeconds(double secs) { int delay = (int)(secs * 1000); await Task.Delay(delay); }
-    async Task WaitForButtonClick()
-    {
-      IsOkStartEnabled = true; OkStartClicked = false;
-
-      while (!OkStartClicked)
-      {
-        if (Interrupt) throw (new Exception("STOPPED BY PLAYER!"));
-        await Task.Delay(100);
-      }
-      OkStartClicked = false; IsOkStartEnabled = false;
-    }
-    async Task WaitFor3ButtonClick()
-    {
-      IsOkStartEnabled = IsCancelEnabled = IsPassEnabled = true;
-      OkStartClicked = CancelClicked = PassClicked = false;
-      while (!OkStartClicked && !CancelClicked && !PassClicked)
-      {
-        if (Interrupt) throw (new Exception("STOPPED BY PLAYER!"));
-        await Task.Delay(100);
-      }
-      IsOkStartEnabled = IsCancelEnabled = IsPassEnabled = false;
-    }
-    async Task WaitForAnimationQueueCompleted(int minAnimations = 0)
-    {
-      while (AnimationQueue.Count < minAnimations) await Task.Delay(200);//give ui time to trigger resourceUpdated event
-      Console.WriteLine(LongMessage = "Animation Queue ready -  starting animations...");
-      while (AnimationQueue.Count > 0)
-      {
-        var sb = AnimationQueue[0];
-        AnimationQueue.RemoveAt(0);
-        sb.Begin();
-        await Task.Delay(minAnimationDuration);
-        while (sb.GetCurrentState() == ClockState.Active && sb.GetCurrentTime() < sb.Duration)
-        { await Task.Delay(100); }
-      }
-      Console.WriteLine(LongMessage = "Animation Queue abgearbeitet!");
-    }
-    async Task WaitForRoundMarkerAnimationCompleted()
-    {
-      var sb = Storyboards.MoveTo(UIRoundmarker, Stats.RoundMarkerPosition, TimeSpan.FromSeconds(1), null);
-      //var sb = Storyboards.Scale(testui, TimeSpan.FromSeconds(.3), new Point(1, 1), new Point(5, 2), null, true);
-      //sb.Completed += (s, _) => testcompleted(sb, testui); // brauche garkein completed in wirklichkeit! nur testing!
-      sb.Begin();
-      while (sb.GetCurrentState() == ClockState.Active && sb.GetCurrentTime() < sb.Duration) { await Task.Delay(200); }
-    }
-
-    #endregion
-
-    #region 4. cleanup selections & enablings
-    public void UnselectAll() { UnselectProgress(); UnselectPreviousCiv(); UnselectCiv(); UnselectArchitects(); UnselectTurmoils(); UnselectWorker(); }
-    void UnselectProgress()
-    {
-      if (SelectedProgressField != null)
-      {
-        if (SelectedProgressField.Card != null) SelectedProgressField.Card.IsSelected = false;
-        SelectedProgressField = null;
-      }
-    }
-    void UnselectCiv()
-    {
-      if (SelectedCivField != null)
-      {
-        if (SelectedCivField.Card != null) SelectedCivField.Card.IsSelected = false;
-        SelectedCivField = null;
-      }
-    }
-    void UnselectPreviousCiv()
-    {
-      Debug.Assert(!(PreviousSelectedCivField != null && PreviousSelectedCivField.Card == null), "UnselectPreviousSelectedField: card=null");
-
-      if (PreviousSelectedCivField != null)
-      {
-        PreviousSelectedCivField.Card.IsSelected = false;
-        PreviousSelectedCivField = null;
-      }
-    }
-    void UnselectTurmoils() { TurmoilSelected = false; }
-    void UnselectArchitects() { ArchitectSelected = false; }
-    void UnselectWorker() { WorkerSelected = false; }
-
-    void UnmarkAllPlayerChoices()
-    {
-      UnmarkPlaces();
-      UnmarkProgresscards();
-      UnmarkArchitects();
-      UnmarkTurmoils();
-      UnmarkWorkers();
-    }
-    public void UnmarkPlaces()
-    {
-      foreach (var f in MainPlayer.Civ.Fields) f.Card.CanActivate = false;
-    }
-    public void UnmarkWorkers() { CanSelectWorker = false; }
-    public void UnmarkArchitects() { CanTakeArchitect = false; }
-    public void UnmarkTurmoils() { CanTakeTurmoil = false; }
-    public void UnmarkProgresscards()
-    {
-      foreach (var f in Progress.Fields) if (f.Card != null) f.Card.CanBuy = false;
-    }
-
-    #endregion
-
-
-    #region other safe helpers
-    public void RandomPlayerOrder()
-    {
-      var plarr = Players.OrderBy(x => Rand.N()).ToArray();
-      Players.Clear();
-      foreach (var pl in plarr) Players.Add(pl);
-      for (int i = 0; i < Players.Count; i++) Players[i].Index = i;
-      MainPlayer = Players[0];
-    }
     public event PropertyChangedEventHandler PropertyChanged; public void NotifyPropertyChanged([CallerMemberName] string propertyName = null) { this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName)); }
+
     #endregion
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

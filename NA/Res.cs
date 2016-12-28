@@ -27,9 +27,7 @@ namespace ations
     public Res(string name, int num) { Name = name; Num = num; Path = Helpers.URISTART + "misc/" + name + ".png"; }
 
 
-    #region helpers
     public override string ToString() { return Name + " ("+Num+")"; }
     public event PropertyChangedEventHandler PropertyChanged; public virtual void NotifyPropertyChanged([CallerMemberName] string propertyName = null) { this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName)); }
-    #endregion
   }
 }

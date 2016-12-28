@@ -10,16 +10,15 @@ namespace ations
 {
   public class Stats : DependencyObject, INotifyPropertyChanged
   {
-    #region statsboard
     public BitmapImage StatsboardImage { get; set; }
+
     public int Round { get { return round; } set { if (round != value) { round = value % Game.MAX_ROUNDS; RoundMarkerPosition = new Point(pRoundMarker[round, 0] - 221, pRoundMarker[round, 1] - 6); } } }
     int round = -1;
+    public int Age { get { return age; } set { if (age != value) { age = value % (Game.MAX_AGE + 1); NotifyPropertyChanged(); } } }
+    int age;
     static int[,] pRoundMarker = { { 0, 116 }, { 70, 116 }, { 200, 116 }, { 280, 116 }, { 0, 216 }, { 70, 216 }, { 200, 216 }, { 280, 216 } };
     public Point RoundMarkerPosition { get { return roundMarkerPosition; } set { roundMarkerPosition = value; NotifyPropertyChanged(); } }
     Point roundMarkerPosition;
-
-    public int Age { get { return age; } set { if (age != value) { age = value % (Game.MAX_AGE + 1); NotifyPropertyChanged(); } } }
-    int age;
 
     public List<XElement> EventCardDeck { get; set; }
     public Card EventCard { get { return eventCard; } set { eventCard = value; NotifyPropertyChanged(); } }
@@ -36,7 +35,6 @@ namespace ations
     Point warPosition;
 
     Game game;
-    #endregion
 
     public Stats(Game game)
     {
@@ -76,11 +74,6 @@ namespace ations
     }
     public void UpdateEventDeck(int age = 1) { EventCardDeck = Helpers.GetEventCardarrayX(age).OrderBy(x => Rand.N()).ToList(); }
 
-
-
-
-    #region other safe helpers
     public event PropertyChangedEventHandler PropertyChanged; public void NotifyPropertyChanged([CallerMemberName] string propertyName = null) { this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName)); }
-    #endregion
   }
 }

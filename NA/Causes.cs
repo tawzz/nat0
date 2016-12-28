@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ations.NA
+namespace ations
 {
-    class Causes
+    public class Causes
     {
         // testing
     }

@@ -11,7 +11,6 @@ namespace ations
 {
   public class Progress : INotifyPropertyChanged
   {
-    #region progress board
     public ObservableCollection<Card> Cards { get; set; }
     public XElement[] Deck { get; set; }
     public BitmapImage Image { get; set; }
@@ -19,7 +18,6 @@ namespace ations
     public Thickness Margin { get; set; }
     public int Rows { get; set; }
     public int Cols { get; set; }
-    #endregion
 
     public Progress(int cols)
     {
@@ -67,8 +65,6 @@ namespace ations
       field.Card = null;
     }
 
-    #region other safe helpers
     public event PropertyChangedEventHandler PropertyChanged; public void NotifyPropertyChanged([CallerMemberName] string propertyName = null) { this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName)); }
-    #endregion
   }
 }

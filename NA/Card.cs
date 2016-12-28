@@ -1,4 +1,7 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows;
@@ -21,14 +24,17 @@ namespace ations
 
     public int NumDeployed { get { return numDeployed; } set { if (numDeployed != value) { numDeployed = value; NotifyPropertyChanged(); } } }
     int numDeployed; // includes architects on wonder in construction
-    public bool CanBuy { get { return canBuy; } set { if (canBuy != value) { canBuy = value; NotifyPropertyChanged(); } } }
-    bool canBuy;
-    public bool CanActivate { get { return canActivate; } set { if (canActivate != value) { canActivate = value; NotifyPropertyChanged(); } } }
-    bool canActivate;
-    public bool IsMarked { get { return isMarked; } set { if (isMarked != value) { isMarked = value; NotifyPropertyChanged(); } } }
-    bool isMarked;
+    public bool IsEnabled { get { return isEnabled; } set { if (isEnabled != value) { isEnabled = value; NotifyPropertyChanged(); } } }
+    bool isEnabled;
     public bool IsSelected { get { return (bool)GetValue(IsSelectedProperty); } set { SetValue(IsSelectedProperty, value); } }
     public static readonly DependencyProperty IsSelectedProperty = DependencyProperty.Register("IsSelected", typeof(bool), typeof(Card), null);
+
+    //public bool CanBuy { get { return canBuy; } set { if (canBuy != value) { canBuy = value; NotifyPropertyChanged(); } } }
+    //bool canBuy;
+    //public bool IsMarked { get { return isMarked; } set { if (isMarked != value) { isMarked = value; NotifyPropertyChanged(); } } }
+    //bool isMarked;
+    public bool HasSpecialRule { get; set; }//testing
+
 
     public static Card MakeEmptyCard(Field field, string type)
     {
@@ -100,7 +106,7 @@ namespace ations
 
       field.Card = card;
 
-      //card.CanActivate = true;//testing
+      //card.IsEnabled = true;//testing
       return card;
 
     }
@@ -142,7 +148,6 @@ namespace ations
       //    card.wonder() ? Helpers.GetMiscImage("architect") : Helpers.GetMiscImage("cross");
       field.Card = card;
 
-      //card.CanBuy = true; //testing
       return card;
     }
     public static Card MakeEventCard(XElement xcard)
@@ -195,8 +200,22 @@ namespace ations
     public int[] GetArchCostArray { get { return X.astring("arch").Split('_').Select(x => int.Parse(x)).ToArray(); } }
     public int GetMilitary { get { return X.aint("military", 0); } }
     public int GetStability { get { return X.aint("stability", 0); } }
-    public int GetRaid { get{ return X.aint("raid"); } }
-
+    public int GetRaid { get { return X.aint("raid"); } }
+    public List<Tuple<string, int>> GetResourceTuples()
+    {
+      List<string> exceptions = new List<string> { "vp", "raid", "military", "stability", "score", "name", "type", "age","private_architect","maxdeploy", "deploy", "res", "eff", "effect", "n", "cause", "milmin", "arch" };
+      List<Tuple<string, int>> result = new List<Tuple<string, int>>();
+      var reslist = X.Attributes().Where(x => !exceptions.Contains(x.Name.ToString())).ToList();
+      foreach (var attr in reslist)
+      {
+        var name = attr.Name.ToString();
+        int n = 0;
+        var ok = int.TryParse(attr.Value, out n);
+        Debug.Assert(ok, "Unparsable attribute value for resource "+name+" for card " + this.Name);
+        result.Add(new Tuple<string, int>(name,n));
+      }
+      return result;
+    }
 
 
     //TODO: mach daraus non static

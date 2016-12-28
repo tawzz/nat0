@@ -75,6 +75,8 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Common\Converters\NumberToStringConverter.cs" />
+    <Compile Include="Common\Converters\NumberToBrushConverter.cs" />
     <Compile Include="Common\Converters\BooleanToBackgroundConverter.cs" />
     <Compile Include="Common\Converters\NumberToVisibilityConverter.cs" />
     <Compile Include="Common\Converters\NullToVisibilityConverter.cs" />
@@ -108,6 +110,11 @@
     <Compile Include="NA\Civ.cs" />
     <Compile Include="NA\Field.cs" />
     <Compile Include="NA\Game.cs" />
+    <Compile Include="NA\GameTests.cs" />
+    <Compile Include="NA\GameClickSequences.cs" />
+    <Compile Include="NA\Info.cs" />
+    <Compile Include="NA\Step.cs" />
+    <Compile Include="NA\GameSelection.cs" />
     <Compile Include="NA\GameLoop.cs" />
     <Compile Include="NA\Helpers.cs" />
     <Compile Include="NA\Levels.cs" />
@@ -231,9 +238,13 @@
     <Resource Include="assets\cards\age1\age1_ziggurat.jpg" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="assets\cards\xml\cards01.xml" />
+    <Resource Include="assets\cards\xml\cards01.xml">
+      <SubType>Designer</SubType>
+    </Resource>
     <Resource Include="assets\cards\xml\cards02.xml" />
-    <Resource Include="assets\cards\xml\cards03.xml" />
+    <Resource Include="assets\cards\xml\cards03.xml">
+      <SubType>Designer</SubType>
+    </Resource>
     <Resource Include="assets\cards\xml\cards04.xml" />
     <Resource Include="assets\cards\xml\cardsdyn01.xml" />
     <Resource Include="assets\cards\xml\cardsdyn02.xml" />

@@ -1,3 +1,8 @@
+D:\dev\n\ations\ations\obj\Debug\NA\WGame.g.cs
+D:\dev\n\ations\ations\obj\Debug\App.g.cs
+D:\dev\n\ations\ations\obj\Debug\GeneratedInternalTypeHelper.g.cs
+D:\dev\n\ations\ations\obj\Debug\ations_MarkupCompile.cache
+D:\dev\n\ations\ations\obj\Debug\ations_MarkupCompile.lref
 D:\dev\n\ations\ations\bin\Debug\ations.exe.config
 D:\dev\n\ations\ations\bin\Debug\ations.exe
 D:\dev\n\ations\ations\bin\Debug\ations.pdb
@@ -23,12 +28,6 @@ D:\dev\n\ations\ations\bin\Debug\ko\System.Windows.Interactivity.resources.dll
 D:\dev\n\ations\ations\bin\Debug\ru\System.Windows.Interactivity.resources.dll
 D:\dev\n\ations\ations\bin\Debug\zh-Hans\System.Windows.Interactivity.resources.dll
 D:\dev\n\ations\ations\bin\Debug\zh-Hant\System.Windows.Interactivity.resources.dll
-D:\dev\n\ations\ations\obj\Debug\ations.csprojResolveAssemblyReference.cache
-D:\dev\n\ations\ations\obj\Debug\NA\WGame.g.cs
-D:\dev\n\ations\ations\obj\Debug\App.g.cs
-D:\dev\n\ations\ations\obj\Debug\GeneratedInternalTypeHelper.g.cs
-D:\dev\n\ations\ations\obj\Debug\ations_MarkupCompile.cache
-D:\dev\n\ations\ations\obj\Debug\ations_MarkupCompile.lref
 D:\dev\n\ations\ations\obj\Debug\App.baml
 D:\dev\n\ations\ations\obj\Debug\NA\WGame.baml
 D:\dev\n\ations\ations\obj\Debug\Themes\Generic.baml
@@ -37,3 +36,4 @@ D:\dev\n\ations\ations\obj\Debug\ations.Properties.Resources.resources
 D:\dev\n\ations\ations\obj\Debug\ations.csproj.GenerateResource.Cache
 D:\dev\n\ations\ations\obj\Debug\ations.exe
 D:\dev\n\ations\ations\obj\Debug\ations.pdb
+D:\dev\n\ations\ations\obj\Debug\ations.csprojResolveAssemblyReference.cache
