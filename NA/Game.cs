@@ -45,7 +45,7 @@ namespace ations
         {
           var oldmain = mainPlayer;
           mainPlayer = value;
-          Message = "Hi!"; //testing!
+          Message = "Hi, " + mainPlayer.Name + "!"; //testing!
           if (oldmain != null) oldmain.IsMainPlayer = false;
           if (mainPlayer != null) mainPlayer.IsMainPlayer = true;
           NotifyPropertyChanged();
@@ -80,6 +80,7 @@ namespace ations
     {
       Players = new ObservableCollection<Player>();
       string[] names = { "Felix", "Amanda", "Taka", "Franzl", "Bertl" };
+      bool[] isai = { false, true, true, true, true };
       string[] civs = { "america", "egypt", "arabia", "china", "ethiopia" }; //TODO: choose civs,random civs,daten eingeben!
       Brush[] brushes = {
         new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FF0050EF")), //blue
@@ -88,7 +89,8 @@ namespace ations
         new SolidColorBrush(Color.FromArgb(255,170, 0, 255)),//violet
         Brushes.Sienna
       };
-      for (int i = 0; i < NumPlayers; i++) Players.Add(new Player(names[i], civs[i], brushes[i], Levels.Chieftain, i));
+      for (int i = 0; i < NumPlayers; i++)
+        Players.Add(isai[i] ? new AI(names[i], civs[i], brushes[i], Levels.Chieftain, i) : new Player(names[i], civs[i], brushes[i], Levels.Chieftain, i));
       MainPlayer = Players[0];
     }
 
@@ -98,10 +100,12 @@ namespace ations
 
     void Initialize()
     {
+      //SelectedResources = new ObservableCollection<Res>();
       ResChoices = new ObservableCollection<Res>();
       NetProduction = new ObservableCollection<Res>();
       Choices = new ObservableCollection<ations.Choice>();
       AnimationQueue = new List<Storyboard>();
+      ContextStack = new Stack<ContextInfo>();
 
       NumPlayers = 2;
       InitPlayers(NumPlayers);
@@ -176,10 +180,14 @@ namespace ations
     bool showResChoices;
     public bool ShowProduction { get { return showProduction; } set { if (showProduction != value) { showProduction = value; NotifyPropertyChanged(); } } }
     bool showProduction;
+    public bool ShowMultiResChoices { get { return showMultiResChoices; } set { if (showMultiResChoices != value) { showMultiResChoices = value; NotifyPropertyChanged(); } } }
+    bool showMultiResChoices;
     public Res SelectedResource { get { return (Res)GetValue(SelectedResourceProperty); } set { SetValue(SelectedResourceProperty, value); } }
     public static readonly DependencyProperty SelectedResourceProperty = DependencyProperty.Register("SelectedResource", typeof(Res), typeof(Game), null);
+    //public ObservableCollection<Res> SelectedResources { get { return (ObservableCollection<Res>)GetValue(SelectedResourcesProperty); } set { SetValue(SelectedResourcesProperty, value); } }
+    //public static readonly DependencyProperty SelectedResourcesProperty = DependencyProperty.Register("SelectedResources", typeof(ObservableCollection<Res>), typeof(Game), null);
     public int Number { get; set; }
-    public Dictionary<string, int> NumEach { get; set; } //derzeit nicht in verwendung, fuer variable num resource selection
+    public Dictionary<string, int> NumEach { get; set; }
 
     public void ResourceUpdated(FrameworkElement ui)
     {
@@ -188,6 +196,8 @@ namespace ations
     }
     public void NumDeployedUpdated(FrameworkElement ui)
     {
+      var card = (ui.DataContext as Field).Card;
+      if (card.NumDeployed <= 0) return;
       var sb = Storyboards.Scale(ui, TimeSpan.FromSeconds(.3), new Point(1, 1), new Point(5, 2), null, true);
       AnimationQueue.Add(sb);
     }
@@ -248,6 +258,41 @@ namespace ations
       return res;
     }
 
+    public void OnClickResourceInMultiPicker(Res res) { res.Num = (res.Num + 1) % (MainPlayer.Res.n(res.Name) + 1); }
+    async Task MakeSureUserPicksExactlyTotalOfResources(int total)
+    {
+      int picked = 0;
+      while (picked != total)
+      {
+        await Task.Delay(shortDelay);
+        await WaitForButtonClick();
+
+        // how do I bind to a list of resources two way?!?!?!?!?!?!?!?!?!!!!!!!!
+        var reslist = ResChoices;
+        picked = reslist.Sum(x => x.Num);
+        if (picked != total) { Message = "PICK THE AMOUNT SPECIFIED: " + total + "!"; foreach (var r in ResChoices) r.Num = 0; }
+      }
+    }
+    async Task<IEnumerable<Res>> WaitForPickMultiResourceCompleted(IEnumerable<Res> reslist, int total, string forWhat)
+    {//returns list of resources with number selected by player
+      //reslist is copied so can pass player resource list as param
+      Debug.Assert(ResChoices != null && ResChoices.Count == 0, "ResChoices not cleared for growth resource pick");
+      //Debug.Assert(SelectedResource == null, "start resource pick with resource already selected!");
+
+      // can pay at most MainPlayer.Res.n(resname) of each resource
+      ResChoices.Clear();
+      foreach (var res in reslist) ResChoices.Add(new Res(res.Name, 0));
+      ShowMultiResChoices = true; Caption = "Pick"; Message = MainPlayer.Name + ", pick " + total + " resources for " + forWhat;
+
+      await MakeSureUserPicksExactlyTotalOfResources(total);
+
+      ShowMultiResChoices = false;
+      var result = ResChoices.ToList(); ResChoices.Clear();
+      Message = MainPlayer.Name + " picked " + total + " resource";
+
+      return result;
+    }
+
 
     #endregion
 
@@ -262,11 +307,9 @@ namespace ations
       MainPlayer = Players[0];
     }
 
-    public IEnumerable<Field> GetPossiblePlacesForCard(string type)
+    public IEnumerable<Field> GetPossiblePlacesForType(string type)
     {
       Console.WriteLine(MainPlayer.Name);
-      //var card = field.Card;
-      //Debug.Assert(card != null, "GetPossiblePlacesForCard called with null card!");
       return MainPlayer.Civ.Fields.Where(x => x.TypesAllowed.Contains(type)).ToArray();
     }
     bool CalculateCanBuy(Field field)
@@ -294,29 +337,15 @@ namespace ations
       Debug.Assert(card != null, "CalcArchitectCost for null card called!");
       var costs = card.GetArchCostArray;
       var idx = card.NumDeployed;
-      Debug.Assert(idx <= costs.Length, "CalcArchitectCost for wonder that was already ready!!!");
-      return costs[idx];
+      Debug.Assert(idx < costs.Length, "CalcArchitectCost for wonder that was already ready!!!");
+      return costs[idx]; // idx<costs.Length?costs[idx]:100;
     }
     public bool ArchitectAvailable { get { return (Stats.Architects > 0 || MainPlayer.HasPrivateArchitect); } }
     public int NumArchitects(Card card) { return card.GetArchCostArray.Length; }
     public bool CalcCanAffordArchitect() { return MainPlayer.Res.n("coal") >= CalcArchitectCost(MainPlayer.WICField.Card); }
     public bool CanDeploy { get { return MainPlayer.Res.n("coal") > Stats.Age; } } //simplified
 
-    void UpdateContextAndMessage(List<Step> steps)
-    {
-      if (steps.Count > 0)
-      {
-        Context = steps.Last().Context;
-        Message = Edit(Info.Text);
-      }
-      else { ClearStepSequence(); }
-    }
-    void UpdateUI(ctx context = ctx.none)
-    {
-      if (context == ctx.none) context = Context; // take current context
-      DisableAndUnselectAll();
-      EnableAndSelectForContext(context);
-    }
+    void UpdateUI() { DisableAndUnselectAll(); EnableAndSelectForContext(Context.Id); Message = Step != null ? EditMessage(Step.Message) : Context.BaseMessage; }
     void EnableAndSelectForContext(ctx context)
     {
       MarkAllPlayerChoicesAccordingToContext(context);
@@ -328,29 +357,27 @@ namespace ations
       else if (click == cl.worker) { (obj as Res).IsSelected = WorkerSelected = true; }
       else if (click == cl.arch) { ArchitectSelected = true; }
       else if (click == cl.turm) { TurmoilSelected = true; }
-      //else if (click == cl.pass) { MainPlayer.HasPassed = true; } //noch nicht aktiv
     }
-    string Edit(string text)
+    string EditMessage(string text)
     {
       var obj0 = Steps.First().Obj;
       var obj1 = Steps.Count > 1 ? Steps[1].Obj : null;
       if (obj0 != null) text = text.Replace("$0", obj0.ToString().StringBefore("("));
       if (obj1 != null) text = text.Replace("$1", obj1.ToString().StringBefore("("));
-      text = text.Replace("_", " ");
+      text = text.Replace("_", " ").Replace("$Player", MainPlayer.Name);
       return text;
     }
     IEnumerable<Step> EraseAllStepsBeforeAndIncludingObject(object obj)
     {
       var result = Steps.TakeWhile(x => x.Obj != obj).ToList();
-      // undo possible side effects from erased steps (actions)
       var erased = Steps.SkipWhile(x => x.Obj != obj).ToList();
-      foreach (var st in erased) st.Info.UndoProcess?.Invoke();
+      foreach (var st in erased) st.UndoProcess?.Invoke();
       return result;
     }
     bool IsOneStepBuy(Field field)
     {
       var card = field.Card;
-      var possible = GetPossiblePlacesForCard(card.Type).ToArray();
+      var possible = GetPossiblePlacesForType(card.Type).ToArray();
       var isciv = card.civ();
       return !isciv || possible.Length == 1;
     }
@@ -361,18 +388,6 @@ namespace ations
       ArchitectEnabled = TurmoilEnabled = WorkerEnabled = false;
       foreach (var f in Progress.Fields) if (f.Card != null) { f.Card.IsEnabled = f.Card.IsSelected = false; }
       foreach (var f in MainPlayer.Civ.Fields) if (f.Card != null) { f.Card.IsEnabled = f.Card.IsSelected = false; }
-    }
-    void SetStartActionContext()
-    {
-      Context = ctx.start;
-      Message = MainPlayer.Name + ", choose action";
-      ClearStepSequence();
-    }
-    void ClearStepSequence()
-    {
-      Steps.Clear();
-      Info = null;
-      ActionComplete = false;
     }
 
     public event PropertyChangedEventHandler PropertyChanged; public void NotifyPropertyChanged([CallerMemberName] string propertyName = null) { this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName)); }

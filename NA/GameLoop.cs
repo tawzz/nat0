@@ -95,18 +95,20 @@ namespace ations
     {
       Caption = "Ok";
       AnimationQueue.Clear();
-      SetStartActionContext();
+      ContextStack.Clear();
+      ContextInit(ctx.start, MainPlayer.Name + ", choose action");
     }
 
     async Task ActionLoop()
     {
       int testCounter = 0;
+      ActionComplete = false;
       while (!ActionComplete)
       {
         UpdateUI();
         await WaitForThreeButtonClick();
 
-        if (CancelClicked) { Message = "Action Canceled!"; SetStartActionContext(); await Task.Delay(longDelay); }
+        if (CancelClicked) { Message = "Action Canceled!"; ClearSteps(); ActionComplete = false; await Task.Delay(longDelay); }
         else if (PassClicked) { Message = MainPlayer.Name + " Passed"; DisableAndUnselectAll(); await Task.Delay(longDelay); MainPlayer.HasPassed = true; ActionComplete = true; }
         else if (ActionComplete)
         {  //achtung: reihenfolge wichtig bei folgenden clauses
@@ -134,7 +136,7 @@ namespace ations
       var plarr = Players.SkipWhile(x => x != MainPlayer).Skip(1).SkipWhile(x => x.HasPassed).ToArray();
       MainPlayer = plarr.FirstOrDefault() ?? Players.SkipWhile(x => x.HasPassed).FirstOrDefault() ?? Players[0];
     }
-    void EndOfPlayerActions() { ipl = 0;  }
+    void EndOfPlayerActions() { ipl = 0; }
 
     #endregion
 
@@ -154,7 +156,7 @@ namespace ations
         await Task.Delay(shortDelay);
 
         Res[] netProduction = MainPlayer.CalcNetBasicProduction();
-        foreach(var res in netProduction)
+        foreach (var res in netProduction)
         {
           MainPlayer.Pay(-res.Num, res.Name);
           NetProduction.Add(res);
@@ -187,9 +189,13 @@ namespace ations
         while (ird < rounds)
         {
           await RoundAgeProgressTask();
-          await GrowthPhaseTask(); //comment to go directly to action phase
+          //await GrowthPhaseTask(); //comment to skip
           NewEvent();
           StartOfPlayerActions();
+
+          //inject TestScenarios here
+          TestScenario1();
+
           while (!MainPlayer.HasPassed)
           {
             StartOfPlayerTurn();
@@ -210,7 +216,7 @@ namespace ations
 
           Message = "round end! press ok to continue...";
           await WaitForButtonClick();
-          ird++;ipl = 0;iph = 0;
+          ird++; ipl = 0; iph = 0;
         }
         LongMessage = Message = "GAME OVER!";
       }

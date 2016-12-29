@@ -58,7 +58,8 @@ namespace ations
         var type = xfield.astring("type");
         if (type == "building" || type == "military") { types.Add("building"); types.Add("military"); }
         else if (type == "wic") { types.Add("wonder"); types.Add("natural"); }
-        else if (type != "wonder") types.Add(type);
+        else if (type == "wonder") { types.Add("wic"); }
+        else types.Add(type);
         var margin = i == 8 && type == "wonder" ? CardMargins[EXTRA_WONDER_INDEX] : CardMargins[i];
         Fields.Add(new Field { X = xfield, Type = type, Index = i, TypesAllowed = types, Margin = margin });
       }
@@ -70,7 +71,6 @@ namespace ations
       foreach (var f in Fields) result.Add(Card.MakeCivCard(f, Name));
       return result;
     }
-
     public ResDict GetResources()
     {
       var result = new ResDict();

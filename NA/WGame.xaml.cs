@@ -43,5 +43,10 @@ namespace ations
     {
       cardMagnifier.IsOpen = false;
     }
+
+    private void OnClickMultiResource(object sender, MouseButtonEventArgs e)
+    {
+      Game.OnClickResourceInMultiPicker((sender as FrameworkElement).DataContext as Res);
+    }
   }
 }

@@ -10,6 +10,24 @@ namespace ations
 {
   public partial class Game
   {
+    public void TestScenario1()
+    {
+      // player soll haben: archimedes,
+      var pl = Players[0];
+      var card = Card.MakeCard("colosseum");
+      pl.AddCivCard(card, pl.WICField);
+      card.NumDeployed = 1;
+
+      //Players[1].HasPassed = true;
+
+
+
+
+      pl.UpdateStabAndMil();
+    }
+
+
+
 
     public async void Tester() { Title = "Testing..."; LongMessage = Message = "TESTING CHOICE PICKER!!!"; await TestChoices(); }
     public async Task TestChoices()

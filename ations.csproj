@@ -103,16 +103,17 @@
     <Compile Include="Common\Rand.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="NA\AI.cs" />
     <Compile Include="NA\Card.cs" />
     <Compile Include="NA\CardType.cs" />
     <Compile Include="NA\Causes.cs" />
     <Compile Include="NA\Choice.cs" />
     <Compile Include="NA\Civ.cs" />
+    <Compile Include="NA\ContextInfo.cs" />
     <Compile Include="NA\Field.cs" />
     <Compile Include="NA\Game.cs" />
     <Compile Include="NA\GameTests.cs" />
     <Compile Include="NA\GameClickSequences.cs" />
-    <Compile Include="NA\Info.cs" />
     <Compile Include="NA\Step.cs" />
     <Compile Include="NA\GameSelection.cs" />
     <Compile Include="NA\GameLoop.cs" />
@@ -123,10 +124,12 @@
     <Compile Include="NA\Res.cs" />
     <Compile Include="NA\ResDict.cs" />
     <Compile Include="NA\Stats.cs" />
+    <Compile Include="NA\Strategy.cs" />
     <Compile Include="NA\WGame.xaml.cs">
       <DependentUpon>WGame.xaml</DependentUpon>
     </Compile>
     <Compile Include="NA\Worker.cs" />
+    <Compile Include="NA\_trash.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>

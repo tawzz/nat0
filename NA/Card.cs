@@ -28,13 +28,7 @@ namespace ations
     bool isEnabled;
     public bool IsSelected { get { return (bool)GetValue(IsSelectedProperty); } set { SetValue(IsSelectedProperty, value); } }
     public static readonly DependencyProperty IsSelectedProperty = DependencyProperty.Register("IsSelected", typeof(bool), typeof(Card), null);
-
-    //public bool CanBuy { get { return canBuy; } set { if (canBuy != value) { canBuy = value; NotifyPropertyChanged(); } } }
-    //bool canBuy;
-    //public bool IsMarked { get { return isMarked; } set { if (isMarked != value) { isMarked = value; NotifyPropertyChanged(); } } }
-    //bool isMarked;
     public bool HasSpecialRule { get; set; }//testing
-
 
     public static Card MakeEmptyCard(Field field, string type)
     {
@@ -180,20 +174,7 @@ namespace ations
     public static Card MakeCard(string name = "archimedes", int age = 1) //for testing
     {
       var xcard = Helpers.GetCardX(name, age);
-      var type = xcard.astring("type");
-      var card = new Card
-      {
-        Type = type,
-        Brush = CardType.typeColors[type],
-        Name = name,
-        Age = age,
-        X = xcard,
-        Image = Helpers.GetCardImage(name, age),
-      };
-      card.ImageDeployObject = card.buildmil() ? Helpers.GetMiscImage("worker") :
-          card.wonder() ? Helpers.GetMiscImage("architect") : Helpers.GetMiscImage("cross");
-
-      return card;
+      return MakeCard(xcard);
     }
 
     //access info on this card from xml
@@ -217,15 +198,7 @@ namespace ations
       return result;
     }
 
-
-    //TODO: mach daraus non static
-    //public static int[] GetArchCostArray(Card card) { return GetArchCostArray(card.X); }
-    //public static int[] GetArchCostArray(XElement xcard) { return xcard.astring("arch").Split('_').Select(x => int.Parse(x)).ToArray(); }
-
-
-    #region other safe helpers
     public event PropertyChangedEventHandler PropertyChanged; public void NotifyPropertyChanged([CallerMemberName] string propertyName = null) { this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName)); }
     public override string ToString() { return Name + "(" + Type + ")"; }
-    #endregion
   }
 }

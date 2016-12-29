@@ -817,7 +817,9 @@
                  Margin="20,30"
                  HorizontalAlignment="Center" />
 
-        <ListBox x:Name="listPickChoice" Grid.Row="1" BorderBrush="Transparent"
+        <ListBox x:Name="listPickChoice"
+                 Grid.Row="1"
+                 BorderBrush="Transparent"
                  Visibility="{Binding ShowChoices, Converter={StaticResource BooleanToVisibilityConverter}}"
                  Background="{Binding MainPlayer.Brush}"
                  ItemsSource="{Binding Choices}"
@@ -862,15 +864,102 @@
           </ListBox.ItemContainerStyle>
         </ListBox>
 
-        <ItemsControl x:Name="listProduction"
+        <ItemsControl x:Name="listPickMultiResources"
+                      Grid.Row="1"
+                      BorderBrush="Transparent"
+                      Visibility="{Binding ShowMultiResChoices, Converter={StaticResource BooleanToVisibilityConverter}}"
+                      Background="{Binding MainPlayer.Brush}"
+                      ItemsSource="{Binding ResChoices}"
+                      VerticalAlignment="Center"
+                      ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                      ItemsPanel="{StaticResource UGrid1}"
+                      HorizontalAlignment="Center">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate>
+              <Viewbox>
+                <StackPanel Margin="6"
+                            Cursor="Hand"
+                            MouseLeftButtonUp="OnClickMultiResource">
+                  <Image Source="{Binding Path}"
+                         Opacity="1"
+                         Height="90"
+                         Width="104"
+                         Margin="0,2" />
+                  <Grid>
+                    <!--<Ellipse Fill="White"
+                             Width="90"
+                             Height="60"
+                             Margin="0,6,0,0" />-->
+                    <TextBlock Text="{Binding Num, Mode=TwoWay}"
+                               HorizontalAlignment="Center"
+                               FontSize="48"
+                               Foreground="White" 
+                                />
+                  </Grid>
+                </StackPanel>
+              </Viewbox>
+            </DataTemplate>
+            <!--<DataTemplate>
+              <Grid>
+                <Border x:Name="border"
+                        BorderThickness="1"
+                        BorderBrush="Gray"
+                        Cursor="Hand"
+                        MouseLeftButtonUp="OnClickMultiResource"
+                        CornerRadius="4"
+                        Margin="12,8">
+                  <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <Image Source="{Binding Path}"
+                           Height="30" />
+                    <TextBlock Text="{Binding Num,Mode=TwoWay}"
+                             TextAlignment="Center"
+                             Padding="4" />
+                  </StackPanel>
+                </Border>
+              </Grid>
+            </DataTemplate>-->
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+        <!--<ItemsControl x:Name="listPickMultiResources"
                  Grid.Row="1"
                  BorderBrush="Transparent"
-                 Visibility="{Binding ShowProduction, Converter={StaticResource BooleanToVisibilityConverter}}"
+                 Visibility="{Binding ShowMultiResChoices, Converter={StaticResource BooleanToVisibilityConverter}}"
                  Background="{Binding MainPlayer.Brush}"
-                 ItemsSource="{Binding NetProduction}"
+                 ItemsSource="{Binding ResChoices}"
                  VerticalAlignment="Center"
                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                  HorizontalAlignment="Center">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate>
+              <Grid>
+                <Border x:Name="border"
+                        BorderThickness="1"
+                        BorderBrush="Gray"
+                        Cursor="Hand" MouseLeftButtonUp="OnClickMultiResource"
+                        CornerRadius="4"
+                        Margin="12,8">
+                  <StackPanel Orientation="Horizontal">
+                    <Image Source="{Binding Path}"
+                           Height="30" />
+                    <TextBox Text="{Binding Num,Mode=TwoWay}"
+                             TextAlignment="Center"
+                             Padding="4" />
+                  </StackPanel>
+                </Border>
+              </Grid>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>-->
+
+        <ItemsControl x:Name="listProduction"
+                      Grid.Row="1"
+                      BorderBrush="Transparent"
+                      Visibility="{Binding ShowProduction, Converter={StaticResource BooleanToVisibilityConverter}}"
+                      Background="{Binding MainPlayer.Brush}"
+                      ItemsSource="{Binding NetProduction}"
+                      VerticalAlignment="Center"
+                      ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                      HorizontalAlignment="Center">
           <ItemsControl.ItemTemplate>
             <DataTemplate>
               <Grid>

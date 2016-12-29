@@ -7,11 +7,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media.Animation;
+using ations;
 
 namespace ations
 {
-  public enum cl { none, prog, cciv, worker, arch, turm, pspecial, cspecial, res }// p1, p2, res, pbm, pw, pnat, pb, pwar, pga, cbm, cbmwork, cact, cplace, cnat, cw, cdyn, work, ok, pass, cancel, respi, choicepi, multipi }
-  public enum ctx { none, start, special, pbuy2, wready } //, deploy, def }
+  public enum cl { none, prog, civ, worker, arch, turm, pspecial, cspecial, res }
+  public enum ctx { none, start, special, wready }
 
   public partial class Game
   {
@@ -31,12 +32,15 @@ namespace ations
     public void MarkAllPlayerChoicesAccordingToContext(ctx context)
     {
       if (context == ctx.wready) { MarkPossiblePlacesForWIC(); return; }
-      MarkPossibleProgressCards();
-      MarkArchitects();
-      MarkTurmoils();
-      MarkWorkers();
-      MarkCiv();
-      if (context == ctx.pbuy2) { MarkPossiblePlacesForProgressCard(ProgressField.Card.Type); }
+      else if (context == ctx.start)
+      {
+        MarkPossibleProgressCards();
+        MarkArchitects();
+        MarkTurmoils();
+        MarkWorkers();
+        MarkCiv();
+        if (ProgressField != null) { MarkPossiblePlacesForProgressCard(ProgressField.Card.Type); }
+      }
     }
     public void MarkAllPlayerChoices()
     {
@@ -61,7 +65,7 @@ namespace ations
     public void MarkPossiblePlacesForProgressCard(string type)
     {
       //UnmarkPlaces();
-      foreach (var f in GetPossiblePlacesForCard(type)) f.Card.IsEnabled = true;
+      foreach (var f in GetPossiblePlacesForType(type)) f.Card.IsEnabled = true;
     }
     public void MarkPossiblePlacesForWIC()
     {
@@ -85,48 +89,57 @@ namespace ations
     public Field DeploySource { get { return Steps.Count > 1 ? Steps[1].Obj as Field : null; } }
     public Field ProgressField { get { return Steps.Count > 0 && Steps[0].Click == cl.prog ? Steps[0].Obj as Field : null; } }
     public Field CivBoardPlace { get { return Steps.Count > 1 ? Steps[1].Obj as Field : null; } }
-    public Field SelectedField { get; set; }// all purpose field selection, eg., wonder ready 
     public bool ActionComplete { get; set; }
-    List<Step> Steps = new List<Step>();
-    ctx Context; //current context
-    Info Info; //current info (message,validation action and action)
 
-    public void OnClickProgressField(Field field)
-    {
-      var interpretation = Context == ctx.special ? new Step(cl.pspecial, field) //unused for now
-        : IsOneStepBuy(field) ? new Step(cl.prog, field) : new Step(cl.prog, field, ctx.pbuy2);
-      UpdateSteps(interpretation);
-    }
-    public void OnClickCivField(Field field)
-    {
-      var interpretation = Context == ctx.special ? new Step(cl.cspecial, field)
-        : Context == ctx.wready ? new Step(cl.cciv, field, ctx.wready)
-        : new Step(cl.cciv, field);
-      UpdateSteps(interpretation);
-    }
+    ContextInfo Context { get; set; }
+    Stack<ContextInfo> ContextStack { get; set; }
+    List<Step> Steps { get { Debug.Assert(Context != null, "Steps accessed: Context is null"); return Context.Steps; } }
+    Step Step { get { Debug.Assert(Context.Steps != null, "Step accessed: Context.Steps is null!"); return Context.Steps.LastOrDefault(); } }
+
+    public void OnClickProgressField(Field field) { UpdateSteps(new Step(cl.prog, field)); }
+    public void OnClickCivField(Field field) { UpdateSteps(new Step(cl.civ, field)); }
     public void OnClickArchitect() { UpdateSteps(new Step(cl.arch)); }
     public void OnClickTurmoil() { Message = "no implemented"; }
-    public void OnClickCivResource(Res res)
+    public void OnClickCivResource(Res res) { UpdateSteps(new Step(cl.worker, res)); }
+
+    void ContextInit(ctx newContext, string msg = "", bool clearStepsIfSameContext = true)
     {
-      var interpretation = Context == ctx.special ? new Step(cl.res, res) : new Step(cl.worker, res);
-      UpdateSteps(interpretation);
+      if (Context == null) { Context = new ContextInfo { Steps = new List<ations.Step>(), Id = newContext, BaseMessage = msg }; }
+      else if (Context.Id == newContext && clearStepsIfSameContext) { Context.Steps = new List<Step>(); Context.BaseMessage = msg; }
+      else { ContextStack.Push(Context); Context = new ContextInfo { Steps = new List<Step>(), Id = newContext, BaseMessage = msg }; }
+      SetContextMessage();
+      Context.StepDictionary = contextDictionaries[newContext];
     }
-
-    void UpdateSteps(Step stp)
+    void SetContextMessage() { Message = Context.BaseMessage.Replace("$Player", MainPlayer.Name); }
+    void ContextEnd() { if (ContextStack.Count > 0) Context = ContextStack.Pop(); SetContextMessage(); }
+    void ClearSteps() { Context.Steps.Clear(); }
+    void UpdateSteps(Step newStep)
     {
-      Steps = RefreshSequence(stp);
-      UpdateContextAndMessage(Steps);
-      UpdateUI(Context);
+
+      ActionComplete = RefreshSequence(newStep);
+      Console.WriteLine("complete=" + ActionComplete);
+      UpdateUI();
     }
-    List<Step> RefreshSequence(Step stp)
+    bool RefreshSequence(Step newStep)
     {
-      var newsteps = Steps.Any(x => x.Obj == stp.Obj) ? EraseAllStepsBeforeAndIncludingObject(stp.Obj) : Steps.Plus(stp);
-      if (newsteps.Count() == 0) return new List<Step>();
+      Debug.Assert(Context != null, "RefreshSteps: Context null");
+      Debug.Assert(Context.Steps != null, "RefreshSteps: Context.Steps NULL bei RefreshSequence!");
+      Debug.Assert(Context.StepDictionary != null, "RefreshSteps: Context.StepDictionary null!");
 
-      var revsteps = newsteps.ToArray().Reverse().ToList();
-      List<Step> result = null; cl[] key = null;
+      // if clicked a selected object, unselect and roll back to previous to clicking that object
+      var newSteps = Steps.Any(x => x.Obj == newStep.Obj) ? EraseAllStepsBeforeAndIncludingObject(newStep.Obj) : Steps.Plus(newStep);
 
-      foreach (var k in dStart.Keys)
+      //Console.WriteLine("\tSteps:" + Steps.Count+", newSteps:"+newSteps.Count());
+
+      if (newSteps.Count() == 0) { Context.Steps = newSteps.ToList(); return false; }
+
+      var revsteps = newSteps.ToArray().Reverse().ToList();
+      List<Step> result = new List<Step>();
+      cl[] key = null;
+      var dict = Context.StepDictionary;
+      bool complete = false;
+
+      foreach (var k in dict.Keys)
       {
         var rk = k.Reverse().ToArray();
         var len = rk.Length;
@@ -141,18 +154,27 @@ namespace ations
         {
           result = revsteps.ToArray().Take(len - i).Reverse().ToList();
           key = k;
-          Info = dStart[k][result.Count - 1];
 
-          var totalSteps = key.Length;
-          var stepsSoFar = result.Count;
-          Info.Process?.Invoke(result);
-          if (Info.IsValid != null && !Info.IsValid(result)) continue;
+          for (int j = 0; j < result.Count; j++)
+          {
+            Debug.Assert(result[j].Click == key[j], "RefreshSteps: Clicks do not match in matching step sequence");
+            result[j].IsValid = dict[key][j].IsValid;
+            result[j].Process = dict[key][j].Process;
+            result[j].UndoProcess = dict[key][j].UndoProcess;
+            result[j].Message = dict[key][j].Message;
+          }
 
-          if (i == 0) { ActionComplete = true; break; } //got complete action
+          var currentStep = result.LastOrDefault(); 
+          Debug.Assert(currentStep != null, "RefreshSteps: currentStep null!");
+          if (currentStep.IsValid != null && !currentStep.IsValid(result)) continue;
+          currentStep.Process?.Invoke(result);
+
+          if (i == 0) { complete = true; break; } //got complete action
         }
       }
 
-      return result ?? new List<Step>();
+      Context.Steps = result; // if no match found: get back empty step list in same context
+      return complete;
     }
 
     #endregion
@@ -168,7 +190,7 @@ namespace ations
 
       if (card.civ())
       {
-        if (fieldPlace == null) fieldPlace = GetPossiblePlacesForCard(fieldBuy.Card.Type).FirstOrDefault();
+        if (fieldPlace == null) fieldPlace = GetPossiblePlacesForType(fieldBuy.Card.Type).FirstOrDefault();
         Debug.Assert(fieldPlace != null, "BuyProgressCard: so ein MIST!!!!");
         var needRaidUpdate = MainPlayer.AddCivCard(card, fieldPlace);
         Progress.Remove(fieldBuy);
@@ -185,31 +207,23 @@ namespace ations
         else if (card.golden()) await BuyGoldenAgeTask(card.X.astring("res"), card.X.aint("n"));
         else if (card.battle()) { await WaitForPickResourceCompleted(new string[] { "wheat", "coal", "book" }, MainPlayer.RaidValue, "battle"); }
       }
+      Debug.Assert(card != null, "bought null card!!!");
       Message = MainPlayer.Name + " bought " + card.Name;
-      //actions after buy building/military
-
-
-      //weired!!!!!!!!!!!!!!!!!!!! vs hat da irgendwo ein breakpoint falsch?!?
-      var iscol = card.colony();
-      var isadv = card.adv();
-      var iscoloradv = iscol || isadv;
-      if (iscoloradv)
-      {
-        int n = 4;
-        MainPlayer.UpdateStabAndMil();
-      }
-      else
-      {
-        int n = 5;
-      }
+      if (card.colony() || card.adv() || card.dyn()) MainPlayer.UpdateStabAndMil();
     }
     public async Task BuyGoldenAgeTask(string resname, int num)
     {
-      var canaffordvp = MainPlayer.Res.n("gold") >= Stats.Age;
+      //can pay with all resources except
+      var respay = MainPlayer.Res.List.Where(x => x.CanPayWith).ToList();
+      var canaffordvp = respay.Sum(x => x.Num) >= Stats.Age; 
       if (canaffordvp)
       {
         var res = await WaitForPickResourceCompleted(new string[] { resname, "vp" }, num, "golden age");
-        if (res.Name == "vp") MainPlayer.Pay(Stats.Age);
+        if (res.Name == "vp")
+        {
+          var reslist = await WaitForPickMultiResourceCompleted(respay, Stats.Age, "vp");
+          foreach(var rpay in reslist) MainPlayer.Pay(rpay.Num,rpay.Name);
+        }
       }
       else { MainPlayer.UpdateResBy(resname, num); }
     }
@@ -247,7 +261,11 @@ namespace ations
       MainPlayer.Pay(cost, "coal");
 
       card.NumDeployed++;
-      if (card.NumDeployed >= NumArchitects(card)) await WonderReadyTask();
+      if (card.NumDeployed >= NumArchitects(card))
+      {
+        await WaitForAnimationQueueCompleted();
+        await WonderReadyTask();
+      }
 
       Stats.Architects--;
 
@@ -255,15 +273,16 @@ namespace ations
     }
     public async Task WonderReadyTask()
     {
-      Context = ctx.wready;
-      UpdateUI(Context);
-      SelectedField = null;
-      while (SelectedField == null)
+      ContextInit(ctx.wready);
+      UpdateUI();
+      while (Step == null)
       {
         Message = "pick a wonder space";
         await WaitForButtonClick();
       }
-      MainPlayer.WonderReady(SelectedField);
+      MainPlayer.WonderReady(Step.Obj as Field);
+      //enqueue wonderReadyAnimation
+      ContextEnd();
     }
     public async Task TakeTurmoilTask() { Message = "not implemented"; await Task.Delay(200); }
 
@@ -294,6 +313,7 @@ namespace ations
     {
       while (AnimationQueue.Count < minAnimations) await Task.Delay(200);//give ui time to trigger resourceUpdated event
       Console.WriteLine(LongMessage = "Animation Queue ready -  starting animations...");
+      if (AnimationQueue.Count == 0) { await Task.Delay(500); }
       while (AnimationQueue.Count > 0)
       {
         var sb = AnimationQueue[0];
