@@ -2,109 +2,62 @@
 <cards>
   <age1>
     <card name="aryan_migration" age="1" famine="1" architects="2">
-      <code>"least military :res book -3"</code>
-      <cost res="book" n="3">
-        <cond op="least" res="military"/>
-      </cost>
-      <yield res="wheat" n="3">
-        <cond op="all_except_least" res="stability"/>
-      </yield>
+      <e pred="least" param="military" book="-3" />
+      <e pred="not_least" param="stability" wheat="3" />
     </card>
     <card name="assyrian_deportations" age="1" famine="0" architects="1">
-      <cost res="worker" n="1">
-        <cond op="least" res="stability"/>
-      </cost>
-      <regain_war_loss res="vp">
-        <cond op="most" res="stability"/>
-      </regain_war_loss>
+      <e pred="least" param="stability" worker="-1" />
+      <e pred="most" param="stability" effect="regain_war_loss" />
     </card>
     <card name="attila" age="1" famine="3" architects="2">
-      <cost res="gold" n="3">
-        <cond op="least" res="military"/>
-      </cost>
-      <cost res="wheat" n="3">
-        <cond op="all_except_most" res="stability"/>
-      </cost>
-      <yield res="coal" n="4">
-        <cond op="most" res="stability"/>
-      </yield>
+      <e pred="least" param="military" gold="-3" />
+      <e pred="not_most" param="stability" wheat="-3" />
+      <e pred="most" param="stability" coal="4" />
     </card>
     <card name="bread_and_games" age="1" famine="0" architects="2">
-      <yield res="wheat" n="4">
-        <cond op="most" res="stability"/>
-      </yield>
-      <opt players="all">
-        <cost res="wheat" n="4"/>
-        <yield res="book" n="6"/>
-      </opt>
+      <e pred="most" param="stability" coal="4" />
+      <yesnoChoice text="trade 4 wheat for 6 books?" wheat="-4" book="6" />
     </card>
     <card name="hellenism" age="1" famine="1" architects="0">
-      <yield res="coal" n="2">
-        <cond op="most" res="military"/>
-      </yield>
-      <cost res="wheat" n="2">
-        <cond op="all_except_most" res="military"/>
-      </cost>
-      <opt players="all">
-        <undeploy res="military" n="*"/>
-        <yield res="book" n="2"/>
-      </opt>
+      <e pred="most" param="military" coal="2" />
+      <e pred="not_most" param="military" wheat="-2" />
+      <countChoice min="0" pred="all" text="undeploy military for 2 books?" foreach="undeploy_military" books="2"/>
     </card>
     <card name="pax_romana" age="1" famine="2" architects="0">
-      <yield res="vp" n="1">
-        <cond op="most" res="military"/>
-      </yield>
-      <opt players="all">
-        <cond op="most" res="stability"/>
-        <yield res="worker" n="1"/>
-        <yield res="wheat" n="3"/>
-      </opt>
+      <e pred="most" param="military" vp="1" />
+      <yesnoChoice text="take out 1 worker and get 3 wheat with it?" pred="most" param="stability" worker="1" wheat="3" />
     </card>
     <card name="qin_unification" age="1" famine="1" architects="1">
-      <yield res="vp" n="1">
-        <cond op="greater_than_war" res="military"/>
-      </yield>
-      <check op="go_first">
-        <cond op="most" res="stability"/>
-      </check>
+      <e pred="greater_than_war" param="military" vp="1" />
+      <e pred="most" param="stability" effect="go_first" />
     </card>
     <card name="rigveda" age="1" famine="2" architects="0">
-      <yield res="book" n="*">
-        <or>
-          <cond op="bought" type="war"/>
-          <cond op="bought" res="battle"/>
-        </or>
-      </yield>
-      <yield res="wheat" n="4">
-        <cond op="most" res="wheat"/>
-      </yield>
+      <foreach pred="bought" param="war" func="nbought" vp="1" />
+      <foreach pred="bought" param="battle" func="nbought" vp="1" />
+      <e pred="most" param="wheat" wheat="4" />
     </card>
     <card name="sea_peoples" age="1" famine="2" architects="1">
-      <cond op="least" res="military">
-        <or>
-          <cost op="remove" res="architect" n="1"/>
-          <cost res="vp" n="1"/>
-        </or>
-      </cond>
-      <cost res="vp" n="1">
-        <and>
-          <cond op="not_most" res="military"/>
-          <cond op="not_most" res="stability"/>
-        </and>
-      </cost>
-      <cost res="wheat" n="2">
-        <cond op="all_except_most" res="military"/>
-      </cost>
-
+      <orChoice pred="least" param="military">
+        <option text="remove architect" arch="-1" />
+        <option text="pay 1 vp" vp="-1" />
+      </orChoice>
+      <andEffect vp="-1">
+        <cond pred="not_most" param="military"/>
+        <cond pred="not_most" param="stability"/>
+      </andEffect>
     </card>
     <card name="shang_oracle_bones" age="1" famine="1" architects="2">
-
+      <e pred="least" param="stability" book="-3" />
+      <e pred="most" param="wheat" gold="3" />
     </card>
     <card name="taoism" age="1" famine="1" architects="1">
-
+      <e pred="pass_first" book="3" />
+      <e pred="most" param="stability" vp="1" />
     </card>
     <card name="yellow_turban_rebellion" age="1" famine="1" architects="2">
-
+      <e pred="least" param="military" wheat="-3" />
+      <e pred="least" param="stability" gold="-1"/>
+      <e pred="least" param="stability" effect="go_last"/>
     </card>
   </age1>
   <age2>

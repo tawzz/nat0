@@ -24,6 +24,8 @@ namespace ations
   #endregion
   public partial class Game : DependencyObject, INotifyPropertyChanged
   {
+    int numPlayersSetting = 5; // 1 to 5
+    int progressColsSetting = 7; // 1 to 7
     #region constants
     public const int MAX_PLAYERS = 5;
     public const int MAX_AGE = 2;
@@ -62,6 +64,10 @@ namespace ations
     string longMessage;
     public string Caption { get { return caption; } set { caption = value; NotifyPropertyChanged(); } }
     string caption = "Start";
+    public string RightCaption { get { return rightCaption; } set { rightCaption = value; NotifyPropertyChanged(); } }
+    string rightCaption = "Pass";
+    public string LeftCaption { get { return leftCaption; } set { leftCaption = value; NotifyPropertyChanged(); } }
+    string leftCaption = "Cancel";
     public string Title { get { return title; } set { title = value; NotifyPropertyChanged(); } }
     string title;
     public bool Interrupt { get; set; }
@@ -107,22 +113,20 @@ namespace ations
       AnimationQueue = new List<Storyboard>();
       ContextStack = new Stack<ContextInfo>();
 
-      NumPlayers = 2;
+      NumPlayers = numPlayersSetting;
       InitPlayers(NumPlayers);
-      Progress = new Progress(7);// NumPlayers + 2); //testing
+      Progress = new Progress(progressColsSetting);// NumPlayers + 2); //testing
       Stats = new Stats(this);
 
       SetupForStart();
-      //Stats.WarCard = ACard.MakeCard("hyksos_invasion", 1); //testing design
-      //Stats.EventCard = ACard.MakeEventCard("attila"); //testing design
-
-
-
     }
     public void SetupForStart() //called after initialization
     {
       Title = "Nations Start!"; Message = "press Start!"; Caption = "Start"; LongMessage = "game initialization complete";
       IsOkStartEnabled = true; Kickoff = GameLoop;//Tester;// testing
+
+      //Stats.WarCard = ACard.MakeCard("hyksos_invasion", 1); //testing design
+      //Stats.EventCard = ACard.MakeEventCard("attila"); //testing design
 
       ////testing
       //Choices.Add(new Choice { Text = "Upgrade Dynasty erst einmal als ganz langer choices der sicher 3 zeilen braucht" });
@@ -188,9 +192,14 @@ namespace ations
     //public static readonly DependencyProperty SelectedResourcesProperty = DependencyProperty.Register("SelectedResources", typeof(ObservableCollection<Res>), typeof(Game), null);
     public int Number { get; set; }
     public Dictionary<string, int> NumEach { get; set; }
+    public List<string> ResourcesUpdatedThisAnimationCycle = new List<string>();
 
     public void ResourceUpdated(FrameworkElement ui)
     {
+      if (AnimationQueue.Count == 0) ResourcesUpdatedThisAnimationCycle.Clear();
+      var res = ui.DataContext as Res;
+      if (ResourcesUpdatedThisAnimationCycle.Contains((ui.DataContext as Res).Name)) return;
+      ResourcesUpdatedThisAnimationCycle.Add(res.Name);
       var sb = Storyboards.Scale(ui, TimeSpan.FromSeconds(.3), new Point(1, 1), new Point(5, 2), null, true);
       AnimationQueue.Add(sb);
     }
@@ -213,6 +222,27 @@ namespace ations
       }
       return SelectedResource;
     }
+    async Task<Worker> WaitForPickExtraWorkerCompleted()
+    {
+      var workers = MainPlayer.ExtraWorkers;
+      var wfree1 = workers.FirstOrDefault(x => !x.IsCheckedOut);
+      var wfree2 = workers.LastOrDefault(x => !x.IsCheckedOut);
+      if (wfree1.CostRes != wfree2.CostRes)
+      {
+        Debug.Assert(ResChoices != null && ResChoices.Count == 0, "ResChoices not cleared for worker pick");
+        Debug.Assert(SelectedResource == null, "start worker pick with resource already selected!");
+
+        var resarr = MainPlayer.ExtraWorkers.Where(x => !x.IsCheckedOut).Select(x => x.CostRes).Distinct().ToArray();
+        foreach (var rname in resarr) ResChoices.Add(new Res(rname));
+        ShowResChoices = true; Message = "pick worker type";
+
+        var res = await MakeSureUserPicksAResource();
+        ShowResChoices = false; ResChoices.Clear(); SelectedResource = null;
+
+        if (res.Name == wfree2.CostRes) wfree1 = wfree2;
+      }
+      return wfree1;
+    }
     async Task<Res> WaitForPickResourceCompleted(IEnumerable<string> resnames, int num, string forWhat)
     {
       Debug.Assert(ResChoices != null && ResChoices.Count == 0, "ResChoices not cleared for growth resource pick");
@@ -231,25 +261,9 @@ namespace ations
 
       if (res.Name == "worker")
       {
-        var workers = MainPlayer.ExtraWorkers;
-        var wfree1 = workers.FirstOrDefault(x => !x.IsCheckedOut);
-        var wfree2 = workers.LastOrDefault(x => !x.IsCheckedOut);
-        if (wfree1.CostRes != wfree2.CostRes)
-        {
-          Debug.Assert(ResChoices != null && ResChoices.Count == 0, "ResChoices not cleared for worker pick");
-          Debug.Assert(SelectedResource == null, "start worker pick with resource already selected!");
-
-          var resarr = MainPlayer.ExtraWorkers.Where(x => !x.IsCheckedOut).Select(x => x.CostRes).Distinct().ToArray();
-          foreach (var rname in resarr) ResChoices.Add(new Res(rname));
-          ShowResChoices = true; Message = "pick worker type";
-
-          res = await MakeSureUserPicksAResource();
-          ShowResChoices = false; ResChoices.Clear(); SelectedResource = null;
-
-          if (res.Name == wfree2.CostRes) wfree1 = wfree2;
-        }
-        Message = MainPlayer.Name + " picked " + wfree1.CostRes.ToCapital() + " worker";
-        MainPlayer.CheckOutWorker(wfree1);
+        var worker = await WaitForPickExtraWorkerCompleted();
+        Message = MainPlayer.Name + " picked " + worker.CostRes.ToCapital() + " worker";
+        MainPlayer.CheckOutWorker(worker);
       }
       else
       {

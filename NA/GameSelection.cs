@@ -12,7 +12,7 @@ using ations;
 namespace ations
 {
   public enum cl { none, prog, civ, worker, arch, turm, pspecial, cspecial, res }
-  public enum ctx { none, start, special, wready }
+  public enum ctx { none, start, special, wready, removeWorker, removeMilitaryWorker }
 
   public partial class Game
   {
@@ -166,7 +166,7 @@ namespace ations
 
           var currentStep = result.LastOrDefault(); 
           Debug.Assert(currentStep != null, "RefreshSteps: currentStep null!");
-          if (currentStep.IsValid != null && !currentStep.IsValid(result)) continue;
+          if (currentStep.IsValid != null && !currentStep.IsValid(result)) { result.Clear(); continue; }
           currentStep.Process?.Invoke(result);
 
           if (i == 0) { complete = true; break; } //got complete action
@@ -186,6 +186,7 @@ namespace ations
       var card = ProgressField.Card;
       var fieldBuy = ProgressField;
       var fieldPlace = CivBoardPlace;
+      MainPlayer.CardsBoughtThisRound.Add(card);
       //card.IsEnabled = false;
 
       if (card.civ())
@@ -204,7 +205,7 @@ namespace ations
         Progress.Remove(fieldBuy);
         MainPlayer.Pay(card.Cost);
         if (card.war()) { Stats.UpdateWarPosition(MainPlayer, card); }
-        else if (card.golden()) await BuyGoldenAgeTask(card.X.astring("res"), card.X.aint("n"));
+        else if (card.golden()) { var res = card.GetResources().FirstOrDefault(); Debug.Assert(res != null, "no resource on golden age card!"); await BuyGoldenAgeTask(res.Name, res.Num); }
         else if (card.battle()) { await WaitForPickResourceCompleted(new string[] { "wheat", "coal", "book" }, MainPlayer.RaidValue, "battle"); }
       }
       Debug.Assert(card != null, "bought null card!!!");
@@ -214,7 +215,7 @@ namespace ations
     public async Task BuyGoldenAgeTask(string resname, int num)
     {
       //can pay with all resources except
-      var respay = MainPlayer.Res.List.Where(x => x.CanPayWith).ToList();
+      var respay = MainPlayer.Res.List.Where(x => x.CanPayWith && x.Num > 0).ToList();
       var canaffordvp = respay.Sum(x => x.Num) >= Stats.Age; 
       if (canaffordvp)
       {
@@ -284,10 +285,52 @@ namespace ations
       //enqueue wonderReadyAnimation
       ContextEnd();
     }
+    public async Task PickWorkerToUndeployTask()
+    {
+      ContextInit(ctx.removeWorker, "pick civ card to undeploy worker from");
+      UpdateUI();
+      while (Step == null)
+      {
+        //Message = "pick a wonder space";
+        await WaitForButtonClick();
+      }
+      MainPlayer.UndeployFrom(Step.Obj as Field);
+      //enqueue wonderReadyAnimation
+      await WaitForAnimationQueueCompleted();
+      ContextEnd();
+
+    }
     public async Task TakeTurmoilTask() { Message = "not implemented"; await Task.Delay(200); }
 
-    async Task WaitSeconds(double secs) { int delay = (int)(secs * 1000); await Task.Delay(delay); }
-    async Task WaitForButtonClick()
+    public async Task PayTask(Player pl, string resname, int num) // includes defaultpayment by picking resources
+    {
+      var debt = pl.Pay(num, resname);
+      if (debt > 0)
+      {
+        // brauch ich einen multiresourcepicker fuer die payment resources von diesem player
+        // er soll [debt] mal picken
+        var respay = pl.Res.List.Where(x => x.CanPayDefaultWith && x.Num > 0).ToList();
+        var canPayDebt = respay.Sum(x => x.Num) >= debt;
+        if (canPayDebt)
+        {
+          var reslist = await WaitForPickMultiResourceCompleted(respay, debt, "debt");
+          foreach (var rpay in reslist) pl.Pay(rpay.Num, rpay.Name);
+        }
+        else
+        {
+          // this player is eliminated because cannot pay debt!!!
+          pl.IsBroke = true;
+          Message = "You, " + pl.Name + ", will be terminated for unability to pay your debt!!!!!!!!";
+          await WaitForButtonClick();
+        }
+
+        //        await DefaultPaymentTask();
+      }
+
+    }
+
+    public async Task WaitSeconds(double secs) { int delay = (int)(secs * 1000); await Task.Delay(delay); }
+    public async Task WaitForButtonClick()
     {
       IsOkStartEnabled = true; OkStartClicked = false;
 
@@ -298,7 +341,22 @@ namespace ations
       }
       OkStartClicked = false; IsOkStartEnabled = false;
     }
-    async Task WaitForThreeButtonClick()
+    public async Task<bool> YesNoChoiceTask(string msg)
+    {
+      var okCaption = Caption;var passCaption = RightCaption; Caption = "Yes";RightCaption = "No";var prevMsg = Message; Message = msg;
+      IsOkStartEnabled = IsPassEnabled = true;      OkStartClicked = PassClicked =  false;
+      
+      while (!OkStartClicked && !PassClicked)
+      {
+        if (Interrupt) throw (new Exception("STOPPED BY PLAYER!"));
+        await Task.Delay(100);
+      }
+      var result = OkStartClicked;
+      IsOkStartEnabled = IsPassEnabled = false;Caption = okCaption; RightCaption = passCaption;Message = prevMsg;
+      OkStartClicked = PassClicked = false;
+      return result;
+    }
+    public async Task WaitForThreeButtonClick()
     {
       IsOkStartEnabled = IsCancelEnabled = IsPassEnabled = true;
       OkStartClicked = CancelClicked = PassClicked = false;
@@ -309,10 +367,10 @@ namespace ations
       }
       IsOkStartEnabled = IsCancelEnabled = IsPassEnabled = false;
     }
-    async Task WaitForAnimationQueueCompleted(int minAnimations = 0)
+    public async Task WaitForAnimationQueueCompleted(int minAnimations = 0)
     {
       while (AnimationQueue.Count < minAnimations) await Task.Delay(200);//give ui time to trigger resourceUpdated event
-      Console.WriteLine(LongMessage = "Animation Queue ready -  starting animations...");
+      Console.WriteLine("Animation Queue ready -  starting animations...");
       if (AnimationQueue.Count == 0) { await Task.Delay(500); }
       while (AnimationQueue.Count > 0)
       {
@@ -323,9 +381,10 @@ namespace ations
         while (sb.GetCurrentState() == ClockState.Active && sb.GetCurrentTime() < sb.Duration)
         { await Task.Delay(100); }
       }
-      Console.WriteLine(LongMessage = "Animation Queue abgearbeitet!");
+      Debug.Assert(AnimationQueue.Count == 0, "WaitForAnimationQueueCompleted: nicht alle animations geloescht!");
+      Console.WriteLine("Animation Queue abgearbeitet!");
     }
-    async Task WaitForRoundMarkerAnimationCompleted()
+    public async Task WaitForRoundMarkerAnimationCompleted()
     {
       var sb = Storyboards.MoveTo(UIRoundmarker, Stats.RoundMarkerPosition, TimeSpan.FromSeconds(1), null);
       //var sb = Storyboards.Scale(testui, TimeSpan.FromSeconds(.3), new Point(1, 1), new Point(5, 2), null, true);

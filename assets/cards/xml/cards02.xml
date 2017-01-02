@@ -24,7 +24,7 @@
   <card name="battle_of_hastings" age="2" type="battle" ></card>
   <card name="battle_of_poitiers" age="2" type="battle" ></card>
   <card name="battle_of_tannenberg" age="2" type="battle" ></card>
-  <card name="byzantine_arab_war" age="2" type="war" res="book" n="3" ></card>
+  <card name="byzantine_arab_war" age="2" type="war" book="3" ></card>
   <card name="camel_archer" age="2" type="military" raid="4" score="1_1_2" military="5" stability="-1" deploy="2" />
   <card name="castle" age="2" type="building" score="1_1_1" stability="3" deploy="2" coal="1"/>
   <card name="cataphract" age="2" type="military" raid="4" score="1_1_2" military="6"  deploy="2" coal="-2" />
@@ -33,9 +33,9 @@
     <round cause="buy war" vp="1"/>
   </card>
   <card name="cho_ko_nu" age="2" type="military" raid="4" score="1_1_2" military="5"  deploy="2" gold="1"/>
-  <card name="compass" age="2" type="golden" res="coal" n="2" />
+  <card name="compass" age="2" type="golden" coal="2" />
   <card name="crusader_states" age="2" type="colony" vp="2" milmin="13" military="3" ></card>
-  <card name="divina_commedia" age="2" type="golden" res="book" n="2" />
+  <card name="divina_commedia" age="2" type="golden" book="2" />
   <card name="eleanor_of_aquitaine" age="2" type="advisor" military="2" >
     <prod>
       <yield res="gold" n="5"></yield>
@@ -43,7 +43,7 @@
     </prod>
   </card>
   <card name="england" age="2" type="colony" vp="1" milmin="11" gold="3"/>
-  <card name="first_crusade" age="2" type="war" res="book" n="6" />
+  <card name="first_crusade" age="2" type="war" book="6" />
   <card name="genghis_khan" age="2" type="advisor" military="3" >
     <check op="dec" res="stability" n="3"></check>
   </card>
@@ -57,8 +57,8 @@
   <card name="greek_fire_galley" age="2" type="military" raid="4" score="1_1_2" military="6" deploy="2" wheat="2"/>
   <card name="greenland" age="2" type="colony" vp="1" milmin="7" wheat="3"/>
   <card name="guild_hall" age="2" type="building" score="1_1_1" deploy="2" coal="3" book="1"/>
-  <card name="gunpowder" age="2" type="golden" res="coal" n="2" />
-  <card name="heavy_plough" age="2" type="golden" res="coal" n="2" />
+  <card name="gunpowder" age="2" type="golden" coal="2" />
+  <card name="heavy_plough" age="2" type="golden" coal="2" />
   <card name="harald_hardrada" age="2" type="advisor" military="2" gold="4">
     <round>
       <check auto="remove">
@@ -68,14 +68,14 @@
   </card>
   <card name="hippodrome" age="2" type="building" score="1_1_1" stability="3" deploy="2" book="1"/>
   <card name="horse_archer" age="2" type="military" raid="4" score="1_1_2" military="5" wheat="-1" deploy="2"/>
-  <card name="hundred_years_war" age="2" type="war" res="wheat" n="5" ></card>
+  <card name="hundred_years_war" age="2" type="war" wheat="5" ></card>
   <card name="knight" age="2" type="military" raid="4" score="1_1_2" military="5" deploy="2" coal="1"/>
   <card name="krak_des_chevaliers" age="2" type="wonder" vp="2" military="6" arch="5_5" />
   <card name="lombardy" age="2" type="colony" vp="1" milmin="9" book="3"/>
   <card name="longbowman" age="2" type="military" raid="4" score="1_1_2" military="4" deploy="2"/>
   <card name="longships" age="2" type="military" raid="4" score="1_1_2" military="5" deploy="2" book="-1"/>
   <card name="madrasa" age="2" type="building" score="1_1_1" deploy="2" book="2" gold="2"/>
-  <card name="magna_carta" age="2" type="golden" res="book" n="2" />
+  <card name="magna_carta" age="2" type="golden" book="2" />
   <card name="mansa_musa" age="2" type="advisor" gold="1">
     <round>
       <check auto="yield" res="book" n="2">
@@ -102,7 +102,7 @@
     </ready>
   </card>
   <card name="monastery" age="2" type="building" score="1_1_1" deploy="2" book="3" wheat="1"/>
-  <card name="mongol_invasions" age="2" type="war" res="wheat" n="10" />
+  <card name="mongol_invasions" age="2" type="war" wheat="10" />
   <card name="mosque" age="2" type="building" score="1_1_1" stability="2" deploy="2" gold="2"/>
   <card name="notre_dame" age="2" type="wonder" vp="1" arch="2_1" >
     <prod>
@@ -127,7 +127,7 @@
     </round>
   </card>
   <card name="prussia" age="2" type="colony" vp="1" milmin="12" book="3"/>
-  <card name="reconquista" age="2" type="war" res="gold" n="-4" />
+  <card name="reconquista" age="2" type="war" gold="4" />
   <card name="saharan_trade" age="2" type="colony" vp="1" milmin="15" coal="4"/>
   <card name="sankore_university" age="2" type="wonder" vp="2" arch="1_2_3" >
     <ready>
@@ -143,9 +143,9 @@
   </card>
   <card name="sicily" age="2" type="colony" vp="1" milmin="12" wheat="3"/>
   <card name="siege_of_constantinople" age="2" type="battle" />
-  <card name="spectacles" age="2" type="golden" res="coal" n="2" />
+  <card name="spectacles" age="2" type="golden" coal="2" />
   <card name="the_horns_of_hattin" age="2" type="battle" />
-  <card name="the_quoran" age="2" type="golden" res="book" n="2" />
+  <card name="the_quoran" age="2" type="golden" book="2" />
   <card name="thomas_aquino" age="2" type="advisor" stability="1" >
     <prod>
       <yield res="book" n="4">
@@ -153,12 +153,12 @@
       </yield>
     </prod>
   </card>
-  <card name="three_kingdoms" age="2" type="golden" res="book" n="2" />
+  <card name="three_kingdoms" age="2" type="golden" book="2" />
   <card name="tibet" age="2" type="colony" vp="1" milmin="8" stability="3" />
   <card name="university" age="2" type="building" score="1_1_1" deploy="2" book="2" coal="2"/>
-  <card name="vandalic_war" age="2" type="war" res="coal" n="-6" />
-  <card name="viking_raids" age="2" type="war" res="book" n="-4" />
-  <card name="war_of_the_roses" age="2" type="war" res="gold" n="-7" />
+  <card name="vandalic_war" age="2" type="war" coal="6" />
+  <card name="viking_raids" age="2" type="war" book="4" />
+  <card name="war_of_the_roses" age="2" type="war" gold="7" />
   <card name="watermill" age="2" type="building" score="1_1_1" deploy="2" coal="3" wheat="1"/>
   <card name="windmill" age="2" type="building" score="1_1_1" deploy="2" wheat="3" gold="1"/>
 </cards>

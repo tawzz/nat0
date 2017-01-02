@@ -30,10 +30,10 @@ namespace ations
     public static XElement GetEventCardX(string name)
     {
       var xfile = GetX("cards/xml/eventcards.xml");
-      var e1 = xfile.Elements().ToArray(); //the 4 ages
-      foreach (var el in e1)
+      var evAllAges = xfile.Elements().ToArray(); //the 4 ages
+      foreach (var evAge in evAllAges)
       {
-        var xcard = el.Elements().FirstOrDefault(x => x.astring("name") == name);
+        var xcard = evAge.Elements().FirstOrDefault(x => x.astring("name") == name);
         if (xcard != null) return xcard;
       }
       return null;

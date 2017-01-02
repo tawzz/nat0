@@ -8,7 +8,7 @@ using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Xml.Linq;
-
+using ations;
 namespace ations
 {
   public class Card : DependencyObject, INotifyPropertyChanged
@@ -182,23 +182,26 @@ namespace ations
     public int GetMilitary { get { return X.aint("military", 0); } }
     public int GetStability { get { return X.aint("stability", 0); } }
     public int GetRaid { get { return X.aint("raid"); } }
-    public List<Tuple<string, int>> GetResourceTuples()
+    public IEnumerable<Res> GetResources()
     {
-      List<string> exceptions = new List<string> { "vp", "raid", "military", "stability", "score", "name", "type", "age","private_architect","maxdeploy", "deploy", "res", "eff", "effect", "n", "cause", "milmin", "arch" };
-      List<Tuple<string, int>> result = new List<Tuple<string, int>>();
+      List<string> exceptions = new List<string> { "vp", "raid", "military", "stability", "score", "name", "type", "age", "private_architect", "maxdeploy", "deploy", "res", "eff", "effect", "n", "cause", "milmin", "arch" };
+      List<Res> result = new List<ations.Res>();
       var reslist = X.Attributes().Where(x => !exceptions.Contains(x.Name.ToString())).ToList();
       foreach (var attr in reslist)
       {
         var name = attr.Name.ToString();
         int n = 0;
         var ok = int.TryParse(attr.Value, out n);
-        Debug.Assert(ok, "Unparsable attribute value for resource "+name+" for card " + this.Name);
-        result.Add(new Tuple<string, int>(name,n));
+        Debug.Assert(ok, "GetResourceTuples: Unparsable attribute value for resource " + name + " for card " + this.Name);
+        result.Add(new Res(name, n));
       }
       return result;
     }
+    public IEnumerable<string> GetResourceNames() { return GetResources().Select(x => x.Name).ToList(); }
 
     public event PropertyChangedEventHandler PropertyChanged; public void NotifyPropertyChanged([CallerMemberName] string propertyName = null) { this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName)); }
     public override string ToString() { return Name + "(" + Type + ")"; }
+
+
   }
 }

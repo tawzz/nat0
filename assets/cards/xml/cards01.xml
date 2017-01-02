@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <cards>
-  <card name="aeneid" age="1" type="golden" res="book" n="2" />
+  <card name="aeneid" age="1" type="golden" book="2" />
   <card name="aqueduct" age="1" type="building" score="1_1" stability="1" deploy="1" wheat="2"/>
   <card name="archer" age="1" type="military" raid="4" score="1_1" military="2" deploy="1"/>
   <card name="archimedes" age="1" type="advisor" private_architect="1" coal="1"/>
@@ -20,7 +20,7 @@
   <card name="buddha" age="1" type="advisor" stability="3" coal="1" eff="skip_first_turn" />
   <card name="chariot" age="1" type="military" raid="3" score="1_1" military="3" deploy="1" gold="-1"/>
   <card name="city_wall" age="1" type="building" score="1_1" stability="1" deploy="1" coal="2"/>
-  <card name="coinage" age="1" type="golden" res="coal" n="2" />
+  <card name="coinage" age="1" type="golden" coal="2" />
   <card name="colosseum" age="1" type="wonder" vp="1" military="3" arch="2_2">
     <ready wheat="-2"/>
   </card>
@@ -47,24 +47,24 @@
   <card name="hindu_kush" age="1" type="colony" vp="0" milmin="9" cola="3"/>
   <card name="hispania" age="1" type="colony" vp="0" milmin="4" wheat="2"/>
   <card name="hoplite" age="1" type="military" raid="3" score="1_1" military="3" deploy="1" coal="-1"/>
-  <card name="hunnic_invasions" age="1" type="war" res="wheat" n="4"/>
-  <card name="hyksos_invasion" age="1" type="war" res="coal" n="4" />
+  <card name="hunnic_invasions" age="1" type="war" wheat="4"/>
+  <card name="hyksos_invasion" age="1" type="war" coal="4" />
   <card name="immortal" age="1" type="military" raid="3" score="1_1" military="3" stability="-1" deploy="1"/>
-  <card name="iron_working" age="1" type="golden" res="coal" n="2" />
+  <card name="iron_working" age="1" type="golden" coal="2" />
   <card name="israel" age="1" type="colony" vp="0" milmin="5" book="2"/>
   <card name="legionary" age="1" type="military" raid="3" score="1_1" military="3" deploy="1" wheat="-1"/>
   <card name="library" age="1" type="building" score="1_1" deploy="1" book="2" gold="1"/>
   <card name="lighthouse" age="1" type="building" score="1_1" deploy="1" gold="2" coal="1"/>
   <card name="lyceum" age="1" type="building" score="1_1" deploy="1" book="2" coal="1"/>
   <card name="macedonia" age="1" type="colony" vp="0" milmin="4" military="2" />
-  <card name="mahabharata" age="1" type="golden" res="book" n="2" />
-  <card name="map_making" age="1" type="golden" res="coal" n="2" />
+  <card name="mahabharata" age="1" type="golden" book="2" />
+  <card name="map_making" age="1" type="golden" coal="2" />
   <card name="milvian_bridge" age="1" type="battle"/>
   <card name="mine" age="1" type="building" score="1_1" deploy="1" coal="2" gold="1"/>
   <card name="nubia" age="1" type="colony" vp="0" milmin="3" gold="2"/>
   <card name="pagoda" age="1" type="building" score="1_1" stability="1"  deploy="1" book="2"/>
-  <card name="parthian_wars" age="1" type="war" res="gold" n="3" />
-  <card name="pelopponesian_war" age="1" type="war" res="book" n="4" />
+  <card name="parthian_wars" age="1" type="war" gold="3" />
+  <card name="pelopponesian_war" age="1" type="war" book="4" />
   <card name="petra" age="1" type="wonder" vp="0" stability="1" arch="2_0_1" >
     <round>
       <action type="trade">
@@ -74,7 +74,7 @@
     </round>
   </card>
   <card name="phalanx" age="1" type="military" raid="3" score="1_1" military="4" deploy="1" coal="-2"/>
-  <card name="punic_wars" age="1" type="war" res="wheat" n="6" />
+  <card name="punic_wars" age="1" type="war" wheat="6" />
   <card name="pyramids" age="1" type="wonder" vp="3" arch="2_1_0" gold="2" wheat="-2"/>
   <card name="qin_shi_huang" age="1" type="advisor" wheat="3" >
     <round cause="least stability" effect="remove"/>
@@ -84,7 +84,7 @@
   </card>
   <card name="siege_of_alesia" age="1" type="battle"/>
   <card name="siege_of_troy" age="1" type="battle" />
-  <card name="silk" age="1" type="golden" res="coal" n="2" />
+  <card name="silk" age="1" type="golden" coal="2" />
   <card name="solomons_temple" age="1" type="wonder" vp="0" arch="1_1" >
     <age vp="1" />
   </card>
@@ -99,12 +99,12 @@
   <card name="terracotta_army" age="1" type="wonder" vp="2" arch="0_0_3" military="1" >
     <ready cause="player_least stability" gold="-4"/>
   </card>
-  <card name="the_bible" age="1" type="golden" res="book" n="2" />
-  <card name="the_odyssey" age="1" type="golden" res="book" n="2" />
+  <card name="the_bible" age="1" type="golden" book="2" />
+  <card name="the_odyssey" age="1" type="golden" book="2" />
   <card name="the_oracle" age="1" type="wonder" vp="1" arch="2_1" stability="2"/>
-  <card name="three_kingdoms" age="1" type="war" res="gold" n="5"/>
+  <card name="three_kingdoms" age="1" type="war" gold="5"/>
   <card name="trireme" age="1" type="military" raid="3" score="1_1" military="3" deploy="2"/>
-  <card name="warring_states" age="1" type="war" res="book" n="3" />
-  <card name="wars_of_alexander" age="1" type="war" res="wheat" n="2" />
+  <card name="warring_states" age="1" type="war" book="3" />
+  <card name="wars_of_alexander" age="1" type="war" wheat="2" />
   <card name="ziggurat" age="1" type="building" score="1_1" stability="2" deploy="1" coal="1"/>
 </cards>

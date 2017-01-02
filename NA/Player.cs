@@ -20,6 +20,7 @@ namespace ations
     public ResDict Res { get; set; }
     public int RaidValue { get { return Res.n("raid"); } set { if (Res.n("raid") != value) { Res.set("raid", value); NotifyPropertyChanged(); } } }
     public ObservableCollection<Worker> ExtraWorkers { get; set; }//cost res, cost count, margin, is checked out
+    public int GratisExtraWorkers { get; set; }
     public Dictionary<string, int> Defaulted { get; set; } //to record by how much defaulted per resource in current round
     public Brush Brush { get; set; }
     public int Index { get; set; }
@@ -38,6 +39,10 @@ namespace ations
     public Field WICField { get { return Civ.Fields[CardType.WIC]; } }
     public Card WIC { get { return HasWIC ? WICField.Card : null; } }
     public bool HasPrivateArchitect { get { return false; } } //gehoert zu checks
+    public bool IsBroke { get; set; }
+    public IEnumerable<Res> WarLoss { get; set; }
+    public List<Card> CardsBoughtThisRound = new List<Card>();
+
     #region Military, Stability, and Books (resource + positioning on stats board), LevelPosition
     public Point LevelPosition { get; set; }
     static int[] LevelOffsetX = { 20, 50, 20, 50 };
@@ -54,7 +59,7 @@ namespace ations
           stability = value;
           Res.set("stability", value);
           var x = StabilityOffsetX + StabilityIncrementX * Index;
-          var staby = stability > 15 ? 15 : stability < -3 ? -3 : stability;
+          var staby = stability > 15 ? 15 : stability < -4 ? -4 : stability;
           var y = staby >= 0 ? StabilityOffsetY - staby * StabilityIncrementY
             : StabilityOffsetYNegative - (staby * StabilityIncrementY);
 
@@ -168,32 +173,55 @@ namespace ations
       else Res.set(resname, newcount);
       return newcount;
     }
-    public bool Pay(int cost, string resname = "gold") 
-    { //returns true if debt has been payed (even if defaulted), false if default in vp or cannot pay rest in books (>need picker!)
+    public int Pay(int cost, string resname = "gold") 
+    { //debt in books
+
       var rescount = Res.n(resname);
+
       UpdateResBy(resname, -cost);
-      if (rescount < cost)
+
+      if (rescount >= cost) return 0;
+
+      else
       {
-        if (resname == "vp") return false; //this player cannot pay!
         var diff = cost - rescount;
+
+        if (resname == "vp") return 10*cost; // player defaults in vp: RULE MOD! can pay vp in 10 books!
+
+        // resname is NOT vp
         if (!Defaulted.ContainsKey(resname))
         {
           Defaulted.Add(resname, diff);
-          return Pay(1, "vp");
+          diff += Pay(1, "vp");
         }
         else Defaulted[resname] += diff;
 
-        if (resname == "book") return false; //this player cannot pay in books!
-        return Pay(diff, "book");
+        if (resname == "book") return diff; // defaults in books: bad!!!
+
+        var result = Pay(diff, "book");
+        return result;
       }
-      return true; // this player has payed
+
     }
     public void DeployWorker(int num = 1) { UpdateResBy("worker", -num); }
+    public void UndeployFrom(Field field) { field.Card.NumDeployed--; UpdateResBy("worker", 1); UpdateStabAndMil(); }
     public void UndeployWorker(int num = 1) { if (num!=0)UpdateResBy("worker", num); }
     public void CheckOutWorker(Worker w)
     {
       w.IsCheckedOut = true;
       Res.inc("worker", 1);
+    }
+    public void ReturnWorker(string resname="")
+    {
+      Debug.Assert(Res.n("worker") > 0, "ReturnWorker with no worker undeployed!");
+      UpdateResBy("worker", -1);
+      if (string.IsNullOrEmpty(resname)) GratisExtraWorkers++;
+      else
+      {
+        var worker = ExtraWorkers.FirstOrDefault(x => x.CostRes == resname && x.IsCheckedOut);
+        Debug.Assert(worker != null, "returning worker with non-existing cost resource");
+        worker.IsCheckedOut = false;
+      }
     }
     public bool AddCivCard(Card card, Field field)
     {
@@ -218,13 +246,13 @@ namespace ations
       List<Res> result = new List<Res>();
       foreach (var c in Cards.Where(x => x != WIC))
       {
-        List<Tuple<string, int>> tuples = c.GetResourceTuples();
+        var resources = c.GetResources();
         var factor = c.buildmil() ? c.NumDeployed : 1;
         if (factor == 0) continue;
-        foreach (var res in tuples)
+        foreach (var res in resources)
         {
-          var n = res.Item2*factor;
-          var resname = res.Item1;
+          var n = res.Num*factor;
+          var resname = res.Name;
           Console.WriteLine("production: " + Name + " card: " + c.Name + ", res: " + resname + " by " + n);
           if (result.All(x => x.Name != resname)) result.Add(new Res(resname, n)); else result.FirstOrDefault(x => x.Name == resname).Num += n;
         }
@@ -234,12 +262,12 @@ namespace ations
         if (w.CostRes != "military" && w.CostRes != "stability")
         {
           if (result.All(x => x.Name != w.CostRes)) result.Add(new Res(w.CostRes, -w.Cost)); else result.FirstOrDefault(x => x.Name == w.CostRes).Num += -w.Cost;
-          Pay(w.Cost, w.CostRes);
         }
       }
 
       return result.Where(x=>x.Num!=0).ToArray(); // return only resources that changed
     }
+    public IEnumerable<Res> GetResourceSnapshot() { return Res.List.Where(x => x.CanPayDefaultWith || x.Name == "vp").Select(x => new Res(x.Name, x.Num)).ToList(); }
 
     public void MoveCivCard(Card card, Field fromField, Field toField)
     {

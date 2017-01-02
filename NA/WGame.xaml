@@ -813,8 +813,8 @@
                  Visibility="{Binding ShowResChoices, Converter={StaticResource BooleanToVisibilityConverter}}"
                  HorizontalContentAlignment="Stretch"
                  VerticalContentAlignment="Center"
-                 VerticalAlignment="Center"
                  Margin="20,30"
+                 VerticalAlignment="Center"
                  HorizontalAlignment="Center" />
 
         <ListBox x:Name="listPickChoice"
@@ -870,34 +870,32 @@
                       Visibility="{Binding ShowMultiResChoices, Converter={StaticResource BooleanToVisibilityConverter}}"
                       Background="{Binding MainPlayer.Brush}"
                       ItemsSource="{Binding ResChoices}"
-                      VerticalAlignment="Center"
                       ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                       ItemsPanel="{StaticResource UGrid1}"
+                      HorizontalContentAlignment="Center"
+                      VerticalContentAlignment="Center"
+                      Margin="20,30"
+                      VerticalAlignment="Center"
                       HorizontalAlignment="Center">
           <ItemsControl.ItemTemplate>
             <DataTemplate>
-              <Viewbox>
-                <StackPanel Margin="6"
-                            Cursor="Hand"
-                            MouseLeftButtonUp="OnClickMultiResource">
-                  <Image Source="{Binding Path}"
-                         Opacity="1"
-                         Height="90"
-                         Width="104"
-                         Margin="0,2" />
-                  <Grid>
-                    <!--<Ellipse Fill="White"
+              <!--<Viewbox>-->
+              <StackPanel Cursor="Hand"
+                          MouseLeftButtonUp="OnClickMultiResource">
+                <Image Source="{Binding Path}"
+                       Height="60" />
+                <Grid>
+                  <!--<Ellipse Fill="White"
                              Width="90"
                              Height="60"
                              Margin="0,6,0,0" />-->
-                    <TextBlock Text="{Binding Num, Mode=TwoWay}"
-                               HorizontalAlignment="Center"
-                               FontSize="48"
-                               Foreground="White" 
-                                />
-                  </Grid>
-                </StackPanel>
-              </Viewbox>
+                  <TextBlock Text="{Binding Num, Mode=TwoWay}"
+                             HorizontalAlignment="Center"
+                             FontSize="18"
+                             Foreground="White" />
+                </Grid>
+              </StackPanel>
+              <!--</Viewbox>-->
             </DataTemplate>
             <!--<DataTemplate>
               <Grid>
@@ -1002,25 +1000,27 @@
             <Style TargetType="{x:Type Button}"
                    BasedOn="{StaticResource ButtonStyle1}" />
           </Grid.Resources>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="1.75*" />
+            <ColumnDefinition Width="*" />
+          </Grid.ColumnDefinitions>
 
-          <StackPanel Orientation="Horizontal"
-                      HorizontalAlignment="Center">
-            <Button Content="{Binding Caption}"
-                    Click="OnClickButton"
-                    MinWidth="100"
-                    IsEnabled="{Binding IsOkStartEnabled}" />
-            <Button Content="Pass"
-                    Margin="0,10"
-                    Click="OnClickPass"
-                    Grid.Column="1"
-                    Visibility="{Binding IsPassEnabled, Converter={StaticResource BooleanToVisibilityConverter}}" />
-            <Button Content="Cancel"
-                    Width="70"
-                    Click="OnClickCancel"
-                    Grid.Column="2"
-                    FontSize="16"
-                    Visibility="{Binding IsCancelEnabled, Converter={StaticResource BooleanToVisibilityConverter}}" />
-          </StackPanel>
+          <Button Content="{Binding Caption}"
+                  Grid.Column="1"
+                  Click="OnClickButton"
+                  Margin="0,10"
+                  IsEnabled="{Binding IsOkStartEnabled}" />
+          <Button Content="{Binding LeftCaption}"
+                  Click="OnClickCancel"
+                  Grid.Column="0"
+                  FontSize="14"
+                  Visibility="{Binding IsCancelEnabled, Converter={StaticResource BooleanToVisibilityConverter}}" />
+          <Button Content="{Binding RightCaption}"
+                  Grid.Column="2"
+                  FontSize="14"
+                  Click="OnClickPass"
+                  Visibility="{Binding IsPassEnabled, Converter={StaticResource BooleanToVisibilityConverter}}" />
           <!--<Button Content="Interrupt"
                   Click="OnClickSTOP"
                   Grid.Row="1"

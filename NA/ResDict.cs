@@ -21,6 +21,7 @@ namespace ations
     public void set(string resname, int val) { EnsureRes(resname); dict[resname].Num = val; }
     public int inc(string resname, int val) { EnsureRes(resname); EnsurePos(val); return dict[resname].Num += val; }
 
+
     void EnsureRes(string resname)
     {
       if (!dict.ContainsKey(resname))

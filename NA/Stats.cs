@@ -33,6 +33,7 @@ namespace ations
     Card warCard;
     public Point WarPosition { get { return warPosition; } set { warPosition = value; NotifyPropertyChanged(); } }
     Point warPosition;
+    public int WarLevel { get; set; }
 
     Game game;
 
@@ -41,14 +42,15 @@ namespace ations
       StatsboardImage = Helpers.GetStatsboardImage();
       this.game = game;
     }
-    public void UpdateWarPosition(Player p = null, Card card = null)
+    public void UpdateWarPosition(Player pl = null, Card card = null)
     {
-      if (p == null) { WarPosition = new Point(0, 0); WarCard = null; }
+      if (pl == null) { WarPosition = new Point(0, 0); WarCard = null; }
       else
       {
         Point milMargin = new Point(150, 1100);
         int diff = 10;
-        WarPosition = new Point(p.MilitaryPosition.X + milMargin.X - diff, p.MilitaryPosition.Y - milMargin.Y - diff);
+        WarPosition = new Point(pl.MilitaryPosition.X + milMargin.X - diff, pl.MilitaryPosition.Y - milMargin.Y - diff);
+        WarLevel = pl.Military;
         IsWar = true;
         if (card != null) WarCard = card;
       }

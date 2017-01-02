@@ -25,9 +25,9 @@ namespace ations
       {new cl[] {cl.worker,cl.civ},
         new Step[] {new Step("select deploy target"), new Step("deploy worker?", validator: BuildingOrMilitary) } },
       {new cl[] {cl.arch},
-        new Step[] {new Step("take architect") } },
+        new Step[] {new Step("take architect?") } },
       {new cl[] {cl.turm},
-        new Step[] {new Step("take turmoil") } },
+        new Step[] {new Step("take turmoil?") } },
     };
     static Dictionary<cl[], Step[]> dWonderReady = new Dictionary<cl[], Step[]>()
     {
@@ -36,12 +36,28 @@ namespace ations
       {new cl[] {cl.civ, cl.civ},
         new Step[] {new Step("place wonder?", validator: AllowsWonder, processor:Remove2ndLast) } },
     };
+    static Dictionary<cl[], Step[]> dBMChooser = new Dictionary<cl[], Step[]>()
+    {
+      {new cl[] {cl.civ},
+        new Step[] {new Step("undeploy?", validator: HasWorkerDeployed) } },
+      {new cl[] {cl.civ, cl.civ},
+        new Step[] {new Step("updeploy?", validator: HasWorkerDeployed, processor:Remove2ndLast) } },
+    };
+    static Dictionary<cl[], Step[]> dMChooser = new Dictionary<cl[], Step[]>()
+    {
+      {new cl[] {cl.civ},
+        new Step[] {new Step("undeploy?", validator: HasMilitaryWorkerDeployed) } },
+      {new cl[] {cl.civ, cl.civ},
+        new Step[] {new Step("updeploy?", validator: HasMilitaryWorkerDeployed, processor:Remove2ndLast) } },
+    };
     static Dictionary<ctx, string> contextStartMessage = new Dictionary<ctx, string>()
     {
       { ctx.none, "" },
       { ctx.special, "" }, // future
       { ctx.start, "$Player, choose action" },
       { ctx.wready, "wonder is ready!" },
+      { ctx.removeWorker, "undeploy worker?" },
+      { ctx.removeMilitaryWorker, "undeploy worker?" },
     };
     static Dictionary<ctx, Dictionary<cl[], Step[]>> contextDictionaries = new Dictionary<ctx, Dictionary<cl[], Step[]>>()
     {
@@ -49,10 +65,14 @@ namespace ations
       { ctx.special, new Dictionary<cl[], Step[]>() }, // future
       { ctx.start, dStart },
       { ctx.wready, dWonderReady },
+      { ctx.removeWorker, dBMChooser },
+      { ctx.removeMilitaryWorker, dMChooser },
     };
 
     public static bool AllowsWonder(List<Step> list) { return LastField(list).TypesAllowed.Contains("wic"); }
-    public static bool BuildingOrMilitary(List<Step> list) { return LastField(list).Card.buildmil(); }
+    public static bool BuildingOrMilitary(List<Step> list) { var last = LastField(list);var res = last.Card.buildmil(); return LastField(list).Card.buildmil(); }
+    public static bool HasWorkerDeployed(List<Step> list) { var last = LastField(list); var res = last.Card.buildmil() && last.Card.NumDeployed > 0; return res; }// LastField(list).Card.buildmil(); }
+    public static bool HasMilitaryWorkerDeployed(List<Step> list) { var last = LastField(list); var res = last.Card.mil() && last.Card.NumDeployed > 0; return res; }// LastField(list).Card.buildmil(); }
     public static bool LastFitsFirst(List<Step> list) { return list.Count > 1 && LastField(list).TypesAllowed.Contains(FirstField(list).Card.Type); }
     public static bool CanDeployFromLast(List<Step> list) { var card = LastField(list).Card; return card.buildmil() && card.NumDeployed > 0; }
     public static bool OneStepBuy(List<Step> list) { return list.Count == 1 && Game.instance.IsOneStepBuy(list[0].Obj as Field); }

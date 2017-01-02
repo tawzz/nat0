@@ -8,6 +8,15 @@ namespace ations.NA
 {
   class _trash
   {
+    #region Game
+
+    //async Task DefaultPaymentTask()
+    //{
+    //  await Task.Delay(2000);
+    //}
+
+    #endregion
+
     #region Player   
     //public async Task BasicProduction(bool defaultPenalty = true)
     //{
@@ -37,7 +46,43 @@ namespace ations.NA
     //  return (wfree1.CostRes != wfree2.CostRes);
     //}
 
-    
+
     #endregion
+
+    #region Card
+
+    //public List<Tuple<string, int>> GetResourceTuples()
+    //{
+    //  List<string> exceptions = new List<string> { "vp", "raid", "military", "stability", "score", "name", "type", "age","private_architect","maxdeploy", "deploy", "res", "eff", "effect", "n", "cause", "milmin", "arch" };
+    //  List<Tuple<string, int>> result = new List<Tuple<string, int>>();
+    //  var reslist = X.Attributes().Where(x => !exceptions.Contains(x.Name.ToString())).ToList();
+    //  foreach (var attr in reslist)
+    //  {
+    //    var name = attr.Name.ToString();
+    //    int n = 0;
+    //    var ok = int.TryParse(attr.Value, out n);
+    //    Debug.Assert(ok, "GetResourceTuples: Unparsable attribute value for resource " + name+" for card " + this.Name);
+    //    result.Add(new Tuple<string, int>(name,n));
+    //  }
+    //  return result;
+    //}
+    //public static List<Tuple<string, int>> GetResourceTuplesForRule(XElement xel)
+    //{
+    //  List<string> exceptions = new List<string> { "pred", "param", "text", "min", "effect", "foreach" };
+    //  List<Tuple<string, int>> result = new List<Tuple<string, int>>();
+    //  var reslist = xel.Attributes().Where(x => !exceptions.Contains(x.Name.ToString())).ToList();
+    //  foreach (var attr in reslist)
+    //  {
+    //    var name = attr.Name.ToString();
+    //    int n = 0;
+    //    var ok = int.TryParse(attr.Value, out n);
+    //    Debug.Assert(ok, "GetResourceTuplesForRule: Unparsable attribute value for resource " + name);
+    //    result.Add(new Tuple<string, int>(name, n));
+    //  }
+    //  return result;
+    //}
+
+    #endregion
+
   }
 }

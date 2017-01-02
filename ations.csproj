@@ -75,6 +75,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="NA\GameRules.cs" />
     <Compile Include="Common\Converters\NumberToStringConverter.cs" />
     <Compile Include="Common\Converters\NumberToBrushConverter.cs" />
     <Compile Include="Common\Converters\BooleanToBackgroundConverter.cs" />
