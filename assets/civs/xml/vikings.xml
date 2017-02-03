@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<playerboard name="vikings">
+  <cards>
+    <card type="advisor"></card>
+    <card name="slave_church" type="building"></card>
+    <card name="quarry" type="building"></card>
+    <card name="berserkers" type="military"></card>
+    <card name="farm" type="building"></card>
+    <card name="vikings_dyn1" type="dynasty"></card>
+    <card name="" type="wic"></card>
+    <card name="" type="colony"></card>
+    <card name="" type="colony"></card>
+    <card name="old_uppsala" type="wonder" score="-2">
+      <a wheat="-1" military="3" />
+    </card>
+    <card name="" type="wonder"></card>
+    <card name="" type="wonder"></card>
+    <card name="" type="wonder"></card>
+    <card name="" type="wonder"></card>
+  </cards>
+  <workers>
+    <worker res="wheat" n="3"></worker>
+    <worker res="wheat" n="3"></worker>
+    <worker res="wheat" n="3"></worker>
+    <worker res="wheat" n="3"></worker>
+    <worker res="stability" n="3"></worker>
+    <worker res="stability" n="3"></worker>
+    <worker res="stability" n="3"></worker>
+    <worker res="stability" n="3"></worker>
+  </workers>
+  <resources>
+    <res name="wheat" n="2"></res>
+    <res name="coal" n="5"></res>
+    <res name="gold" n="6"></res>
+    <res name="vp" n="3"></res>
+    <res name="worker" n="5"></res>
+  </resources>
+</playerboard>
+ 

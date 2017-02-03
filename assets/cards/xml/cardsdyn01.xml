@@ -1,3 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
-
+<cards>
+  <card name="antikythera_mechanism" age="1" exp="dyn" type="golden" effect="draw_until_gwb"/>
+  <card name="great_library" age="1" type="wonder" exp="dyn" vp="0" book="2" arch="1" >
+    <buy effect="golden_age_bonus" /> 
+    <post_action pred="least" param="stability" effect="remove" />
+  </card>
+  <card name="hypatia" age="1" type="advisor" exp="dyn" cross="1">
+    <prod func="count" param="cross" book="1" />
+    <post_action pred="more_than" param="stability,2" effect="remove" />
+  </card>
+  <card name="mount_ararat" age="1" type="natural" exp="dyn" vp="0" turns="1">
+    <ready affects="others" wheat="-3"/>
+  </card>
+  <card name="mount_kailash" age="1" type="natural" exp="dyn" vp="2" turns="3" />
+  <card name="praetorian_guard" age="1" type="military" exp="dyn" raid="3" score="2" maxdeploy="1" military="3" stability="1" deploy="1"/>
+  <card name="silk_road" age="1" type="building" exp="dyn" score="3" maxdeploy="1" deploy="2" gold="5" coal="-1"/>
+  <card name="siwa_oasis" age="1" type="natural" exp="dyn" vp="0" turns="1" >
+    <buy pred="cardtype" param="colony" book="3"/>
+  </card>
+  <card name="the_pillar_of_hercules" age="1" type="natural" exp="dyn" vp="0" turns="1" >
+    <ready effect="round" military="7" />
+  </card>
+  <card name="vatican" age="1" type="building" exp="dyn" score="2" maxdeploy="1" deploy="2" gold="1" book="3"/>
+  <card name="vesuvius" age="1" type="natural" exp="dyn" vp="4" turns="2" wheat="1">
+    <end_of_age worker="-1"/>
+  </card>
 </cards>

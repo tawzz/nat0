@@ -1,5 +1,5 @@
 ﻿<Application x:Class="ations.App" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:local="clr-namespace:ations" StartupUri="NA/WGame.xaml">
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" DispatcherUnhandledException="OnException" xmlns:local="clr-namespace:ations" StartupUri="NA/WGame.xaml">
   <Application.Resources>
     <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
     <local:BooleanToOpacityConverter x:Key="BooleanToOpacityConverter" />
@@ -10,13 +10,16 @@
     <local:ItemContainerToZIndexConverter x:Key="ItemContainerToZIndexConverter" />
     <local:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
     <local:NumberToVisibilityConverter x:Key="NumberToVisibilityConverter" />
+    <local:ZeroToVisibleConverter x:Key="ZeroToVisibleConverter" />
+    <local:OptionAvailableToVisibleConverter x:Key="OptionAvailableToVisibleConverter" />
+    <local:NonEmptyToVisibleConverter x:Key="NonEmptyToVisibleConverter" />
     <local:NumberToStringConverter x:Key="NumberToStringConverter" />
     <local:NumberToBrushConverter x:Key="NumberToBrushConverter" />
 
-    <ItemsPanelTemplate x:Key="UGrid1">
+    <ItemsPanelTemplate x:Key="UGrid1Row">
       <UniformGrid Rows="1" />
     </ItemsPanelTemplate>
-    <ItemsPanelTemplate x:Key="UGrid2">
+    <ItemsPanelTemplate x:Key="UGrid2Row">
       <UniformGrid Rows="2" />
     </ItemsPanelTemplate>
     <ItemsPanelTemplate x:Key="CanvasPanel">
@@ -28,7 +31,10 @@
     <ItemsPanelTemplate x:Key="UGrid1Column">
       <UniformGrid Columns="1" />
     </ItemsPanelTemplate>
-
+    <ItemsPanelTemplate x:Key="StackPanelCentered">
+      <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" />
+    </ItemsPanelTemplate>
+    
     <Style x:Key="ButtonStyle1" TargetType="{x:Type Button}">
       <!--<Setter Property="FocusVisualStyle" Value="{StaticResource FocusVisual}" />-->
       <Setter Property="Background" Value="#4F000000" />

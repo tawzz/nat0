@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<playerboard name="poland">
+  <cards>
+    <card type="advisor"></card>
+    <card name="temple" type="building"></card>
+    <card name="forge" type="building"></card>
+    <card name="axeman" type="military"></card>
+    <card name="quarry" type="building"></card>
+    <card name="poland_dyn1" type="dynasty"></card>
+    <card name="" type="wic"></card>
+    <card name="" type="colony"></card>
+    <card name="" type="wonder"></card>
+    <card name="" type="wonder"></card>
+    <card name="" type="wonder"></card>
+    <card name="" type="wonder"></card>
+    <card name="" type="wonder"></card>
+    <card name="" type="wonder"></card>
+  </cards>
+  <workers>
+    <worker res="wheat" n="3"></worker>
+    <worker res="wheat" n="3"></worker>
+    <worker res="wheat" n="3"></worker>
+    <worker res="wheat" n="3"></worker>
+    <worker res="stability" n="3"></worker>
+    <worker res="stability" n="3"></worker>
+    <worker res="stability" n="3"></worker>
+    <worker res="stability" n="3"></worker>
+  </workers>
+  <resources>
+    <res name="wheat" n="3"></res>
+    <res name="coal" n="5"></res>
+    <res name="gold" n="5"></res>
+    <res name="vp" n="3"></res>
+    <res name="worker" n="5"></res>
+  </resources>
+</playerboard>
+ 

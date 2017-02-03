@@ -15,7 +15,7 @@ namespace ations
     public Game Game { get; set; }
     public WGame()
     {
-      Game = Game.GameInstance;
+      Game = Game.Inst;
       InitializeComponent();
       Dispatcher.BeginInvoke(DispatcherPriority.Loaded, new Action(() =>
       {
@@ -39,14 +39,51 @@ namespace ations
     private void OnClickTurmoils(object sender, MouseButtonEventArgs e) { Game.OnClickTurmoil(); }
     private void OnClickCivResource(object sender, RoutedEventArgs e) { Game.OnClickCivResource((sender as FrameworkElement).DataContext as Res); }
 
-    private void OnMagnifyClose(object sender, RoutedEventArgs e)
+    private void OnMagnifyClose(object sender, RoutedEventArgs e)    {      cardMagnifier.IsOpen = false;    }
+
+    private void OnClickMultiResource(object sender, MouseButtonEventArgs e)    {      Game.OnClickResourceInMultiPicker((sender as FrameworkElement).DataContext as Res);    }
+
+    private void OnClickWorkerOnCivCard(object sender, MouseButtonEventArgs e)    {      Game.OnClickWorkerCounter((sender as FrameworkElement).DataContext as Field);    }
+
+    private void OnClickNextTest(object sender, RoutedEventArgs e)    {      Game.NextTestRequested();    }
+    private void OnClickRepeatTest(object sender, RoutedEventArgs e) { Game.RepeatRequested(); }
+    private void OnClickPlayMode(object sender, RoutedEventArgs e) { Game.PlayModeRequested(); }
+
+    private void OnClickTesting(object sender, RoutedEventArgs e)    {      Game.Message = "no current test function";    }
+
+    private void OnClickSave(object sender, RoutedEventArgs e)    {      Game.SaveGame();    }
+
+    private async void OnClickLoad(object sender, RoutedEventArgs e)    {      await Game.LoadGame();    }
+
+    private void CalculatePosition(object sender, DependencyPropertyChangedEventArgs e)
     {
-      cardMagnifier.IsOpen = false;
+      var left = gRound.ActualLeft(this);
+      var bottom = gButtons.ActualTop(this); ;// roundMessage.ActualTop(this);
+      var right = gRound.ActualWidth + left;
+
+      gCardPicker.Margin = new Thickness(left - 200, 0, 0, 0);
+      gCardPicker.Width = gRound.ActualWidth+400;
+      gCardPicker.Height = bottom;
     }
 
-    private void OnClickMultiResource(object sender, MouseButtonEventArgs e)
+    private void OnClickRedeal(object sender, RoutedEventArgs e)
     {
-      Game.OnClickResourceInMultiPicker((sender as FrameworkElement).DataContext as Res);
+      Game.Progress.Deal();
+    }
+
+    private void OnClickAge1(object sender, RoutedEventArgs e)
+    {
+      Game.Stats.UpdateRound(1);Game.Stats.UpdateAge(); Game.Progress.Deal();
+    }
+
+    private void OnClickAge2(object sender, RoutedEventArgs e)
+    {
+      Game.Stats.UpdateRound(2); Game.Stats.UpdateAge(); Game.Progress.Deal();
+    }
+
+    private void OnClickSpecialOption(object sender, RoutedEventArgs e)
+    {
+      Game.OnClickSpecialOption((sender as FrameworkElement).DataContext as Choice);
     }
   }
 }

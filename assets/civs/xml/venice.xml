@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<playerboard name="venice">
+  <cards>
+    <card type="advisor"></card>
+    <card name="glass_blower" type="building"></card>
+    <card name="quarry" type="building"></card>
+    <card name="trireme" type="military"></card>
+    <card name="farm" type="building"></card>
+    <card name="venice_dyn1" type="dynasty"></card>
+    <card name="" type="wic"></card>
+    <card name="" type="colony"></card>
+    <card name="" type="constantinople"></card>
+    <card name="" type="wonder"></card>
+    <card name="" type="wonder"></card>
+    <card name="" type="wonder"></card>
+    <card name="" type="wonder"></card>
+    <card name="" type="wonder"></card>
+  </cards>
+  <workers>
+    <worker res="wheat" n="3"></worker>
+    <worker res="wheat" n="3"></worker>
+    <worker res="wheat" n="3"></worker>
+    <worker res="wheat" n="3"></worker>
+    <worker res="stability" n="3"></worker>
+    <worker res="stability" n="3"></worker>
+    <worker res="stability" n="3"></worker>
+    <worker res="stability" n="3"></worker>
+  </workers>
+  <resources>
+    <res name="wheat" n="3"></res>
+    <res name="coal" n="6"></res>
+    <res name="gold" n="6"></res>
+    <res name="vp" n="5"></res>
+    <res name="worker" n="5"></res>
+  </resources>
+</playerboard>
+ 

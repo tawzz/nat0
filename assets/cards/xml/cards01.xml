@@ -3,10 +3,12 @@
   <card name="aeneid" age="1" type="golden" book="2" />
   <card name="aqueduct" age="1" type="building" score="1_1" stability="1" deploy="1" wheat="2"/>
   <card name="archer" age="1" type="military" raid="4" score="1_1" military="2" deploy="1"/>
-  <card name="archimedes" age="1" type="advisor" private_architect="1" coal="1"/>
+  <card name="archimedes" age="1" type="advisor" coal="1">
+    <a arch="1" />
+  </card>
   <card name="armenia" age="1" type="colony" vp="0" milmin="6" coal="2"/>
   <card name="augustus" age="1" type="advisor" military="1">
-    <prod cause="most military" coal="2"/>
+    <prod pred="most" param="military" coal="2"/>
   </card>
   <card name="babylonia" age="1" type="colony" vp="0" milmin="5" gold="2"/>
   <card name="battle_of_cannae" age="1" type="battle" />
@@ -14,10 +16,10 @@
   <card name="battle_of_kadesh" age="1" type="battle"/>
   <card name="battle_of_thermopylae" age="1" type="battle"/>
   <card name="boudica" age="1" type="advisor" military="1" wheat="1" gold="1">
-    <round cause="worker on mil" effect="remove"/>
+    <post_action pred="deployed" param="military" effect="remove"/>
   </card>
   <card name="brewery" age="1" type="building" score="1_1" deploy="1" wheat="2" book="1"/>
-  <card name="buddha" age="1" type="advisor" stability="3" coal="1" eff="skip_first_turn" />
+  <card name="buddha" age="1" type="advisor" stability="3" coal="1" first_turn="0" />
   <card name="chariot" age="1" type="military" raid="3" score="1_1" military="3" deploy="1" gold="-1"/>
   <card name="city_wall" age="1" type="building" score="1_1" stability="1" deploy="1" coal="2"/>
   <card name="coinage" age="1" type="golden" coal="2" />
@@ -27,22 +29,22 @@
   <card name="confucian_academy" age="1" type="building" score="1_1" stability="2" deploy="1" gold="1"/>
   <card name="crossing_the_alps" age="1" type="battle"/>
   <card name="cyrus_the_great" age="1" type="advisor">
-    <if cause="bought colony" gold="3"/>
+    <prod pred="bought" param="colony" gold="3"/>
   </card>
   <card name="elephant" age="1" type="military" raid="3" score="1_1" military="4" deploy="1" wheat="-2" />
   <card name="forge" age="1" type="building" score="1_1" deploy="1" coal="2" wheat="1"/>
   <card name="forum" age="1" type="building" score="1_1" deploy="1" gold="2" wheat="1" />
   <card name="gaul" age="1" type="colony" vp="0" milmin="7" deploy="1" wheat="2"/>
   <card name="granary" age="1" type="building" score="1_1" deploy="1" wheat="2" coal="1"/>
-  <card name="great_lighthouse" age="1" type="wonder" vp="2" military="3" arch="1_3" deploy="1" gold="1">
-    <round cause="buy for 3 gold" book="1"/>
+  <card name="great_lighthouse" age="1" type="wonder" vp="2" arch="1_3" deploy="1" gold="1">
+    <buy pred="cardprice" param="3" book="1"/>
   </card>
   <card name="hanging_gardens" age="1" type="wonder" vp="1" stability="1" arch="1_2" wheat="2" coal="-1"/>
   <card name="hannibal" age="1" type="advisor" raid="1">
-    <round effect="others pay 1 more for battle"/>
+    <buy affects="others" effect="add_1_to_cost" param="type{battle}" />
   </card>
   <card name="hatshepsut" age="1" type="advisor" gold="1">
-    <ready book="2"/>
+    <ready book="3"/>
   </card>
   <card name="hindu_kush" age="1" type="colony" vp="0" milmin="9" cola="3"/>
   <card name="hispania" age="1" type="colony" vp="0" milmin="4" wheat="2"/>
@@ -66,38 +68,33 @@
   <card name="parthian_wars" age="1" type="war" gold="3" />
   <card name="pelopponesian_war" age="1" type="war" book="4" />
   <card name="petra" age="1" type="wonder" vp="0" stability="1" arch="2_0_1" >
-    <round>
-      <action type="trade">
-        <cost res="wheat" n="1"></cost>
-        <yield res="book|coal|gold" n="3"></yield>
-      </action>
-    </round>
+    <a wheat="-1" effect="pick" eparam="{book,coal,gold},3" />
   </card>
   <card name="phalanx" age="1" type="military" raid="3" score="1_1" military="4" deploy="1" coal="-2"/>
   <card name="punic_wars" age="1" type="war" wheat="6" />
   <card name="pyramids" age="1" type="wonder" vp="3" arch="2_1_0" gold="2" wheat="-2"/>
   <card name="qin_shi_huang" age="1" type="advisor" wheat="3" >
-    <round cause="least stability" effect="remove"/>
+    <post_action pred="least" param="stability" effect="remove"/>
   </card>
-  <card name="saint_augustine" age="1" type="advisor" stability="1" wheat="3">
-    <round cause="most stability" book="2"/>
+  <card name="saint_augustine" age="1" type="advisor" stability="1" >
+    <prod pred="most" param="stability" book="2"/>
   </card>
   <card name="siege_of_alesia" age="1" type="battle"/>
   <card name="siege_of_troy" age="1" type="battle" />
   <card name="silk" age="1" type="golden" coal="2" />
   <card name="solomons_temple" age="1" type="wonder" vp="0" arch="1_1" >
-    <age vp="1" />
+    <end_of_age vp="1" />
   </card>
   <card name="sphinx" age="1" type="wonder" vp="1" arch="2_2">
-    <ready postaction="wonder_ready coal=5" />
+    <new_wonder_ready coal="5" />
   </card>
   <card name="stonehenge" age="1" type="wonder" vp="0" arch="1_1_1" >
     <ready book="6" wheat="4"/>
   </card>
-  <card name="sun_tzu" age="1" type="advisor" eff="double_first_turn"/>
+  <card name="sun_tzu" age="1" type="advisor" first_turn="2" />
   <card name="synagogue" age="1" type="building" score="1_1" deploy="1" gold="2" book="1" />
   <card name="terracotta_army" age="1" type="wonder" vp="2" arch="0_0_3" military="1" >
-    <ready cause="player_least stability" gold="-4"/>
+    <ready affects="all" pred="least" param="stability" gold="-4"/>
   </card>
   <card name="the_bible" age="1" type="golden" book="2" />
   <card name="the_odyssey" age="1" type="golden" book="2" />

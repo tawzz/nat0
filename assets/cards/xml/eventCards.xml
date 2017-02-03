@@ -21,19 +21,18 @@
     <card name="hellenism" age="1" famine="1" architects="0">
       <e pred="most" param="military" coal="2" />
       <e pred="not_most" param="military" wheat="-2" />
-      <countChoice min="0" pred="all" text="undeploy military for 2 books?" foreach="undeploy_military" books="2"/>
+      <task text="undeploy military for 2 books?" task="undeploy_military_each" book="2"/>
     </card>
     <card name="pax_romana" age="1" famine="2" architects="0">
       <e pred="most" param="military" vp="1" />
-      <yesnoChoice text="take out 1 worker and get 3 wheat with it?" pred="most" param="stability" worker="1" wheat="3" />
+      <yesnoChoice pred="most" param="stability"  text="take out 1 worker and get 3 wheat with it?" worker="1" wheat="3" />
     </card>
     <card name="qin_unification" age="1" famine="1" architects="1">
       <e pred="greater_than_war" param="military" vp="1" />
       <e pred="most" param="stability" effect="go_first" />
     </card>
     <card name="rigveda" age="1" famine="2" architects="0">
-      <foreach pred="bought" param="war" func="nbought" vp="1" />
-      <foreach pred="bought" param="battle" func="nbought" vp="1" />
+      <foreach func="nbought" param="type{war,battle}" vp="1" />
       <e pred="most" param="wheat" wheat="4" />
     </card>
     <card name="sea_peoples" age="1" famine="2" architects="1">
@@ -41,10 +40,10 @@
         <option text="remove architect" arch="-1" />
         <option text="pay 1 vp" vp="-1" />
       </orChoice>
-      <andEffect vp="-1">
-        <cond pred="not_most" param="military"/>
-        <cond pred="not_most" param="stability"/>
-      </andEffect>
+      <e pred="and" vp="-1">
+        <p pred="not_most" param="military"/>
+        <p pred="not_most" param="stability"/>
+      </e>
     </card>
     <card name="shang_oracle_bones" age="1" famine="1" architects="2">
       <e pred="least" param="stability" book="-3" />
@@ -56,126 +55,161 @@
     </card>
     <card name="yellow_turban_rebellion" age="1" famine="1" architects="2">
       <e pred="least" param="military" wheat="-3" />
-      <e pred="least" param="stability" gold="-1"/>
-      <e pred="least" param="stability" effect="go_last"/>
+      <e pred="least" param="stability" gold="-1" effect="go_last"/>
     </card>
   </age1>
   <age2>
-    <card name="benedictine_rule" age="2" famine="1" architects="2">
-
+    <card name="benedictine_rule" age="2" famine="1" architects="3">
+      <e pred="most" param="stability" wheat="4" />
+      <opt wheat="-3" gold="5"/>
     </card>
-    <card name="black_death" age="2" famine="1" architects="2">
-
+    <card name="black_death" age="2" famine="3" architects="1">
+      <e worker="-1"/>
+      <e pred="most" param="military" book="3" />
     </card>
-    <card name="chanson_de_roland" age="2" famine="1" architects="2">
-
+    <card name="chanson_de_roland" age="2" famine="3" architects="1">
+      <e pred="least" param="military" book="-1" />
+      <e pred="most" param="military" book="3" />
+      <e pred="least" param="stability" wheat="-2" effect="go_last" />
     </card>
-    <card name="ecological_collapse" age="2" famine="1" architects="2">
-
+    <card name="ecological_collapse" age="2" famine="4" architects="2">
+      <choice wheat="-2" effect="go_last" />
+      <e pred="least" param="stability" book="-4" />
     </card>
-    <card name="feudal_dues" age="2" famine="1" architects="2">
-
+    <card name="feudal_dues" age="2" famine="2" architects="0" effect="no_change_in_turn">
+      <e pred="least" param="stability" effect="lose_all_gold_except_2" />
     </card>
-    <card name="fourth_crusade" age="2" famine="1" architects="2">
-
+    <card name="fourth_crusade" age="2" famine="2" architects="1">
+      <opt pred="most" param="military" gold="-3" vp="1" />
+      <e pred="least" param="military" book="-4" />
+      <e pred="most" param="stability" effect="regain_war_loss" />
     </card>
-    <card name="imperial_examination" age="2" famine="1" architects="2">
-
+    <card name="imperial_examination" age="2" famine="0" architects="1">
+      <e pred="have_medieval_advisor" vp="1" />
+      <e pred="most" param="stability" vp="1"  />
     </card>
-    <card name="martyrdom_of_ali" age="2" famine="1" architects="2">
-
+    <card name="martyrdom_of_ali" age="2" famine="1" architects="1">
+      <e pred="least" param="military" vp="-1" />
+      <e pred="most" param="stability" book="3"  />
     </card>
-    <card name="peace_of_god" age="2" famine="1" architects="2">
-
+    <card name="peace_of_god" age="2" famine="2" architects="0">
+      <complex pred="most" param="military" effect="war_bought_by_other_4_book" />
+      <foreach effect="vp_per_medieval_colony" />
     </card>
     <card name="raid_on_lindisfarne" age="2" famine="1" architects="2">
-
+      <e pred="least" param="military" gold="-4" />
+      <e pred="least" param="stability" wheat="-2" gold="-2" />
     </card>
-    <card name="sack_of_baghdad" age="2" famine="1" architects="2">
-
+    <card name="sack_of_baghdad" age="2" famine="2" architects="0">
+      <e pred="least" param="military" book="-5" />
+      <e pred="most" param="wheat" gold="4" />
     </card>
     <card name="stupor_mundi" age="2"  famine="1" architects="2">
-
+      <e pred="most_bought" param="golden" book="4" />
+      <e pred="least" param="stability" gold="-3" />
     </card>
   </age2>
   <age3>
-    <card name="absolute_monarchy" age="3"  famine="1" architects="2">
-
+    <card name="absolute_monarchy" age="3"  famine="5" architects="2">
+      <e pred="have_medieval_or_antiquity_advisor" book="-4" />
+      <opt pred="least" param="stability" effect="-3_gold_or_remove_advisor"  />
     </card>
-    <card name="african_slave_trade" age="3" famine="1" architects="2">
-
+    <card name="african_slave_trade" age="3" famine="4" architects="1">
+      <e pred="least" param="military" vp="-1" />
+      <opt pred="most" param="stability" effect="may_go_last_for_6_gold" />
     </card>
-    <card name="blackbeard" age="3" famine="1" architects="2">
-
+    <card name="blackbeard" age="3" famine="2" architects="1">
+      <e pred="least" param="military" gold="-5" />
+      <e pred="most" param="stability" vp="1" />
     </card>
-    <card name="columbian_exchange" age="3" famine="1" architects="2">
-
+    <card name="columbian_exchange" age="3" famine="1" architects="1">
+      <e pred="least" param="military" wheat="-3" />
+      <e pred="most" param="military" wheat="3" />
+      <e pred="least" param="stability" gold="-5" />
     </card>
-
-    <card name="crop_rotation" age="3" famine="1" architects="2">
-
+    <card name="crop_rotation" age="3" famine="4" architects="2">
+      <e pred="most" param="stability" wheat="6" />
+      <e effect="may_undeploy_building_worker_for_2_coal_each" />
     </card>
-    <card name="janissaries" age="3" famine="1" architects="2">
-
+    <card name="janissaries" age="3" famine="2" architects="1">
+      <e pred="most" param="military" effect="may_take_2_workers_and_4_coal" />
+      <e pred="most" param="stability" coal="5" />
     </card>
-
-    <card name="little_ice_age" age="3" famine="1" architects="2">
-
+    <card name="little_ice_age" age="3" famine="3" architects="1">
+      <choice effect="-3_wheat_or_-5_books" />
+      <e pred="most" param="stability" book="6" />
     </card>
-    <card name="magellans_expedition" age="3" famine="1" architects="2">
-
+    <card name="magellans_expedition" age="3" famine="3" architects="2">
+      <foreach effect="foreach_colony_bought_this_round_5_gold" />
+      <e pred="most" param="stability" effect="may_hire_1_arch_for_free" />
+      <e pred="not_most" param="stability" gold="-2" />
     </card>
-
-    <card name="pilgrims" age="3">
-
+    <card name="pilgrims" age="3" famine="3" architects="3">
+      <e pred="least" param="stability" effect="go_last" gold="-3" />
+      <e pred="most" param="wheat" worker="1" />
     </card>
-    <card name="sinking_of_the_vasa" age="3" famine="1" architects="2">
-
+    <card name="sinking_of_the_vasa" age="3" famine="0" architects="0">
+      <complex effect="least_stability_and_military_-3_gold_and_-5_wheat_or_-10_book"/>
+      <e effect="only_least_stability_-3_gold" />
+      <e effect="only_least_military_-5_wheat" />
     </card>
-
-    <card name="spice_trade" age="3" famine="1" architects="2">
-
+    <card name="spice_trade" age="3" famine="2" architects="0">
+      <e pred="most" param="wheat" gold="4" />
+      <e pred="least" param="stability" effect="go_last" coal="-3" />
     </card>
-    <card name="tulip_mania" age="3" famine="1" architects="2">
-
+    <card name="tulip_mania" age="3" famine="1" architects="0">
+      <e pred="pass_last" vp="-1" />
+      <e pred="most" param="stability" effect="go_first" gold="3" />
     </card>
   </age3>
   <age4>
-    <card name="american_revolution" age="4" famine="1" architects="2">
-
+    <card name="american_revolution" age="4" famine="2" architects="1">
+      <e pred="least" param="military" effect="remove_colony_if_none_-1_vp" />
+      <e pred="least" param="stability" effect="remove_advisor_if_none_-2_vp" />
     </card>
-    <card name="anarchism" age="4" famine="1" architects="2">
-
+    <card name="anarchism" age="4" famine="4" architects="1">
+      <e pred="least" param="military" effect="remove_advisors" vp="-1" />
+      <e pred="most" param="stability" effect="may_hire_2_arch_for_free" />
     </card>
-    <card name="california_gold_rush" age="4" famine="1" architects="2">
-
+    <card name="california_gold_rush" age="4" famine="3" architects="0">
+      <e pred="most" param="military" gold="8" />
+      <e pred="least" param="stability" wheat="-8" />
     </card>
-    <card name="entente_cordiale" age="4" famine="1" architects="2">
-
+    <card name="entente_cordiale" age="4" famine="4" architects="2">
+      <e pred="most" param="military" effect="may_deploy_2_workers_to_military_for_free" />
+      <e pred="least" param="stability" coal="-6" />
     </card>
-    <card name="eruption_of_krakatoa" age="4" famine="1" architects="2">
-
+    <card name="eruption_of_krakatoa" age="4" famine="3" architects="1">
+      <e pred="least" param="wheat" vp="-1" />
+      <e pred="most" param="stability" book="10" />
     </card>
-    <card name="march_to_moscow" age="4" famine="1" architects="2">
-
+    <card name="march_to_moscow" age="4" famine="5" architects="1">
+      <e pred="least" param="wheat" effect="remove_colony_if_none_-1_vp" />
+      <e pred="least" param="stability" book="-10" effect="go_last"/>
     </card>
-    <card name="romanticism" age="4" famine="1" architects="2">
-
+    <card name="romanticism" age="4" famine="6" architects="2">
+      <e pred="pass_first" book="5" />
+      <e effect="most_workers_in_industrial_buildings_1_vp" />
     </card>
-    <card name="scramble_for_africa" age="4" famine="1" architects="2">
-
+    <card name="scramble_for_africa" age="4" famine="4" architects="1">
+      <e effect="if_at_least_1_industrial_colony_1_vp" />
+      <e pred="least" param="stability" book="-8" />
     </card>
-    <card name="sick_man_of_europe" age="4" famine="1" architects="2">
-
+    <card name="sick_man_of_europe" age="4" famine="1" architects="3">
+      <e pred="least" param="military" gold="-8" />
+      <e pred="most" param="stability" vp="1" />
     </card>
-    <card name="sokoto_caliphate" age="4" famine="1" architects="2">
-
+    <card name="sokoto_caliphate" age="4" famine="3" architects="0">
+      <e effect="may_trade" wheat="-4" gold="8" />
+      <e pred="least" param="stability" gold="-7" />
     </card>
-    <card name="tonghak_movement" age="4" famine="1" architects="2">
-
+    <card name="tonghak_movement" age="4" famine="5" architects="0">
+      <e pred="least" param="military" book="-8" coal="2" />
+      <e pred="least" param="stability" effect="go_last" gold="-5" />
     </card>
-    <card name="weltpolitik" age="4" famine="1" architects="2">
-
+    <card name="weltpolitik" age="4" famine="2" architects="2">
+      <e effect="+5_gold_and_+5_coal_per_industrial_colony" />
+      <e pred="least" param="stability" worker="-1" />
     </card>
   </age4>
 </cards>

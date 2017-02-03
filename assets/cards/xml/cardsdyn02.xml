@@ -1,3 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-
+<cards>
+  <card name="arabian_nights" age="2" exp="dyn" type="golden" book="2" effect="after_passing_2_books" />
+  <card name="assassin" age="2" type="military" exp="dyn" raid="5" score="2" maxdeploy="1"  deploy="1">
+    <buy pred="cardtype" param="battle" effect="others_choose_-3_wheat_or_remove_advisor" />
+  </card>
+  <card name="aurora_borealis" age="2" type="natural" exp="dyn" vp="1" turns="1">
+    <ready gold="2"/>
+  </card>
+  <card name="grand_banks" age="2" type="natural" exp="dyn" vp="1" turns="2" wheat="2" />
+  <card name="hansa" age="2" type="building" exp="dyn" score="2_2" maxdeploy="2" deploy="4" wheat="4" stability="1"/>
+  <card name="hawaii" age="2" type="natural" exp="dyn" vp="-1" turns="4">
+    <ready worker="1" effect="place_x_on_population_track"/>
+  </card>
+  <card name="knights_templar" age="2" type="building" exp="dyn" score="2" maxdeploy="1" deploy="2" military="4" coal="2"/>
+  <card name="sahara" age="2" type="natural" exp="dyn" vp="1" turns="1">
+    <war military="4" />
+  </card>
+  <card name="shwedagon_pagoda" age="2" type="wonder" exp="dyn" vp="1" arch="3_2" >
+    <a pred="none_passed" effect="plus_1_stability_until_end_of_round" max="100" />
+  </card>
+  <card name="siberia" age="2" type="natural" exp="dyn" vp="2" turns="2" effect="covers_two_wonder_spaces" coal="2" />
+  <card name="zhu_xi" age="2" type="advisor" exp="dyn" stability="1" gold="1" effect="keep_when_replaced_first_time" />
 </cards>

@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<cards>
+  <card name="Julius Caesar" age="1" type="advisor" gold="1" exp="fake">
+    <info image="head01.png" text="Others: no military deployed => skip first turn"/>
+    <first_turn pred="not" effect="skip_turn" affects="others" >
+      <p pred="deployed" param="military" />
+    </first_turn>
+  </card>
+</cards>

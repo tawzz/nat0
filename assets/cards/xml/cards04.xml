@@ -1,3 +1,110 @@
 <?xml version="1.0" encoding="utf-8"?>
-
+<cards>
+  <card name="alfred_nobel" age="4" type="advisor" military="2" effect="may_not_buy_war">
+    <prod effect="3_coal_per_worker_on_industrial_building" />
+  </card>
+  <card name="algeria" age="4" type="colony" vp="2" milmin="25" military="5"/>
+  <card name="abraham_lincoln" age="4" type="advisor" stability="3" >
+    <a worker="1" max="100" effect="check_out_worker" />
+  </card>
+  <card name="american_civil_war" age="4" type="war" book="12" />
+  <card name="anglo-afghan_war" age="4" type="war" coal="7" />
+  <card name="australia" age="4" type="colony" vp="2" milmin="24" stability="5"/>
+  <card name="balkan_war" age="4" type="war" book="7" />
+  <card name="battle_of_austerlitz" age="4" type="battle" ></card>
+  <card name="battle_of_balaclava" age="4" type="battle" ></card>
+  <card name="battle_of_borodino" age="4" type="battle" ></card>
+  <card name="battle_of_trafalgar" age="4" type="battle" ></card>
+  <card name="battle_of_tsushima" age="4" type="battle" ></card>
+  <card name="battle_of_tsushima" age="4" type="battle" ></card>
+  <card name="benjamin_disraeli" age="4" type="advisor" gold="2">
+    <prod pred="bought" param="colony" wheat="8" />
+  </card>
+  <card name="big_ben" age="4" type="wonder" vp="1" arch="3_0">
+    <scoring effect="vp_per_industrial_colony" />
+  </card>
+  <card name="brandenburg_gate" age="4" type="wonder" vp="2" arch="2_2" >
+    <ready affect="all" pred="most" param="military" gold="6" coal="6" effect="impossible" />
+  </card>
+  <card name="british_museum" age="4" type="wonder" vp="2" arch="0_1_3">
+    <ready affect="all" pred="least" param="military" book="-10" />
+  </card>
+  <card name="candide" age="4" type="golden" book="2" />
+  <card name="cavalry" age="4" type="military" raid="6" score="1_2_2_2" military="9" book="-1" />
+  <card name="coal_mine" age="4" type="building" score="2_2_1" coal="4" gold="2"/>
+  <card name="congo" age="4" type="colony" vp="2" milmin="23" gold="5"/>
+  <card name="conscript" age="4" type="military" raid="4" score="1_2_2_2" military="7" deploy="2" />
+  <card name="cossack" age="4" type="military" raid="6" score="1_2_2_2" military="9" stability="-1" />
+  <card name="crimean_war" age="4" type="war" gold="10" />
+  <card name="darwins_voyage" age="4" type="wonder" vp="1" arch="3_2" >
+    <ready gold="15" />
+  </card>
+  <card name="das_kapital" age="4" type="golden" book="2" />
+  <card name="dreadnought" age="4" type="military" raid="7" score="1_2_3" military="14" coal="-3" deploy="6"/>
+  <card name="dynamite" age="4" type="golden" coal="2" />
+  <card name="electricity" age="4" type="golden" coal="2" />
+  <card name="engineering_school" age="4" type="building" score="2_2_1" coal="4" book="2"/>
+  <card name="factory" age="4" type="building" score="2_2_1" gold="3" coal="3"/>
+  <card name="fashoda_incident" age="4" type="battle" ></card>
+  <card name="florence_nightingale" age="4" type="advisor" book="6" effect="no_vp_loss_defaulting" />
+  <card name="ford_motor_company" age="4" type="wonder" vp="1" arch="2_2" coal="6" />
+  <card name="franco-prussian_war" age="4" type="war" gold="10" />
+  <card name="frederick_the_great" age="4" type="advisor" military="2" effect="mil_deploy_costs_2_less_min_1" />
+  <card name="grand_duchy_of_finland" age="4" type="colony" vp="2" milmin="21" coal="5">
+    <a effect="skip_turn" />
+  </card>
+  <card name="hong_kong" age="4" type="colony" vp="2" milmin="27" book="5"/>
+  <card name="hospital" age="4" type="building" score="2_2_1" book="4" wheat="2"/>
+  <card name="hussar" age="4" type="military" raid="6" score="1_2_2_2" military="9" gold="-1"/>
+  <card name="hydro_plant" age="4" type="building" score="2_2_1" gold="3" wheat="3"/>
+  <card name="india" age="4" type="colony" vp="2" milmin="25" book="5"/>
+  <card name="kalevala" age="4" type="golden" book="2" />
+  <card name="libya" age="4" type="colony" vp="2" milmin="30" coal="6"/>
+  <card name="lin_zexu" age="4" type="advisor" wheat="4" gold="4">
+    <prod pred="least" param="military" book="-8"/>
+  </card>
+  <card name="machine_gunner" age="4" type="military" raid="6" score="1_2_2_2" military="10" gold="-2"/>
+  <card name="marie_antoinette" age="4" type="advisor" book="10" stability="-3" />
+  <card name="marie_curie" age="4" type="advisor" coal="4">
+    <a arch="1" max="2"/>
+  </card>
+  <card name="mit" age="4" type="wonder" vp="1" arch="0_1" >
+    <buy pred="cardtype" param="building" effect="deploy_worker_for_free" />
+  </card>
+  <card name="napoleonic_war" age="4" type="war" wheat="11" />
+  <card name="national_park" age="4" type="building" score="2_2_1" book="4" coal="2"/>
+  <card name="nigeria" age="4" type="colony" vp="2" milmin="20" book="5"/>
+  <card name="opium_war" age="4" type="war" gold="8" />
+  <card name="origin_of_species" age="4" type="golden" book="2" />
+  <card name="ostafrika" age="4" type="colony" vp="2" milmin="22" wheat="5"/>
+  <card name="penal_colony" age="4" type="building" score="2_2_1" wheat="4" stability="2"/>
+  <card name="radio" age="4" type="building" score="2_2_1" stability="4" gold="2"/>
+  <card name="railroad" age="4" type="building" score="2_2_1" coal="3" stability="3"/>
+  <card name="rifleman" age="4" type="military" raid="6" score="1_2_2_2" military="9" wheat="-1"/>
+  <card name="second_boer_war" age="4" type="war" wheat="8" />
+  <card name="sewer_system" age="4" type="building" score="2_2_1" wheat="4" stability="2"/>
+  <card name="shaka_zulu" age="4" type="advisor" military="8">
+    <buy affects="others" pred="cardtype" param="colony" coal="5"/>
+  </card>
+  <card name="simon_bolivar" age="4" type="advisor" coal="4">
+    <a effect="remove_colony" gold="4" coal="4" max="100"/>
+  </card>
+  <card name="south_pole_expedition" age="4" type="wonder" vp="3" arch="2_1" >
+    <ready wheat="-5" />
+  </card>
+  <card name="spinning_jenny" age="4" type="golden" coal="2" />
+  <card name="statue_of_liberty" age="4" type="wonder" vp="1" arch="0_2" >
+    <scoring pred="most" param="stability" vp="2" />
+  </card>
+  <card name="stock_exchange" age="4" type="building" score="2_2_1" gold="4" coal="2"/>
+  <card name="submarine" age="4" type="military" raid="5" score="1_2_2_2" military="8" />
+  <card name="suez_canal" age="4" type="wonder" vp="1" arch="2_1" military="4" gold="3" />
+  <card name="surrender_of_yorktown" age="4" type="battle" ></card>
+  <card name="titanic" age="4" type="wonder" vp="3" arch="2_0_2" >
+    <ready affects="all" effect="pay 4 gold or remove advisor" />
+  </card>
+  <card name="urban_center" age="4" type="building" score="2_2_1" gold="3" stability="3"/>
+  <card name="vaccine" age="4" type="golden" coal="2" />
+  <card name="voortrekker" age="4" type="building" score="2_2_1" wheat="3" coal="3"/>
+  <card name="urban_center" age="4" type="zeppelin" score="2_2_1" book="4" stability="2"/>
 </cards>

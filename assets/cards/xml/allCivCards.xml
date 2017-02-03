@@ -1,0 +1,210 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<cards>
+  <card name="extra_siberia" type="natural" />
+  <card name="quarry" age="1" type="building" score="1" deploy="1" coal="1" gold="1"/>
+  <card name="farm" age="1" type="building" score="1" deploy="1" coal="1" wheat="1"/>
+  <card name="axeman" age="1" type="military" raid="2" score="1" military="2" deploy="1" wheat="-1"/>
+  <america>
+    <card name="buffalo_horde" age="1" type="building" maxdeploy="1" score="1" deploy="1" wheat="4"/>
+    <card name="brave" age="1" type="military" raid="2" score="1" military="1"  deploy="1" gold="1"/>
+    <card name="teepee" age="1" type="building" score="1" deploy="1" coal="1" book="1"/>
+    <card name="adobe" age="1" type="building" stability="2" score="1" deploy="1" />
+    <card name="america_dyn1" type="dynasty">
+      <new_wonder_ready pred="cardtype" param="natural" wheat="2"/>
+    </card>
+    <card name="america_federalist_party" type="dynasty">
+      <buy pred="cardtype" param="building" coal="2"/>
+    </card>
+    <card name="america_democratic_republicans" type="dynasty">
+      <a affects="all" pred="least" param="military" effect="change_dynasty" max="100"/>
+      <post_action pred="dynasty_changed" book="3"/>
+    </card>
+  </america>
+  <arabia>
+    <card name="kaba" age="1" type="building" maxdeploy="1" score="2"  deploy="2" gold="2" book="2" />
+    <card name="bazaar" age="1" type="building" score="1"  deploy="2" gold="1" wheat="1"/>
+    <card name="arabia_dyn1" type="dynasty"/>
+    <card name="arabia_abbasid_caliphate" type="dynasty">
+      <buy trigger="others" pred="cardtype" param="golden" special_effect="may_buy_vp"/>
+    </card>
+    <card name="arabia_umayyad_caliphate" type="dynasty" milminbonus="4" />
+  </arabia>
+  <china>
+    <card name="china_dyn1" type="dynasty">
+      <prod pred="pass_first" wheat="1"/>
+    </card>
+    <card name="china_ming_dynasty" type="dynasty">
+      <anytime pred="take" param="worker" wheat="4" />
+    </card>
+    <card name="china_qin_dynasty" type="dynasty" >
+      <a max="3" worker="-1" effect="free_architect" />
+    </card>
+  </china>
+  <egypt>
+    <card name="temple" age="1" type="building" score="1" deploy="1" book="1" gold="1"/>
+    <card name="caravan" age="1" type="building" stability="1" score="1" deploy="1" gold="1"/>
+    <card name="egypt_dyn1" type="dynasty" >
+      <a arch="1" />
+    </card>
+    <card name="egypt_new_kingdom" type="dynasty">
+      <buy pred="cardtype" param="battle" effect="pay_2_less"/>
+    </card>
+    <card name="egypt_old_kingdom" type="dynasty">
+      <a effect="remove_advisor_place_counter_on_this_card" />
+      <prod book="2" foreach="counter"/>
+      <post_action pred="defeated" effect="remove_counter" />
+    </card>
+  </egypt>
+  <ethiopia>
+    <card name="stele" age="1" type="building" stability="1" score="1"  deploy="1" book="1" gold="1"/>
+    <card name="ethiopia_dyn1" type="dynasty">
+      <player_order eff="add military to stability"/>
+    </card>
+    <card name="ethiopia_axumite_kingdom" type="dynasty"/>
+    <card name="ethiopia_sheba" type="dynasty"/>
+  </ethiopia>
+  <mongolia>
+    <card name="yurt" age="1" type="building" score="1" deploy="1" wheat="1" gold="1"/>
+    <card name="steppe" age="1" type="building" />
+    <card name="mongolia_dyn1" type="dynasty">
+      <war cause="player_defeated" eff="2 more resources"/>
+    </card>
+    <card name="mongolia_golden_horde" type="dynasty">
+      <buy affects="others" pred="cardtype" param="war" effect="gold_goes_to_owner" />
+    </card>
+    <card name="mongolia_yuan_dynasty" type="dynasty">
+      <when_played effect="take_3_workers"/>
+    </card>
+  </mongolia>
+  <greece>
+    <card name="greece_dyn1" type="dynasty" bonus="goldenage,1" />
+    <card name="greece_athens" type="dynasty">
+      <post_prod pred="most" param="book" gold="3"/>
+    </card>
+    <card name="greece_sparta" type="dynasty" >
+      <update_military pred="military_deployed" param="1" military="4"/>
+    </card>
+  </greece>
+  <india>
+    <card name="varanasi" age="1" type="wonder" vp="0" >
+      <prod foreach="undeployed_worker" book="1" wheat="1"/>
+    </card>
+    <card name="india_dyn1" type="dynasty" wheat="2" />
+    <card name="india_mauryan_empire" type="dynasty" >
+      <growth pred="take" param="worker" effect="yesno" worker="2" />
+    </card>
+    <card name="india_mughal_empire" type="dynasty" >
+      <ready vp="1" />
+    </card>
+  </india>
+  <japan>
+    <card name="emperor" age="1" type="advisor" stability="2" >
+      <buy pred="cardtype" param="advisor" effect="remove_advisor" cross="1" />
+      <update_military foreach="cross" military="1" />
+    </card>
+    <card name="rice_fields" age="1" type="building" score="1" deploy="1" wheat="3"/>
+    <card name="hokkaido" age="1" type="building" allows="dynasty"/>
+    <card name="japan_edo_period" type="dynasty" >
+      <war pred="defeated" effect="no_effect" />
+    </card>
+    <card name="japan_heian_period" type="dynasty" >
+      <buy pred="cardtype" param="golden" book="4" />
+    </card>
+  </japan>
+  <korea>
+    <card name="korea_dyn1" type="dynasty">
+      <buy pred="cardtype" param="golden" effect="may_hire_2_arch_for_free"/>
+    </card>
+    <card name="korea_joseon_kingdom" type="dynasty">
+      <a effect="place_up_to_3_wheat_coal_gold" />
+      <end_of_age effect="double_each_of_resource_on_card" />
+    </card>
+    <card name="korea_koryo_kingdom" type="dynasty" >
+      <post_action pred="if_war" effect="plus_3_mil_per_mil_worker"/>
+    </card>
+  </korea>
+  <mali>
+    <card name="salt_caravan" score="1" age="1" type="building" stability="1" wheat="1" book="1" deploy="2"/>
+    <card name="gold_mine" age="1" type="building" gold="3" maxdeploy="1" score="1"/>
+    <card name="mali_dyn1" type="dynasty" bonus="goldenage,1">
+      <growth pred="picked" param="gold" gold="1" />
+    </card>
+    <card name="mali_mali_empire" type="dynasty">
+      <a effect="remove_advisor" gold="-2" book="3" vp="1"/>
+    </card>
+    <card name="mali_songhai_empire" type="dynasty" >
+      <famine affects="others" pred="least" param="military" wheat="-3" />
+    </card>
+  </mali>
+  <persia>
+    <card name="persia_achaimenid_empire" type="dynasty">
+      <first_turn pred="took_worker_for_growth" effect="deploy_worker_for_free" eparam="optional" />
+    </card>
+    <card name="persia_sassanid_empire" type="dynasty" >
+      <turmoil pred="choose" param="gold" effect="no_stability_penalty" />
+    </card>
+  </persia>
+  <poland>
+    <card name="poland_dyn1" type="dynasty" >
+      <prod pred="not_defeated" book="3" />
+    </card>
+    <card name="poland_jagellonian_dynasty" type="dynasty">
+      <round_start effect="pay_1_gold_to_first_of_other_players_for_extra_action_before_actions"/>
+    </card>
+    <card name="poland_polish-lithuanian_commonwealth" type="dynasty" >
+      <buy pred="cardtype" param="advisor" effect="may_place_on_wonder_space" />
+      <a affects="others" effect="pay_poland_3_gold_to_buy_advisor_from_wonder_space" />
+    </card>
+  </poland>
+  <portugal>
+    <card name="portugal_dyn1" type="dynasty" >
+      <buy pred="cardprice" param="3" effect="cost_1_less" />
+    </card>
+    <card name="portugal_kingdom_of_leon" type="dynasty">
+      <buy pred="cardtype" param="war" effect="gain_battle_effect"/>
+    </card>
+    <card name="portugal_portugese_empire" type="dynasty" >
+      <buy pred="cardtype" param="colony" effect="may_place_on_wonder_space"/>
+    </card>
+  </portugal>
+  <rome>
+    <card name="rome_dyn1" type="dynasty" military="2"/>
+    <card name="rome_roman_empire" type="dynasty">
+      <prod effect="most_mil_and_stab_1_vp,most_stab_2_books" />
+    </card>
+    <card name="rome_roman_republic" type="dynasty" >
+      <a effect="discard_architect_from_wic_plus_1_stability" />
+    </card>
+  </rome>
+  <venice>
+    <card name="constantinople" age="1" type="colony" vp="0" milmin="0" >
+      <buy pred="cardtype" param="golden" effect="vp_cost_1_less"/>
+    </card>
+    <card name="glass_blower" age="1" type="building" score="1" book="2" />
+    <card name="venice_dyn1" type="dynasty" >
+      <prod pred="pass_last" book="2" />
+    </card>
+    <card name="venice_domains_of_the_sea" type="dynasty">
+      <buy pred="cardtype" param="colony" effect="discard_it_for_1_vp_and_2_gold" />
+    </card>
+    <card name="venice_pactum_warmundi" type="dynasty" >
+      <buy affects="all" effect="others_buy_battle_or_colony_get_1_gold" />
+    </card>
+  </venice>
+  <vikings>
+    <card name="slave_church" age="1" type="building" score="1" book="1" stability="1"/>
+    <card name="berserker" age="1" type="military" raid="3" score="1" military="3" wheat="-2" />
+    <card name="old_uppsala" age="1" type="wonder" vp="-2">
+      <a wheat="-1" military="3"/>
+    </card>
+    <card name="vikings_dyn1" type="dynasty" >
+      <prod effect="choose_resource_others_lose_1" />
+    </card>
+    <card name="vikings_normans" type="dynasty" raid="3">
+    </card>
+    <card name="vikings_varangians" type="dynasty" >
+      <buy pred="cardtype" param="advisor" book="4" />
+    </card>
+  </vikings>
+</cards>
+

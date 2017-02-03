@@ -1,3 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-
+<cards>
+  <card name="boxers" age="4" type="military" exp="dyn" raid="2" score="1_1_2_2_3" military="6" deploy="1"/>
+  <card name="department_store" age="4" type="building" exp="dyn" score="4" maxdeploy="1" deploy="6" gold="3" book="1"/>
+  <card name="frederic_chopin" age="4" type="advisor" exp="dyn" >
+    <prod effect="books_times_two" />
+    <a affects="others" pred="before_owner_passes" effect="may_buy_chopin_for_5_gold" />
+  </card>
+  <card name="northwest_passage" age="4" type="natural" exp="dyn" vp="4" turns="2">
+    <ready worker="-2"/>
+  </card>
+  <card name="shanty_town" age="4" type="building" exp="dyn" score="1_1_1_1" deploy="1" coal="7" stability="-1"/>
+  <card name="titusville" age="4" type="natural" exp="dyn" vp="1" turns="2">
+    <scoring effect="coal_times_two" />
+  </card>
+  <card name="uluru" age="4" type="natural" exp="dyn" vp="0" turns="4">
+    <ready effect="vp_per_player_passed" />
+  </card>
+  <card name="uncle_toms_cabin" age="4" exp="dyn" type="golden" effect="remove_buildings_deploy_1"/>
+  <card name="victoria_falls" age="4" type="natural" exp="dyn" vp="2" turns="2">
+    <ready effect="draw_20_cards_colony_as_row_4" />
+    <a affects="all" effect="buy_card_from_row4_for_4_gold" />
+  </card>
+  <card name="wardenclyffe_tower" age="4" type="wonder" exp="dyn" vp="1" arch="1_1">
+    <ready effect="take_3_actions" />
+  </card>
 </cards>

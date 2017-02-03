@@ -10,13 +10,12 @@
         d:DataContext="{Binding Game, Source={d:DesignInstance IsDesignTimeCreatable=True, Type={x:Type local:AGameDesignTime}}}"
         WindowStartupLocation="Manual"
         Height="980"
-        Width="1686"
-        Left="120"
+        Width="1286"
+        Left="570"
         Top="100">
   <Grid x:Name="gridMain"
         Background="Transparent">
     <DockPanel>
-
       <Grid x:Name="gMessage"
             DockPanel.Dock="Bottom"
             Height="29"
@@ -29,10 +28,9 @@
                    HorizontalAlignment="Center" />
       </Grid>
       <controls:DockPanelSplitter DockPanel.Dock="Bottom" />
-
       <Grid x:Name="gStats"
             DockPanel.Dock="Left"
-            Width="574"
+            Width="174"
             Background="{Binding MainPlayer.Brush}">
         <Viewbox>
           <Grid Width="989"
@@ -52,8 +50,7 @@
                        RenderTransformOrigin="-3.693,2.826"
                        Fill="White"
                        Stroke="Maroon"
-                       StrokeThickness="3">
-              </Ellipse>
+                       StrokeThickness="3"></Ellipse>
             </Grid>
             <Grid x:Name="gLevelMarker"
                   HorizontalAlignment="Left"
@@ -77,7 +74,8 @@
                           <ScaleTransform />
                           <SkewTransform />
                           <RotateTransform />
-                          <TranslateTransform X="{Binding LevelPosition.X}"
+                          <TranslateTransform x:Name="trans1"
+                                              X="{Binding LevelPosition.X}"
                                               Y="{Binding LevelPosition.Y}" />
                         </TransformGroup>
                       </Ellipse.RenderTransform>
@@ -112,8 +110,9 @@
                           <ScaleTransform />
                           <SkewTransform />
                           <RotateTransform />
-                          <TranslateTransform X="{Binding StabilityPosition.X}"
-                                              Y="{Binding StabilityPosition.Y}" />
+                          <TranslateTransform  x:Name="trans2"
+                                               X="{Binding StabilityPosition.X}"
+                                               Y="{Binding StabilityPosition.Y}" />
                         </TransformGroup>
                       </Ellipse.RenderTransform>
                     </Ellipse>
@@ -175,7 +174,8 @@
                     <ScaleTransform />
                     <SkewTransform />
                     <RotateTransform />
-                    <TranslateTransform X="{Binding Stats.WarPosition.X}"
+                    <TranslateTransform x:Name="trans3"
+                                        X="{Binding Stats.WarPosition.X}"
                                         Y="{Binding Stats.WarPosition.Y}" />
                   </TransformGroup>
                 </Ellipse.RenderTransform>
@@ -199,7 +199,8 @@
                           <ScaleTransform />
                           <SkewTransform />
                           <RotateTransform />
-                          <TranslateTransform X="{Binding MilitaryPosition.X}"
+                          <TranslateTransform x:Name="trans4"
+                                              X="{Binding MilitaryPosition.X}"
                                               Y="{Binding MilitaryPosition.Y}" />
                         </TransformGroup>
                       </Ellipse.RenderTransform>
@@ -230,8 +231,9 @@
                           <ScaleTransform />
                           <SkewTransform />
                           <RotateTransform />
-                          <TranslateTransform X="{Binding BooksPosition.X}"
-                                              Y="{Binding BooksPosition.Y}" />
+                          <TranslateTransform  x:Name="trans5"
+                                               X="{Binding BooksPosition.X}"
+                                               Y="{Binding BooksPosition.Y}" />
                         </TransformGroup>
                       </Ellipse.RenderTransform>
                     </Ellipse>
@@ -272,7 +274,6 @@
                             Value="{Binding RelativeSource={RelativeSource Self}, Converter={StaticResource IndexToPositionConverter}, ConverterParameter={StaticResource poposarr}}" />
                   </Style>
                 </ItemsControl.ItemContainerStyle>
-
                 <ItemsControl.ItemTemplate>
                   <DataTemplate>
                     <Ellipse Fill="{Binding Brush}"
@@ -377,7 +378,6 @@
         </Viewbox>
       </Grid>
       <controls:DockPanelSplitter DockPanel.Dock="Left" />
-
       <Grid x:Name="gPlayers"
             DockPanel.Dock="Right"
             Width="200"
@@ -405,12 +405,28 @@
                   <Grid.RowDefinitions>
                     <RowDefinition Height="*" />
                     <RowDefinition Height="2*" />
+                    <!--<RowDefinition Height="Auto" />-->
                   </Grid.RowDefinitions>
                   <StackPanel Margin="4,2">
                     <TextBlock Background="Transparent"
                                Text="{Binding Name}" />
-                    <TextBlock Background="Transparent"
-                               Text="{Binding Civ.Name}" />
+                    <Grid>
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                      </Grid.ColumnDefinitions>
+                      <TextBlock Background="Transparent" 
+                                 Text="{Binding Civ.Name}"
+                                 TextTrimming="CharacterEllipsis" />
+                      <TextBlock Background="Transparent" Grid.Column="1"
+                                 Text="/"
+                                 Visibility="{Binding ShowScore, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                      <TextBlock Background="Transparent"
+                                 Grid.Column="2"
+                                 Text="{Binding Score}"
+                                 Visibility="{Binding ShowScore, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                    </Grid>
                   </StackPanel>
                   <Rectangle x:Name="rPlayerInactive"
                              Visibility="{Binding IsMainPlayer, Converter={StaticResource ReverseBooleanToVisibilityConverter}}"
@@ -440,7 +456,6 @@
                                               BorderThickness="12"
                                               CornerRadius="4" />
                                     </Grid>
-
                                     <!--<local:UCard Margin="{Binding Margin}" Image="{Binding Card.Image}" BorderBrush="{Binding Card.Brush}" BorderThickness="12" />-->
                                   </DataTemplate>
                                 </ItemsControl.ItemTemplate>
@@ -466,7 +481,7 @@
                           VerticalAlignment="Bottom"
                           HorizontalAlignment="Right">
                       <ItemsControl ItemsSource="{Binding Res.List}"
-                                    ItemsPanel="{StaticResource UGrid2}">
+                                    ItemsPanel="{StaticResource UGrid2Row}">
                         <ItemsControl.ItemTemplate>
                           <DataTemplate>
                             <StackPanel Margin="6">
@@ -492,25 +507,155 @@
                       </ItemsControl>
                     </Grid>
                   </Viewbox>
+                  <!--<StackPanel Orientation="Horizontal"
+                              Grid.Row="2" Margin="4,0">
+                    <TextBlock Text="score:" />
+                    <TextBlock 
+                               Text="{Binding Score}" />
+                  </StackPanel>-->
                 </Grid>
               </Grid>
             </DataTemplate>
           </ItemsControl.ItemTemplate>
         </ItemsControl>
+        <StackPanel x:Name="spTesting"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Bottom">
+          <Button Click="OnClickNextTest"
+                  Margin="2">Next Test</Button>
+          <Button Click="OnClickRepeatTest"
+                  Margin="2">Repeat Test</Button>
+          <Button Click="OnClickPlayMode"
+                  Margin="2">Play Mode</Button>
+          <!--<Button Click="OnClickSave"
+                  Margin="2">Save</Button>
+          <Button Click="OnClickLoad"
+                  Margin="2">Load</Button>-->
+          <!--<Button Click="OnClickTesting">Testing 2way</Button>-->
+          <ToggleButton  Margin="2"
+                         IsChecked="{Binding SwitchRoundAndAgeOn,Mode=TwoWay}">Round/Age</ToggleButton>
+          <ToggleButton  Margin="2"
+                         IsChecked="{Binding SwitchProgressOn,Mode=TwoWay}">Progress</ToggleButton>
+          <ToggleButton  Margin="2"
+                         IsChecked="{Binding SwitchGrowthOn,Mode=TwoWay}">Growth</ToggleButton>
+          <ToggleButton  Margin="2"
+                         IsChecked="{Binding SwitchNewEventOn,Mode=TwoWay}">New Event</ToggleButton>
+          <ToggleButton  Margin="2"
+                         IsChecked="{Binding SwitchActionOn,Mode=TwoWay}">Action</ToggleButton>
+          <ToggleButton  Margin="2"
+                         IsChecked="{Binding SwitchProductionOn,Mode=TwoWay}">Production</ToggleButton>
+          <ToggleButton  Margin="2"
+                         IsChecked="{Binding SwitchOrderOn,Mode=TwoWay}">Order</ToggleButton>
+          <ToggleButton  Margin="2"
+                         IsChecked="{Binding SwitchWarOn,Mode=TwoWay}">War</ToggleButton>
+          <ToggleButton Margin="2"
+                        IsChecked="{Binding SwitchEventOn,Mode=TwoWay}">Event</ToggleButton>
+        </StackPanel>
       </Grid>
       <controls:DockPanelSplitter DockPanel.Dock="Right" />
-
       <!-- civ -->
       <Grid x:Name="gCiv"
             DataContext="{Binding MainPlayer}"
             Height="480"
             Background="{Binding Brush}"
             DockPanel.Dock="Bottom">
-        <Viewbox>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto" />
+          <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <ItemsControl x:Name="specialOptionsList" ItemsSource="{Binding SpecialOptions}" VerticalAlignment="Top" HorizontalAlignment="Left"
+                      Visibility="{Binding SpecialOptions,Converter={StaticResource NonEmptyToVisibleConverter}}" ItemsPanel="{StaticResource UGrid1Row}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate>
+              <Button IsEnabled="{Binding IsSelectable}" Click="OnClickSpecialOption">
+                <Button.Template>
+                  <ControlTemplate TargetType="{x:Type Button}">
+                    <Border x:Name="border">
+                      <TextBlock  Text="{Binding Text}" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                      <DataTrigger Binding="{Binding IsSelected}"
+                                   Value="True">
+                        <Setter Property="BorderBrush"
+                                TargetName="border"
+                                Value="Yellow" />
+                        <Setter Property="BorderThickness"
+                                TargetName="border"
+                                Value="2" />
+                        <Setter Property="Background"
+                                TargetName="border"
+                                Value="Yellow" />
+                      </DataTrigger>
+                      <Trigger Property="IsPressed"
+                               Value="true">
+                        <Setter Property="OpacityMask"
+                                TargetName="border"
+                                Value="#A0000000" />
+                        <Setter Property="BorderBrush"
+                                TargetName="border"
+                                Value="#A0000000" />
+                      </Trigger>
+                      <Trigger Property="IsEnabled"
+                               Value="true">
+                        <Setter Property="Cursor"
+                                TargetName="border"
+                                Value="Hand" />
+                      </Trigger>
+                    </ControlTemplate.Triggers>
+                  </ControlTemplate>
+                </Button.Template>
+                <Button.ToolTip>
+                  <Viewbox Margin="6"
+                           Height="360"
+                           Width="180"
+                           Visibility="{Binding Tag,Converter={StaticResource NullToVisibilityConverter}}">
+                    <Grid>
+                      <Image Margin="6"
+                             ClipToBounds="true"
+                             Source="{Binding Tag.Image}"
+                             Stretch="UniformToFill" />
+                      <Border BorderBrush="{Binding Tag.Brush}"
+                              BorderThickness="16"
+                              CornerRadius="6" />
+                    </Grid>
+                  </Viewbox>
+                  <!--<Grid Margin="-6,-4"
+                        ClipToBounds="true">
+                    <Image Source="{Binding Tag.Image}" />
+                    <Border BorderBrush="{Binding Tag.Brush}"
+                            BorderThickness="16" />
+                    <TextBlock Text="{Binding Tag.Name}"
+                               Foreground="White"
+                               FontWeight="Bold" />
+                  </Grid>-->
+                </Button.ToolTip>
+              </Button>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+        <Viewbox Grid.Row="1">
           <Grid Width="1834"
                 Height="960"
                 Margin="0">
             <Image Source="{Binding Civ.Image}" />
+            <Ellipse Fill="DarkOrange"
+                     Height="40"
+                     Width="40"
+                     HorizontalAlignment="Left"
+                     VerticalAlignment="Top"
+                     Visibility="{Binding HasExtraAdvisor,Converter={StaticResource BooleanToVisibilityConverter}}">
+              <Ellipse.ToolTip>
+                <Grid Margin="-6,-4" 
+                      ClipToBounds="true">
+                  <Image Source="{Binding ExtraAdvisor.Image}" />
+                  <Border BorderBrush="{Binding ExtraAdvisor.Brush}"
+                          BorderThickness="16" />
+                  <TextBlock Text="{Binding ExtraAdvisor.Name}"
+                             Foreground="White"
+                             FontWeight="Bold" />
+                </Grid>
+              </Ellipse.ToolTip>
+            </Ellipse>
             <ItemsControl x:Name="icCivcards"
                           ItemsSource="{Binding Civ.Fields}">
               <ItemsControl.ItemTemplate>
@@ -537,7 +682,8 @@
                                       BorderThickness="12"
                                       CornerRadius="4" />
                               <Grid Visibility="{Binding Card.NumDeployed, Converter={StaticResource NumberToVisibilityConverter} }"
-                                    Height="140">
+                                    Height="140"
+                                    MouseLeftButtonUp="OnClickWorkerOnCivCard">
                                 <Image Source="{Binding Card.ImageDeployObject}" />
                                 <!--<Image Source="/assets/misc/worker.png" />-->
                                 <TextBlock Text="{Binding Card.NumDeployed,NotifyOnTargetUpdated=True}"
@@ -592,6 +738,30 @@
                         </ControlTemplate>
                       </Button.Template>
                     </Button>
+                    <Grid Visibility="{Binding IsCounterEnabled, Converter={StaticResource BooleanToVisibilityConverter} }"
+                          MouseLeftButtonDown="OnClickWorkerOnCivCard">
+                      <Border Background="#F0FFFFFF"
+                              CornerRadius="14"
+                              Margin="30"
+                              HorizontalAlignment="Center"
+                              VerticalAlignment="Bottom">
+                        <StackPanel>
+                          <TextBlock Text="{Binding CounterText}"
+                                     Padding="12,8"
+                                     Foreground="Black"
+                                     FontSize="28"
+                                     HorizontalAlignment="Center"
+                                     VerticalAlignment="Center" />
+                          <TextBlock Text="{Binding Counter}"
+                                     Foreground="Black"
+                                     FontSize="36"
+                                     FontWeight="Bold"
+                                     HorizontalAlignment="Center"
+                                     VerticalAlignment="Center"
+                                     Padding="0,0,0,8" />
+                        </StackPanel>
+                      </Border>
+                    </Grid>
                     <Grid.ToolTip>
                       <Grid Margin="-6,-4"
                             ClipToBounds="true">
@@ -687,13 +857,18 @@
                 </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
                   <DataTemplate>
-                    <Grid>
+                    <Grid Margin="{Binding Margin}"
+                          Visibility="{Binding IsCheckedOut, Converter={StaticResource BooleanToVisibilityConverter}}">
                       <TextBlock Text="X"
                                  Foreground="Red"
                                  FontSize="100"
                                  FontWeight="Bold"
-                                 Margin="{Binding Margin}"
-                                 Visibility="{Binding IsCheckedOut, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                                  />
+                      <TextBlock Text="X"
+                                 Foreground="Silver"
+                                 FontSize="100"
+                                 FontWeight="Bold"
+                                 Visibility="{Binding Cost, Converter={StaticResource ZeroToVisibleConverter}}" />
                     </Grid>
                   </DataTemplate>
                 </ItemsControl.ItemTemplate>
@@ -703,88 +878,10 @@
         </Viewbox>
       </Grid>
       <controls:DockPanelSplitter DockPanel.Dock="Bottom" />
-
       <Grid x:Name="gRound"
             DockPanel.Dock="Right"
             Width="280"
             Background="{Binding MainPlayer.Brush}">
-        <Grid.Resources>
-          <Style TargetType="ListBoxItem"
-                 x:Key="StyleChoices">
-            <Setter Property="Template">
-              <Setter.Value>
-                <ControlTemplate TargetType="ListBoxItem">
-                  <Border x:Name="border"
-                          Cursor="Hand"
-                          Background="Transparent"
-                          BorderBrush="Transparent"
-                          CornerRadius="4">
-                    <TextBlock x:Name="tb"
-                               HorizontalAlignment="Center"
-                               Text="{Binding Text}"
-                               Foreground="White"
-                               Width="250"
-                               VerticalAlignment="Center"
-                               TextAlignment="Center"
-                               TextWrapping="WrapWithOverflow"
-                               TextTrimming="WordEllipsis" />
-                  </Border>
-                  <ControlTemplate.Triggers>
-                    <DataTrigger Binding="{Binding IsSelected}"
-                                 Value="True">
-                      <Setter Property="Background"
-                              TargetName="border"
-                              Value="Yellow" />
-                      <Setter Property="Foreground"
-                              TargetName="tb"
-                              Value="Red" />
-                      <Setter Property="BorderBrush"
-                              TargetName="border"
-                              Value="Red" />
-                    </DataTrigger>
-                  </ControlTemplate.Triggers>
-                </ControlTemplate>
-              </Setter.Value>
-            </Setter>
-          </Style>
-
-          <ControlTemplate x:Key="SelectedTemplate2"
-                           TargetType="ListBoxItem">
-            <Border Tag="{Binding Value}"
-                    Cursor="Hand"
-                    Background="Yellow">
-              <Image Source="{Binding Path}"
-                     Margin="4,0" />
-            </Border>
-          </ControlTemplate>
-          <Style TargetType="ListBoxItem"
-                 x:Key="Style2">
-            <Setter Property="Template">
-              <Setter.Value>
-                <ControlTemplate TargetType="ListBoxItem">
-                  <Border Tag="{Binding Value}"
-                          Cursor="Hand"
-                          Background="Transparent">
-                    <Image Source="{Binding Path}"
-                           Margin="10,4" />
-                  </Border>
-                </ControlTemplate>
-              </Setter.Value>
-            </Setter>
-            <Style.Triggers>
-              <MultiTrigger>
-                <MultiTrigger.Conditions>
-                  <Condition Property="IsSelected"
-                             Value="true" />
-                  <Condition Property="Selector.IsSelectionActive"
-                             Value="true" />
-                </MultiTrigger.Conditions>
-                <Setter Property="Template"
-                        Value="{StaticResource SelectedTemplate2}" />
-              </MultiTrigger>
-            </Style.Triggers>
-          </Style>
-        </Grid.Resources>
         <Grid.RowDefinitions>
           <RowDefinition Height="Auto" />
           <RowDefinition Height="*" />
@@ -801,32 +898,108 @@
                    TextWrapping="NoWrap"
                    TextTrimming="CharacterEllipsis"
                    Padding="10,4" />
-
+        <TextBlock Grid.Row="1"
+                   Margin="20"
+                   Text="{Binding Description}"
+                   TextWrapping="Wrap"
+                   Foreground="White"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Center"
+                   TextAlignment="Center"
+                   FontSize="16" />
+        <ItemsControl x:Name="listProduction"
+                      Grid.Row="1"
+                      BorderBrush="Transparent"
+                      Visibility="{Binding ShowChangesInResources, Converter={StaticResource BooleanToVisibilityConverter}}"
+                      Background="{Binding MainPlayer.Brush}"
+                      ItemsSource="{Binding ChangesInResources}"
+                      ItemsPanel="{StaticResource StackPanelCentered}"
+                      ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate>
+              <Grid>
+                <Border x:Name="border"
+                        BorderThickness="1"
+                        BorderBrush="Gray"
+                        CornerRadius="4"
+                        Margin="12,8">
+                  <StackPanel Orientation="Horizontal">
+                    <TextBlock TextWrapping="Wrap"
+                               Text="{Binding Num,Converter={StaticResource NumberToStringConverter},ConverterParameter='You gain {0}/You lose {0}'}"
+                               TextAlignment="Center"
+                               Foreground="{Binding Num,Converter={StaticResource NumberToBrushConverter}}"
+                               Padding="4" />
+                    <Image Source="{Binding Path}"
+                           Height="30" />
+                  </StackPanel>
+                </Border>
+              </Grid>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
         <ListBox x:Name="listPickResource"
                  Grid.Row="1"
                  BorderBrush="{Binding MainPlayer.Brush}"
-                 ItemContainerStyle="{StaticResource Style2}"
                  ItemsSource="{Binding ResChoices}"
-                 ItemsPanel="{StaticResource UGrid2}"
                  SelectedItem="{Binding SelectedResource, Mode=TwoWay}"
-                 Background="Transparent"
-                 Visibility="{Binding ShowResChoices, Converter={StaticResource BooleanToVisibilityConverter}}"
-                 HorizontalContentAlignment="Stretch"
-                 VerticalContentAlignment="Center"
-                 Margin="20,30"
-                 VerticalAlignment="Center"
-                 HorizontalAlignment="Center" />
-
+                 Background="{Binding MainPlayer.Brush}"
+                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                 ScrollViewer.VerticalScrollBarVisibility="Disabled"
+                 Visibility="{Binding ShowResChoices, Converter={StaticResource BooleanToVisibilityConverter}}">
+          <ListBox.ItemContainerStyle>
+            <Style TargetType="ListBoxItem">
+              <Setter Property="Template">
+                <Setter.Value>
+                  <ControlTemplate TargetType="ListBoxItem">
+                    <Grid>
+                      <Border  x:Name="border"
+                               Cursor="Hand"
+                               Background="Transparent"
+                               CornerRadius="4">
+                        <Image Source="{Binding Path}" MaxWidth="80"
+                               Margin="10,4" />
+                      </Border>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                      <Trigger Property="IsSelected"
+                               Value="True">
+                        <Setter Property="Background"
+                                TargetName="border"
+                                Value="Yellow" />
+                      </Trigger>
+                      <!--<MultiTrigger>
+                  <MultiTrigger.Conditions>
+                    <Condition Property="IsSelected"
+                               Value="true" />
+                    <Condition Property="Selector.IsSelectionActive"
+                               Value="true" />
+                  </MultiTrigger.Conditions>
+                  <Setter Property="Template"
+                          Value="{StaticResource SelectedTemplate2}" />
+                </MultiTrigger>-->
+                    </ControlTemplate.Triggers>
+                  </ControlTemplate>
+                </Setter.Value>
+              </Setter>
+            </Style>
+          </ListBox.ItemContainerStyle>
+          <ListBox.ItemsPanel>
+            <ItemsPanelTemplate>
+              <UniformGrid Margin="30"
+                           Rows="2" />
+            </ItemsPanelTemplate>
+          </ListBox.ItemsPanel>
+        </ListBox>
         <ListBox x:Name="listPickChoice"
                  Grid.Row="1"
                  BorderBrush="Transparent"
-                 Visibility="{Binding ShowChoices, Converter={StaticResource BooleanToVisibilityConverter}}"
                  Background="{Binding MainPlayer.Brush}"
+                 Visibility="{Binding ShowChoices, Converter={StaticResource BooleanToVisibilityConverter}}"
                  ItemsSource="{Binding Choices}"
                  SelectedItem="{Binding SelectedChoice, Mode=TwoWay}"
-                 VerticalAlignment="Center"
-                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                 HorizontalAlignment="Center">
+                 ItemsPanel="{StaticResource StackPanelCentered}"
+                 ScrollViewer.VerticalScrollBarVisibility="Disabled"
+                 ScrollViewer.HorizontalScrollBarVisibility="Disabled">
           <ListBox.ItemContainerStyle>
             <Style TargetType="ListBoxItem">
               <Setter Property="Template">
@@ -847,15 +1020,18 @@
                       </Border>
                     </Grid>
                     <ControlTemplate.Triggers>
-                      <DataTrigger Binding="{Binding IsSelected}"
-                                   Value="True">
+                      <Trigger Property="IsSelected"
+                               Value="True">
+                        <!--<Setter Property="BorderThickness"
+                                TargetName="border"
+                                Value="6" />-->
                         <Setter Property="Background"
                                 TargetName="border"
-                                Value="#0D000000" />
+                                Value="#A0000000" />
                         <Setter Property="BorderBrush"
                                 TargetName="border"
                                 Value="Yellow" />
-                      </DataTrigger>
+                      </Trigger>
                     </ControlTemplate.Triggers>
                   </ControlTemplate>
                 </Setter.Value>
@@ -863,15 +1039,15 @@
             </Style>
           </ListBox.ItemContainerStyle>
         </ListBox>
-
         <ItemsControl x:Name="listPickMultiResources"
                       Grid.Row="1"
                       BorderBrush="Transparent"
-                      Visibility="{Binding ShowMultiResChoices, Converter={StaticResource BooleanToVisibilityConverter}}"
                       Background="{Binding MainPlayer.Brush}"
+                      Visibility="{Binding ShowMultiResChoices, Converter={StaticResource BooleanToVisibilityConverter}}"
                       ItemsSource="{Binding ResChoices}"
                       ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                      ItemsPanel="{StaticResource UGrid1}"
+                      ScrollViewer.VerticalScrollBarVisibility="Disabled"
+                      ItemsPanel="{StaticResource UGrid1Row}"
                       HorizontalContentAlignment="Center"
                       VerticalContentAlignment="Center"
                       Margin="20,30"
@@ -918,70 +1094,8 @@
             </DataTemplate>-->
           </ItemsControl.ItemTemplate>
         </ItemsControl>
-        <!--<ItemsControl x:Name="listPickMultiResources"
-                 Grid.Row="1"
-                 BorderBrush="Transparent"
-                 Visibility="{Binding ShowMultiResChoices, Converter={StaticResource BooleanToVisibilityConverter}}"
-                 Background="{Binding MainPlayer.Brush}"
-                 ItemsSource="{Binding ResChoices}"
-                 VerticalAlignment="Center"
-                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                 HorizontalAlignment="Center">
-          <ItemsControl.ItemTemplate>
-            <DataTemplate>
-              <Grid>
-                <Border x:Name="border"
-                        BorderThickness="1"
-                        BorderBrush="Gray"
-                        Cursor="Hand" MouseLeftButtonUp="OnClickMultiResource"
-                        CornerRadius="4"
-                        Margin="12,8">
-                  <StackPanel Orientation="Horizontal">
-                    <Image Source="{Binding Path}"
-                           Height="30" />
-                    <TextBox Text="{Binding Num,Mode=TwoWay}"
-                             TextAlignment="Center"
-                             Padding="4" />
-                  </StackPanel>
-                </Border>
-              </Grid>
-            </DataTemplate>
-          </ItemsControl.ItemTemplate>
-        </ItemsControl>-->
-
-        <ItemsControl x:Name="listProduction"
-                      Grid.Row="1"
-                      BorderBrush="Transparent"
-                      Visibility="{Binding ShowProduction, Converter={StaticResource BooleanToVisibilityConverter}}"
-                      Background="{Binding MainPlayer.Brush}"
-                      ItemsSource="{Binding NetProduction}"
-                      VerticalAlignment="Center"
-                      ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                      HorizontalAlignment="Center">
-          <ItemsControl.ItemTemplate>
-            <DataTemplate>
-              <Grid>
-                <Border x:Name="border"
-                        BorderThickness="1"
-                        BorderBrush="Gray"
-                        CornerRadius="4"
-                        Margin="12,8">
-                  <StackPanel Orientation="Horizontal">
-                    <TextBlock TextWrapping="Wrap"
-                               Text="{Binding Num,Converter={StaticResource NumberToStringConverter},ConverterParameter='You gain {0}/You lose {0}'}"
-                               TextAlignment="Center"
-                               Foreground="{Binding Num,Converter={StaticResource NumberToBrushConverter}}"
-                               Padding="4" />
-                    <Image Source="{Binding Path}"
-                           Height="30" />
-                  </StackPanel>
-                </Border>
-              </Grid>
-            </DataTemplate>
-          </ItemsControl.ItemTemplate>
-        </ItemsControl>
-
         <Border Grid.Row="2"
+                x:Name="roundMessage"
                 Background="#30000000">
           <TextBlock x:Name="tTodo"
                      Text="{Binding Message}"
@@ -993,8 +1107,8 @@
                      TextTrimming="CharacterEllipsis"
                      Padding="10,0" />
         </Border>
-
         <Grid Grid.Row="3"
+              x:Name="gButtons"
               Background="#70000000">
           <Grid.Resources>
             <Style TargetType="{x:Type Button}"
@@ -1005,7 +1119,6 @@
             <ColumnDefinition Width="1.75*" />
             <ColumnDefinition Width="*" />
           </Grid.ColumnDefinitions>
-
           <Button Content="{Binding Caption}"
                   Grid.Column="1"
                   Click="OnClickButton"
@@ -1029,7 +1142,6 @@
         </Grid>
       </Grid>
       <controls:DockPanelSplitter DockPanel.Dock="Right" />
-
       <!-- progress -->
       <Grid x:Name="gProgress"
             Background="{Binding MainPlayer.Brush}">
@@ -1153,9 +1265,15 @@
                       Padding="6,0,6,6"
                       Background="Transparent"
                       Foreground="White" />
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Top">
+          <Button Click="OnClickRedeal"
+                  >Redeal</Button>
+          <Button Click="OnClickAge1">Age 1</Button>
+          <Button Click="OnClickAge2"
+                  >Age 2</Button>
+        </StackPanel>
       </Grid>
     </DockPanel>
-
     <Popup Placement="Center"
            HorizontalAlignment="Stretch"
            VerticalAlignment="Stretch"
@@ -1286,5 +1404,79 @@
                 Background="Transparent" />
       </Grid>
     </Popup>
+    <Grid x:Name="gCardPicker"
+          IsVisibleChanged="CalculatePosition"
+          HorizontalAlignment="Left"
+          VerticalAlignment="Top"
+          Visibility="{Binding ShowCardChoices, Converter={StaticResource BooleanToVisibilityConverter}}">
+      <ListBox x:Name="listPickCardChoice"
+               Margin="4"
+               BorderBrush="Transparent"
+               Background="{Binding MainPlayer.Brush}"
+               ItemsSource="{Binding Choices}"
+               ItemsPanel="{StaticResource UGrid1Row}"
+               SelectedItem="{Binding SelectedChoice, Mode=TwoWay}"
+               VerticalAlignment="Center"
+               ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+               HorizontalAlignment="Center">
+        <ListBox.ItemContainerStyle>
+          <Style TargetType="ListBoxItem">
+            <Setter Property="Template">
+              <Setter.Value>
+                <ControlTemplate TargetType="ListBoxItem">
+                  <Grid x:Name="border"
+                        Background="Transparent"
+                        Cursor="Hand">
+                    <Grid.RowDefinitions>
+                      <RowDefinition Height="*" />
+                      <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Viewbox Margin="6"
+                             Height="360"
+                             Width="180"
+                             Visibility="{Binding Tag,Converter={StaticResource NullToVisibilityConverter}}">
+                      <Grid>
+                        <Image Margin="6"
+                               ClipToBounds="true"
+                               Source="{Binding Tag.Image}"
+                               Stretch="UniformToFill" />
+                        <Border BorderBrush="{Binding Tag.Brush}"
+                                BorderThickness="16"
+                                CornerRadius="6" />
+                      </Grid>
+                    </Viewbox>
+                    <Image Source="{Binding Path}"
+                           Visibility="{Binding Path,Converter={StaticResource NullToVisibilityConverter}}"
+                           HorizontalAlignment="Center"
+                           Margin="10"
+                           Width="120"
+                           VerticalAlignment="Center" />
+                    <TextBlock Text="{Binding Text}"
+                               Margin="2,0,2,3"
+                               Grid.Row="1"
+                               x:Name="tbpick"
+                               TextTrimming="CharacterEllipsis"
+                               TextAlignment="Center"
+                               Foreground="White"
+                               Padding="4" />
+                  </Grid>
+                  <ControlTemplate.Triggers>
+                    <Trigger Property="IsSelected"
+                             Value="True">
+                      <Setter Property="Background"
+                              TargetName="border"
+                              Value="Yellow" />
+                      <Setter Property="Foreground"
+                              TargetName="tbpick"
+                              Value="Black" />
+                    </Trigger>
+                  </ControlTemplate.Triggers>
+                </ControlTemplate>
+              </Setter.Value>
+            </Setter>
+          </Style>
+        </ListBox.ItemContainerStyle>
+      </ListBox>
+    </Grid>
   </Grid>
 </Window>

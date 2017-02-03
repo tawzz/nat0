@@ -1,3 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
-
+<cards>
+  <card name="cape_of_good_hope" age="3" type="natural" exp="dyn" vp="1" turns="1">
+    <milmin military="4"/>
+  </card>
+  <card name="carolus_linneaus" age="3" type="advisor" exp="dyn" stability="1">
+    <buy pred="golden_age_vp" vp="1" />
+  </card>
+  <card name="coffee_house" age="3" type="building" exp="dyn" score="2_1_1_2" gold="2" wheat="2">
+    <prod pred="pass_last" effect="2_book_per_worker_on_coffee_house" />
+   </card>
+  <card name="grand_canyon" age="3" type="natural" exp="dyn" vp="0" turns="2">
+    <scoring effect="vp_for_each_natural_wonder"/>
+  </card>
+  <card name="great_barrier_reef" age="3" type="natural" exp="dyn" vp="2" turns="3">
+    <a vp="-1" wheat="5" />
+  </card>
+  <card name="great_plains" age="3" type="natural" exp="dyn" vp="0" turns="1" allows="building,military" />
+  <card name="le_vite" age="3" exp="dyn" type="golden" effect="add_3_architects_pay_1_less_coal_per_architect_this_round"/>
+  <card name="oresund_dues" age="3" type="wonder" exp="dyn" vp="1" arch="2_1_0" >
+    <post_action pred="all_passed" coal="2" />
+  </card>
+  <card name="potosi" age="3" type="building" exp="dyn" score="1" gold="7" maxdeploy="1" />
+  <card name="privateer" age="3" type="military" exp="dyn" raid="7" score="2_2_1" military="4" deploy="2"/>
+  <card name="spice_islands" age="3" type="natural" exp="dyn" vp="0" turns="2" >
+    <growth effect="4_of_wheat_coal_gold_if_take_resource"/>
+  </card>
 </cards>

@@ -10,6 +10,10 @@ namespace ations
 {
   public partial class App : Application
   {
-    
+    private void OnException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
+    {
+      var msg = e.Exception.InnerException.Message;
+      int nttttttttttttttttttt = 4;
+    }
   }
 }

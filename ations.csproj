@@ -75,7 +75,22 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="NA\GameRules.cs" />
+    <Compile Include="Common\Converters\NonEmptyToVisibleConverter.cs" />
+    <Compile Include="Common\Converters\OptionAvailableToVisibleConverter.cs" />
+    <Compile Include="Common\Converters\ZeroToVisibleConverter.cs" />
+    <Compile Include="NA\CheckerHelpers.cs" />
+    <Compile Include="NA\CheckerDictionaries.cs" />
+    <Compile Include="NA\CheckerIntelligent.cs" />
+    <Compile Include="NA\GameTasks.cs" />
+    <Compile Include="NA\unused\Rules.cs" />
+    <Compile Include="NA\done\State.cs" />
+    <Compile Include="NA\ATestDictionary.cs" />
+    <Compile Include="NA\CheckerStupid.cs" />
+    <Compile Include="NA\AGameTests.cs" />
+    <Compile Include="NA\unused\Game_in_work.cs" />
+    <Compile Include="NA\GameSettings.cs" />
+    <Compile Include="NA\GameProperties.cs" />
+    <Compile Include="NA\unused\GameRules.cs" />
     <Compile Include="Common\Converters\NumberToStringConverter.cs" />
     <Compile Include="Common\Converters\NumberToBrushConverter.cs" />
     <Compile Include="Common\Converters\BooleanToBackgroundConverter.cs" />
@@ -87,6 +102,9 @@
     <Compile Include="Common\Converters\BooleanToOpacityConverter.cs" />
     <Compile Include="Common\Converters\ReverseBooleanToVisibilityConverter.cs" />
     <Compile Include="Common\Storyboards.cs" />
+    <Compile Include="Window1.xaml.cs">
+      <DependentUpon>Window1.xaml</DependentUpon>
+    </Compile>
     <Page Include="NA\WGame.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -102,35 +120,38 @@
     <Compile Include="Common\Controls\DockPanelSplitter.cs" />
     <Compile Include="Common\Extensions.cs" />
     <Compile Include="Common\Rand.cs" />
+    <Page Include="Window1.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="NA\AI.cs" />
+    <Compile Include="NA\unused\AI.cs" />
     <Compile Include="NA\Card.cs" />
-    <Compile Include="NA\CardType.cs" />
-    <Compile Include="NA\Causes.cs" />
-    <Compile Include="NA\Choice.cs" />
-    <Compile Include="NA\Civ.cs" />
-    <Compile Include="NA\ContextInfo.cs" />
-    <Compile Include="NA\Field.cs" />
+    <Compile Include="NA\done\CardType.cs" />
+    <Compile Include="NA\unused\Causes.cs" />
+    <Compile Include="NA\done\Choice.cs" />
+    <Compile Include="NA\done\Civ.cs" />
+    <Compile Include="NA\done\ContextInfo.cs" />
+    <Compile Include="NA\done\Field.cs" />
     <Compile Include="NA\Game.cs" />
-    <Compile Include="NA\GameTests.cs" />
     <Compile Include="NA\GameClickSequences.cs" />
-    <Compile Include="NA\Step.cs" />
+    <Compile Include="NA\done\Step.cs" />
     <Compile Include="NA\GameSelection.cs" />
-    <Compile Include="NA\GameLoop.cs" />
-    <Compile Include="NA\Helpers.cs" />
-    <Compile Include="NA\Levels.cs" />
+    <Compile Include="NA\AGameLoop.cs" />
+    <Compile Include="NA\done\Helpers.cs" />
+    <Compile Include="NA\done\Levels.cs" />
     <Compile Include="NA\Player.cs" />
-    <Compile Include="NA\Progress.cs" />
-    <Compile Include="NA\Res.cs" />
-    <Compile Include="NA\ResDict.cs" />
-    <Compile Include="NA\Stats.cs" />
-    <Compile Include="NA\Strategy.cs" />
+    <Compile Include="NA\done\Progress.cs" />
+    <Compile Include="NA\done\Res.cs" />
+    <Compile Include="NA\done\ResDict.cs" />
+    <Compile Include="NA\done\Stats.cs" />
+    <Compile Include="NA\unused\Strategy.cs" />
     <Compile Include="NA\WGame.xaml.cs">
       <DependentUpon>WGame.xaml</DependentUpon>
     </Compile>
-    <Compile Include="NA\Worker.cs" />
-    <Compile Include="NA\_trash.cs" />
+    <Compile Include="NA\done\Worker.cs" />
+    <Compile Include="NA\unused\_trash.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -245,27 +266,28 @@
     <Resource Include="assets\cards\xml\cards01.xml">
       <SubType>Designer</SubType>
     </Resource>
-    <Resource Include="assets\cards\xml\cards02.xml" />
+    <Resource Include="assets\cards\xml\cards02.xml">
+      <SubType>Designer</SubType>
+    </Resource>
     <Resource Include="assets\cards\xml\cards03.xml">
       <SubType>Designer</SubType>
     </Resource>
-    <Resource Include="assets\cards\xml\cards04.xml" />
-    <Resource Include="assets\cards\xml\cardsdyn01.xml" />
-    <Resource Include="assets\cards\xml\cardsdyn02.xml" />
+    <Resource Include="assets\cards\xml\cards04.xml">
+      <SubType>Designer</SubType>
+    </Resource>
+    <Resource Include="assets\cards\xml\cardsdyn01.xml">
+      <SubType>Designer</SubType>
+    </Resource>
+    <Resource Include="assets\cards\xml\cardsdyn02.xml">
+      <SubType>Designer</SubType>
+    </Resource>
     <Resource Include="assets\cards\xml\cardsdyn03.xml" />
-    <Resource Include="assets\cards\xml\cardsdyn04.xml" />
-    <Resource Include="assets\cards\xml\dynastyCards.xml" />
+    <Resource Include="assets\cards\xml\cardsdyn04.xml">
+      <SubType>Designer</SubType>
+    </Resource>
     <Resource Include="assets\cards\xml\eventCards.xml">
       <SubType>Designer</SubType>
     </Resource>
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="assets\cards\xml\civcards\americacards.xml" />
-    <Resource Include="assets\cards\xml\civcards\arabiacards.xml" />
-    <Resource Include="assets\cards\xml\civcards\chinacards.xml" />
-    <Resource Include="assets\cards\xml\civcards\egyptcards.xml" />
-    <Resource Include="assets\cards\xml\civcards\ethiopiacards.xml" />
-    <Resource Include="assets\cards\xml\_commoncards.xml" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="assets\civs\america.jpg" />
@@ -298,6 +320,16 @@
     <Resource Include="assets\misc\book.png" />
     <Resource Include="assets\misc\coal.png" />
     <Resource Include="assets\misc\gold.png" />
+    <Resource Include="assets\misc\head01.png" />
+    <Resource Include="assets\misc\head02.png" />
+    <Resource Include="assets\misc\head03.png" />
+    <Resource Include="assets\misc\head04.png" />
+    <Resource Include="assets\misc\head05.png" />
+    <Resource Include="assets\misc\head06.png" />
+    <Resource Include="assets\misc\head07.png" />
+    <Resource Include="assets\misc\head08.png" />
+    <Resource Include="assets\misc\head09.png" />
+    <Resource Include="assets\misc\head10.png" />
     <Resource Include="assets\misc\raid.png" />
     <Resource Include="assets\misc\stability.png" />
     <Resource Include="assets\misc\military.png" />
@@ -314,17 +346,14 @@
     <Resource Include="assets\misc\gold-red.png" />
     <Resource Include="assets\misc\stability-black.png" />
     <Resource Include="assets\misc\stability-red.png" />
-    <Resource Include="assets\misc\stone-black.png" />
-    <Resource Include="assets\misc\stone-red.png" />
+    <Resource Include="assets\misc\coal-black.png" />
+    <Resource Include="assets\misc\coal-red.png" />
     <Resource Include="assets\misc\military-red.png" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="assets\civs\xml\mongolia.xml">
       <SubType>Designer</SubType>
     </Resource>
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="assets\cards\xml\civcards\mongoliacards.xml" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="assets\cards\age2\age2_abu_bakr.jpg" />
@@ -432,7 +461,7 @@
     <Resource Include="assets\cards\age3\age3_imjin_war.jpg" />
     <Resource Include="assets\cards\age3\age3_incan_empire.jpg" />
     <Resource Include="assets\cards\age3\age3_isabella.jpg" />
-    <Resource Include="assets\cards\age3\age3_jaguar_war.jpg" />
+    <Resource Include="assets\cards\age3\age3_jaguar_warrior.jpg" />
     <Resource Include="assets\cards\age3\age3_la_noche_triste.jpg" />
     <Resource Include="assets\cards\age3\age3_machu_picchu.jpg" />
     <Resource Include="assets\cards\age3\age3_martin_luther.jpg" />
@@ -463,7 +492,7 @@
     <Resource Include="assets\cards\age3\age3_siege_of_vienna.jpg" />
     <Resource Include="assets\cards\age3\age3_sistine_chapel.jpg" />
     <Resource Include="assets\cards\age3\age3_south_africa.jpg" />
-    <Resource Include="assets\cards\age3\age3_suleiman_i.jpg" />
+    <Resource Include="assets\cards\age3\age3_suleiman.jpg" />
     <Resource Include="assets\cards\age3\age3_taj_mahal.jpg" />
     <Resource Include="assets\cards\age3\age3_telescope.jpg" />
     <Resource Include="assets\cards\age3\age3_terrace_farming.jpg" />
@@ -481,7 +510,7 @@
   <ItemGroup>
     <Resource Include="assets\cards\age4\age4_alfred_nobel.jpg" />
     <Resource Include="assets\cards\age4\age4_algeria.jpg" />
-    <Resource Include="assets\cards\age4\age4_alraham_lincoln.jpg" />
+    <Resource Include="assets\cards\age4\age4_abraham_lincoln.jpg" />
     <Resource Include="assets\cards\age4\age4_american_civil_war.jpg" />
     <Resource Include="assets\cards\age4\age4_anglo-afghan_war.jpg" />
     <Resource Include="assets\cards\age4\age4_australia.jpg" />
@@ -549,7 +578,7 @@
     <Resource Include="assets\cards\age4\age4_submarine.jpg" />
     <Resource Include="assets\cards\age4\age4_suez_canal.jpg" />
     <Resource Include="assets\cards\age4\age4_surrender_of_yorktown.jpg" />
-    <Resource Include="assets\cards\age4\age4_titantic.jpg" />
+    <Resource Include="assets\cards\age4\age4_titanic.jpg" />
     <Resource Include="assets\cards\age4\age4_urban_center.jpg" />
     <Resource Include="assets\cards\age4\age4_vaccine.jpg" />
     <Resource Include="assets\cards\age4\age4_voortrekker.jpg" />
@@ -620,37 +649,37 @@
     <Resource Include="assets\misc\eye.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="assets\civs\cards\advisor.PNG" />
-    <Resource Include="assets\civs\cards\age1_adobe.JPG" />
-    <Resource Include="assets\civs\cards\age1_aqueduct.jpg" />
-    <Resource Include="assets\civs\cards\age1_axeman.JPG" />
-    <Resource Include="assets\civs\cards\age1_bazaar.JPG" />
-    <Resource Include="assets\civs\cards\age1_brave.JPG" />
-    <Resource Include="assets\civs\cards\age1_brewery.JPG" />
-    <Resource Include="assets\civs\cards\age1_buffalo_horde.JPG" />
-    <Resource Include="assets\civs\cards\age1_caravan.JPG" />
-    <Resource Include="assets\civs\cards\age1_farm.JPG" />
-    <Resource Include="assets\civs\cards\age1_kaba.JPG" />
-    <Resource Include="assets\civs\cards\age1_legionary.jpg" />
-    <Resource Include="assets\civs\cards\age1_pagoda.jpg" />
-    <Resource Include="assets\civs\cards\age1_pyramids.JPG" />
-    <Resource Include="assets\civs\cards\age1_quarry.JPG" />
-    <Resource Include="assets\civs\cards\age1_stele.JPG" />
-    <Resource Include="assets\civs\cards\age1_teepee.JPG" />
-    <Resource Include="assets\civs\cards\age1_temple.JPG" />
-    <Resource Include="assets\civs\cards\age1_trireme.jpg" />
-    <Resource Include="assets\civs\cards\america_dyn1.JPG" />
-    <Resource Include="assets\civs\cards\arabia_dyn1.JPG" />
-    <Resource Include="assets\civs\cards\arabia_dyn1_lg.JPG" />
-    <Resource Include="assets\civs\cards\china_dyn1.JPG" />
-    <Resource Include="assets\civs\cards\china_dyn1_lg.JPG" />
-    <Resource Include="assets\civs\cards\colony.PNG" />
-    <Resource Include="assets\civs\cards\egypt_dyn1.JPG" />
-    <Resource Include="assets\civs\cards\egypt_dyn1_lg.JPG" />
-    <Resource Include="assets\civs\cards\ethiopia_dyn1.JPG" />
-    <Resource Include="assets\civs\cards\ethiopia_dyn1_lg.JPG" />
-    <Resource Include="assets\civs\cards\wic.PNG" />
-    <Resource Include="assets\civs\cards\wonder.PNG" />
+    <Resource Include="assets\cards\civcards\advisor.PNG" />
+    <Resource Include="assets\cards\civcards\age1_adobe.JPG" />
+    <Resource Include="assets\cards\civcards\age1_aqueduct.jpg" />
+    <Resource Include="assets\cards\civcards\age1_axeman.JPG" />
+    <Resource Include="assets\cards\civcards\age1_bazaar.JPG" />
+    <Resource Include="assets\cards\civcards\age1_brave.JPG" />
+    <Resource Include="assets\cards\civcards\age1_brewery.JPG" />
+    <Resource Include="assets\cards\civcards\age1_buffalo_horde.JPG" />
+    <Resource Include="assets\cards\civcards\age1_caravan.JPG" />
+    <Resource Include="assets\cards\civcards\age1_farm.JPG" />
+    <Resource Include="assets\cards\civcards\age1_kaba.JPG" />
+    <Resource Include="assets\cards\civcards\age1_legionary.jpg" />
+    <Resource Include="assets\cards\civcards\age1_pagoda.jpg" />
+    <Resource Include="assets\cards\civcards\age1_pyramids.JPG" />
+    <Resource Include="assets\cards\civcards\age1_quarry.JPG" />
+    <Resource Include="assets\cards\civcards\age1_stele.JPG" />
+    <Resource Include="assets\cards\civcards\age1_teepee.JPG" />
+    <Resource Include="assets\cards\civcards\age1_temple.JPG" />
+    <Resource Include="assets\cards\civcards\age1_trireme.jpg" />
+    <Resource Include="assets\cards\civcards\america_dyn1.JPG" />
+    <Resource Include="assets\cards\civcards\arabia_dyn1.JPG" />
+    <Resource Include="assets\cards\civcards\arabia_dyn1_lg.JPG" />
+    <Resource Include="assets\cards\civcards\china_dyn1.JPG" />
+    <Resource Include="assets\cards\civcards\china_dyn1_lg.JPG" />
+    <Resource Include="assets\cards\civcards\colony.PNG" />
+    <Resource Include="assets\cards\civcards\egypt_dyn1.JPG" />
+    <Resource Include="assets\cards\civcards\egypt_dyn1_lg.JPG" />
+    <Resource Include="assets\cards\civcards\ethiopia_dyn1.JPG" />
+    <Resource Include="assets\cards\civcards\ethiopia_dyn1_lg.JPG" />
+    <Resource Include="assets\cards\civcards\wic.PNG" />
+    <Resource Include="assets\cards\civcards\wonder.PNG" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.5.2">
@@ -664,7 +693,203 @@
       <Install>false</Install>
     </BootstrapperPackage>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Resource Include="assets\cards\xml\cardsfake01.xml">
+      <SubType>Designer</SubType>
+    </Resource>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="assets\misc\figure.JPG" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="assets\misc\figure_no_head.JPG" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="assets\cards\xml\allCivCards.xml">
+      <SubType>Designer</SubType>
+    </Resource>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="assets\dyn\age1\age1_antikythera_mechanism.jpg" />
+    <Resource Include="assets\dyn\age1\age1_great_library.jpg" />
+    <Resource Include="assets\dyn\age1\age1_hypatia.jpg" />
+    <Resource Include="assets\dyn\age1\age1_mount_ararat.jpg" />
+    <Resource Include="assets\dyn\age1\age1_mount_kailash.jpg" />
+    <Resource Include="assets\dyn\age1\age1_praetorian_guard.jpg" />
+    <Resource Include="assets\dyn\age1\age1_silk_road.jpg" />
+    <Resource Include="assets\dyn\age1\age1_siwa_oasis.jpg" />
+    <Resource Include="assets\dyn\age1\age1_the_pillar_of_hercules.jpg" />
+    <Resource Include="assets\dyn\age1\age1_vatican.jpg" />
+    <Resource Include="assets\dyn\age1\age1_vesuvius.jpg" />
+    <Resource Include="assets\dyn\age2\age2_arabian_nights.jpg" />
+    <Resource Include="assets\dyn\age2\age2_assassin.jpg" />
+    <Resource Include="assets\dyn\age2\age2_aurora_borealis.jpg" />
+    <Resource Include="assets\dyn\age2\age2_grand_banks.jpg" />
+    <Resource Include="assets\dyn\age2\age2_hansa.jpg" />
+    <Resource Include="assets\dyn\age2\age2_hawaii.jpg" />
+    <Resource Include="assets\dyn\age2\age2_knights_templar.jpg" />
+    <Resource Include="assets\dyn\age2\age2_sahara.jpg" />
+    <Resource Include="assets\dyn\age2\age2_shwedagon_pagoda.jpg" />
+    <Resource Include="assets\dyn\age2\age2_siberia.jpg" />
+    <Resource Include="assets\dyn\age2\age2_zhu_xi.jpg" />
+    <Resource Include="assets\dyn\age3\age3_cape_of_good_hope.jpg" />
+    <Resource Include="assets\dyn\age3\age3_carolus_linneaus.jpg" />
+    <Resource Include="assets\dyn\age3\age3_coffee_house.jpg" />
+    <Resource Include="assets\dyn\age3\age3_grand_canyon.jpg" />
+    <Resource Include="assets\dyn\age3\age3_great_barrier_reef.jpg" />
+    <Resource Include="assets\dyn\age3\age3_great_plains.jpg" />
+    <Resource Include="assets\dyn\age3\age3_le_vite.jpg" />
+    <Resource Include="assets\dyn\age3\age3_oresund_dues.jpg" />
+    <Resource Include="assets\dyn\age3\age3_potosi.jpg" />
+    <Resource Include="assets\dyn\age3\age3_privateer.jpg" />
+    <Resource Include="assets\dyn\age3\age3_spice_islands.jpg" />
+    <Resource Include="assets\dyn\age4\age4_boxers.jpg" />
+    <Resource Include="assets\dyn\age4\age4_department_store.jpg" />
+    <Resource Include="assets\dyn\age4\age4_frederic_chopin.jpg" />
+    <Resource Include="assets\dyn\age4\age4_northwest_passage.jpg" />
+    <Resource Include="assets\dyn\age4\age4_shantytown.jpg" />
+    <Resource Include="assets\dyn\age4\age4_titusville.jpg" />
+    <Resource Include="assets\dyn\age4\age4_uluru.jpg" />
+    <Resource Include="assets\dyn\age4\age4_uncle_toms_cabin.jpg" />
+    <Resource Include="assets\dyn\age4\age4_victoria_falls.jpg" />
+    <Resource Include="assets\dyn\age4\age4_wardenclyffe_tower.jpg" />
+    <Resource Include="assets\cards\civcards\america_democratic_republicans.jpg" />
+    <Resource Include="assets\cards\civcards\america_federalist_party.jpg" />
+    <Resource Include="assets\cards\civcards\arabia_abbasid_caliphate.jpg" />
+    <Resource Include="assets\cards\civcards\arabia_umayyad_caliphate.jpg" />
+    <Resource Include="assets\cards\civcards\china_ming_dynasty.jpg" />
+    <Resource Include="assets\cards\civcards\china_qin_dynasty.jpg" />
+    <Resource Include="assets\cards\civcards\egypt_new_kingdom.jpg" />
+    <Resource Include="assets\cards\civcards\egypt_old_kingdom.jpg" />
+    <Resource Include="assets\cards\civcards\ethiopia_axumite_kingdom.jpg" />
+    <Resource Include="assets\cards\civcards\ethiopia_sheba.jpg" />
+    <Resource Include="assets\cards\civcards\greece_athens.jpg" />
+    <Resource Include="assets\cards\civcards\greece_sparta.jpg" />
+    <Resource Include="assets\cards\civcards\india_mauryan_empire.jpg" />
+    <Resource Include="assets\cards\civcards\india_mughal_empire.jpg" />
+    <Resource Include="assets\cards\civcards\japan_edo_period.jpg" />
+    <Resource Include="assets\cards\civcards\japan_heian_period.jpg" />
+    <Resource Include="assets\cards\civcards\korea_joseon_kingdom.jpg" />
+    <Resource Include="assets\cards\civcards\korea_koryo_kingdom.jpg" />
+    <Resource Include="assets\cards\civcards\mali_mali_empire.jpg" />
+    <Resource Include="assets\cards\civcards\mali_songhai_empire.jpg" />
+    <Resource Include="assets\cards\civcards\mongolia_golden_horde.jpg" />
+    <Resource Include="assets\cards\civcards\mongolia_yuan_dynasty.jpg" />
+    <Resource Include="assets\cards\civcards\persia_achaimenid_empire.jpg" />
+    <Resource Include="assets\cards\civcards\persia_sassanid_empire.jpg" />
+    <Resource Include="assets\cards\civcards\poland_jagellonian_dynasty.jpg" />
+    <Resource Include="assets\cards\civcards\poland_polish-lithuanian_commonwealth.jpg" />
+    <Resource Include="assets\cards\civcards\portugal_kingdom_of_leon.jpg" />
+    <Resource Include="assets\cards\civcards\portugal_portugese_empire.jpg" />
+    <Resource Include="assets\cards\civcards\rome_roman_empire.jpg" />
+    <Resource Include="assets\cards\civcards\rome_roman_republic.jpg" />
+    <Resource Include="assets\cards\civcards\venice_domains_of_the_sea.jpg" />
+    <Resource Include="assets\cards\civcards\venice_pactum_warmundi.jpg" />
+    <Resource Include="assets\cards\civcards\vikings_normans.jpg" />
+    <Resource Include="assets\cards\civcards\vikings_varangians.jpg" />
+    <Resource Include="assets\dyn\extra_siberia.jpg" />
+    <Resource Include="assets\dyn\turmoil.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="assets\cards\xml\cardsfake04.xml">
+      <SubType>Designer</SubType>
+    </Resource>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="assets\cards\xml\cardsfake02.xml">
+      <SubType>Designer</SubType>
+    </Resource>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="assets\cards\xml\cardsfake03.xml">
+      <SubType>Designer</SubType>
+    </Resource>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="assets\civs\xml\greece.xml">
+      <SubType>Designer</SubType>
+    </Resource>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="assets\civs\xml\india.xml">
+      <SubType>Designer</SubType>
+    </Resource>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="assets\civs\xml\japan.xml">
+      <SubType>Designer</SubType>
+    </Resource>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="assets\cards\civcards\age1_emperor.JPG" />
+    <Resource Include="assets\cards\civcards\age1_hokkaido.JPG" />
+    <Resource Include="assets\cards\civcards\age1_rice_fields.JPG" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="assets\cards\civcards\age1_varanasi.JPG" />
+    <Resource Include="assets\cards\civcards\india_dyn1.JPG" />
+    <Resource Include="assets\cards\civcards\korea_dyn1.JPG" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="assets\civs\xml\korea.xml">
+      <SubType>Designer</SubType>
+    </Resource>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="assets\civs\xml\venice.xml">
+      <SubType>Designer</SubType>
+    </Resource>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="assets\civs\xml\mali.xml">
+      <SubType>Designer</SubType>
+    </Resource>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="assets\civs\xml\persia.xml">
+      <SubType>Designer</SubType>
+    </Resource>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="assets\civs\xml\portugal.xml">
+      <SubType>Designer</SubType>
+    </Resource>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="assets\civs\xml\poland.xml">
+      <SubType>Designer</SubType>
+    </Resource>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="assets\civs\xml\rome.xml">
+      <SubType>Designer</SubType>
+    </Resource>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="assets\civs\xml\vikings.xml">
+      <SubType>Designer</SubType>
+    </Resource>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="assets\cards\civcards\age1_gold_mine.JPG" />
+    <Resource Include="assets\cards\civcards\age1_salt_caravan.JPG" />
+    <Resource Include="assets\cards\civcards\mali_dyn1.JPG" />
+    <Resource Include="assets\cards\civcards\mali_dyn1_LG.JPG" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="assets\cards\civcards\age1_berserkers.JPG" />
+    <Resource Include="assets\cards\civcards\age1_constantinople.JPG" />
+    <Resource Include="assets\cards\civcards\age1_glass_blower.JPG" />
+    <Resource Include="assets\cards\civcards\age1_slave_church.JPG" />
+    <Resource Include="assets\cards\civcards\poland_dyn1.JPG" />
+    <Resource Include="assets\cards\civcards\portugal_dyn1.JPG" />
+    <Resource Include="assets\cards\civcards\rome_dyn1.JPG" />
+    <Resource Include="assets\cards\civcards\venice_dyn1.JPG" />
+    <Resource Include="assets\cards\civcards\vikings_dyn1.JPG" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="assets\cards\civcards\building.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

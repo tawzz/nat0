@@ -1,10 +1,113 @@
 <?xml version="1.0" encoding="utf-8"?>
 <cards>
-  <card name="anna_komnene" age="2" type="advisor" military="2" book="1" eff="no_military_upkeep" />
-  <card name="ball_court" age="2" type="building" score="1_1_1" deploy="2" gold="3" wheat="1"/>
-  <card name="battle_of_manzikert" age="2" type="battle" ></card>
-  <card name="byzantine_arab_war" age="2" type="war" book="3" ></card>
-  <card name="camel_archer" age="2" type="military" raid="4" score="1_1_2" military="5" stability="-1" deploy="2" />
-  <card name="castle" age="2" type="building" score="1_1_1" stability="3" deploy="2" coal="1"/>
-
+  <card name="aztec_empire" age="3" type="colony" vp="1" milmin="15" gold="4"/>
+  <card name="bank" age="3" type="building" score="2_1_1" gold="3" book="2"/>
+  <card name="battle_of_cajamarca" age="3" type="battle" ></card>
+  <card name="battle_of_noryang" age="3" type="battle" ></card>
+  <card name="battle_of_poltava" age="3" type="battle" ></card>
+  <card name="brazil" age="3" type="colony" vp="1" milmin="14" coal="4"/>
+  <card name="chateau" age="3" type="building" score="2_1_1" stability="3" gold="2"/>
+  <card name="clocks" age="3" type="golden" coal="2" />
+  <card name="colonial_trading" age="3" type="building" score="2_1_1" gold="3" stability="2"/>
+  <card name="conquistador" age="3" type="military" raid="5" score="1_2_2" military="7" book="-1"  />
+  <card name="cortes_expedition" age="3" type="war" wheat="6" ></card>
+  <card name="courthouse" age="3" type="building" score="2_1_1" stability="3" book="2"/>
+  <card name="dike" age="3" type="building" score="2_1_1" coal="3" wheat="2"/>
+  <card name="don_quixote" age="3" type="golden" book="2" />
+  <card name="dutch_liberation_war" age="3" type="war" gold="9" ></card>
+  <card name="elizabeth" age="3" type="advisor" coal="2" >
+    <war military="8" />
+  </card>
+  <card name="fall_of_constantinople" age="3" type="battle" ></card>
+  <card name="fall_of_louisburg" age="3" type="battle" ></card>
+  <card name="forbidden_palace" age="3" type="wonder" vp="1" arch="2_1" >
+    <prod pred="pass_first" vp="1" />
+  </card>
+  <card name="frigate" age="3" type="military" raid="6" score="1_2_2" military="8" coal="-1" deploy="4" />
+  <card name="galileo_galilei" age="3" type="advisor" book="2" >
+    <a effect="buy_golden_or_wonder_for_free" />
+  </card>
+  <card name="great_northern_war" age="3" type="war" wheat="8" ></card>
+  <card name="gutenberg_bible" age="3" type="golden" book="2" />
+  <card name="hakkapeliitta" age="3" type="military" raid="5" score="1_2_2" military="8" stability="-1"  />
+  <card name="hammam" age="3" type="building" score="2_1_1" wheat="3" stability="2"/>
+  <card name="himegi_castle" age="3" type="wonder" vp="1" arch="1_1_1" >
+    <buy pred="replace_building_with_newer_age_building" coal="4" />
+  </card>
+  <card name="imjin_war" age="3" type="war" coal="5" ></card>
+  <card name="incan_empire" age="3" type="colony" vp="1" milmin="17" gold="4"/>
+  <card name="isabella" age="3" type="advisor" wheat="2" >
+    <prod effect="3_gold_per_renaissance_colony" />
+  </card>
+  <card name="jaguar_warrior" age="3" type="military" raid="5" score="1_2_2" military="7" stability="-1"  />
+  <card name="la_noche_triste" age="3" type="battle" ></card>
+  <card name="machu_picchu" age="3" type="wonder" vp="0" arch="0_2_0" gold="6" />
+  <card name="martin_luther" age="3" type="advisor" gold="4" >
+    <war affects="all" pred="defeated" wheat="-4" />
+  </card>
+  <card name="mercenary" age="3" type="military" raid="4" score="1_2_2" military="8" gold="-2" deploy="2" />
+  <card name="microscope" age="3" type="golden" coal="2" />
+  <card name="montezuma" age="3" type="advisor" wheat="2" >
+    <buy pred="cardtype" param="war,battle" book="3" />
+  </card>
+  <card name="mughal_invasion" age="3" type="war" book="7" ></card>
+  <card name="niccolo_machiavelli" age="3" type="advisor" book="4" >
+    <new_event effect="draw_2_events_pick_one" />
+  </card>
+  <card name="observatory" age="3" type="building" score="2_1_1" book="3" coal="2"/>
+  <card name="parliament" age="3" type="building" score="2_1_1" coal="3" stability="2"/>
+  <card name="peter_the_great" age="3" type="advisor" >
+    <prod pred="greater_than_war" param="military" effect="5_coal_gold_book" />
+  </card>
+  <card name="philippines" age="3" type="colony" vp="1" milmin="18" coal="4"/>
+  <card name="pocahontas" age="3" type="advisor" wheat="4" effect="milmin_plus_4_for_all" />
+  <card name="potala_palace" age="3" type="wonder" vp="1" arch="1_1" >
+    <score effect="vp_per_advisor" />
+  </card>
+  <card name="principia" age="3" type="golden" book="2" />
+  <card name="printing_press" age="3" type="building" score="2_1_1" coal="3" book="2"/>
+  <card name="quebec" age="3" type="colony" vp="1" milmin="12" book="4"/>
+  <card name="ranger" age="3" type="military" raid="5" score="1_2_2" military="6"  />
+  <card name="red_fort" age="3" type="wonder" vp="1" arch="0_3" >
+    <buy pred="cardprice" param="1" wheat="2" />
+  </card>
+  <card name="redcoat" age="3" type="military" raid="5" score="1_2_2" military="7" wheat="-1" />
+  <card name="romeo_and_juliet" age="3" type="golden" book="2" />
+  <card name="royal_society" age="3" type="wonder" vp="1" arch="3_2" >
+    <a effect="deploy_1_worker_for_free" />
+  </card>
+  <card name="sacrificial_altar" age="3" type="building" score="2_1_1" stability="3" wheat="2"/>
+  <card name="samurai" age="3" type="military" raid="5" score="1_2_2" military="7" gold="-1" />
+  <card name="sawmill" age="3" type="building" score="2_1_1" gold="3" wheat="2"/>
+  <card name="shipyard" age="3" type="building" score="2_1_1" coal="3" gold="2"/>
+  <card name="siege_of_rhodes" age="3" type="battle" ></card>
+  <card name="siege_of_vienna" age="3" type="battle" ></card>
+  <card name="sistine_chapel" age="3" type="wonder" vp="1" arch="1_1" book="1">
+    <hire_architect book="3" />
+  </card>
+  <card name="south_africa" age="3" type="colony" vp="1" milmin="13" wheat="4"/>
+  <card name="suleiman" age="3" type="advisor" military="3" >
+    <a pred="most" param="military" worker="1" max="100" effect="impossible" />
+  </card>
+  <card name="taj_mahal" age="3" type="wonder" vp="1" arch="3_1_2" >
+    <ready book="15" />
+  </card>
+  <card name="telescope" age="3" type="golden" coal="2" />
+  <card name="terrace_farming" age="3" type="building" score="2_1_1" wheat="3" coal="2"/>
+  <card name="the_caribbean" age="3" type="colony" vp="1" milmin="15" stability="4"/>
+  <card name="theatre" age="3" type="building" score="2_1_1" book="3" gold="2"/>
+  <card name="thermometer" age="3" type="golden" coal="2" />
+  <card name="thirty_years_war" age="3" type="war" wheat="9" />
+  <card name="tokugawa" age="3" type="advisor" military="2" >
+    <prod effect="2_coal_per_building_and_military_from_current_age" />
+  </card>
+  <card name="uraniborg" age="3" type="wonder" vp="2" arch="0_3_2" book="2">
+    <buy pred="cardtype" param="golden" effect="bonus" eparam="2" />
+  </card>
+  <card name="versailles" age="3" type="wonder" vp="4" arch="4_0_1" >
+    <ready effect="least_stability_for_this_round" />
+  </card>
+  <card name="virginia" age="3" type="colony" vp="1" milmin="21" coal="5"/>
+  <card name="war_of_cyprus" age="3" type="war" coal="7" />
+  <card name="war_of_jenkins_ear" age="3" type="war" gold="6" />
 </cards>

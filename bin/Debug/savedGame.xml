@@ -1,0 +1,46 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<game round="0" cols="7" age="1" rounds="4" incldyn="true" inclfake="true" numplayers="3">
+  <progress f0="" f1="" f2="siege_of_troy" f3="crossing_the_alps" f4="Julius Caesar" f5="vatican" f6="cyrus_the_great" f7="pagoda" f8="gaul" f9="macedonia" f10="" f11="aeneid" f12="wars_of_alexander" f13="augustus" f14="chariot" f15="" f16="mount_kailash" f17="hispania" f18="great_library" f19="battle_of_kadesh" f20="the_odyssey" />
+  <player name="Felix" index="0" level="0" hasPassed="true">
+    <resources wheat="2" coal="5" gold="11" vp="5" worker="5" military="0" stability="0" book="0" />
+    <civboard civ="america" empty0="0" buffalo_horde="0" teepee="0" brave="0" adobe="0" america_dyn1="0" empty6="0" empty7="0" empty8="0" empty9="0" empty10="0" empty11="0" empty12="0" empty13="0" />
+    <extraworkers gratis="0">
+      <worker res="wheat" n="3" checkedOut="false" />
+      <worker res="wheat" n="3" checkedOut="false" />
+      <worker res="wheat" n="3" checkedOut="false" />
+      <worker res="wheat" n="3" checkedOut="false" />
+      <worker res="stability" n="3" checkedOut="false" />
+      <worker res="stability" n="3" checkedOut="false" />
+      <worker res="stability" n="3" checkedOut="false" />
+      <worker res="stability" n="3" checkedOut="false" />
+    </extraworkers>
+  </player>
+  <player name="Amanda" index="1" level="0" hasPassed="false">
+    <resources wheat="2" coal="6" gold="9" vp="3" worker="4" military="0" stability="0" book="0" />
+    <civboard civ="egypt" archimedes="0" brewery="0" quarry="0" temple="0" forum="1" egypt_dyn1="0" empty6="0" empty7="0" empty8="0" pyramids="0" empty10="0" empty11="0" empty12="0" empty13="0" />
+    <extraworkers gratis="0">
+      <worker res="wheat" n="3" checkedOut="false" />
+      <worker res="wheat" n="3" checkedOut="false" />
+      <worker res="wheat" n="3" checkedOut="false" />
+      <worker res="wheat" n="3" checkedOut="false" />
+      <worker res="stability" n="3" checkedOut="false" />
+      <worker res="stability" n="3" checkedOut="false" />
+      <worker res="stability" n="3" checkedOut="false" />
+      <worker res="stability" n="3" checkedOut="false" />
+    </extraworkers>
+  </player>
+  <player name="Taka" index="2" level="0" hasPassed="false">
+    <resources wheat="2" coal="4" gold="12" vp="5" worker="4" military="3" stability="4" book="0" raid="3" />
+    <civboard civ="arabia" buddha="0" kaba="0" quarry="0" praetorian_guard="1" bazaar="0" arabia_dyn1="0" empty6="0" empty7="0" empty8="0" empty9="0" empty10="0" empty11="0" empty12="0" empty13="0" />
+    <extraworkers gratis="0">
+      <worker res="wheat" n="3" checkedOut="false" />
+      <worker res="wheat" n="3" checkedOut="false" />
+      <worker res="wheat" n="3" checkedOut="false" />
+      <worker res="wheat" n="3" checkedOut="false" />
+      <worker res="stability" n="3" checkedOut="false" />
+      <worker res="stability" n="3" checkedOut="false" />
+      <worker res="stability" n="3" checkedOut="false" />
+      <worker res="stability" n="3" checkedOut="false" />
+    </extraworkers>
+  </player>
+</game>
