@@ -26,6 +26,7 @@ namespace ations
     public int Index { get; set; }
     public int Row { get; set; }
     public int Col { get; set; }
+    public Point RenderTransformOrigin { get; set; }
     //public List<string> TypesAllowedOriginal { get; set; }
     public ObservableCollection<string> TypesAllowed { get; set; }
     public Thickness Margin { get { return margin; } set { margin = value; NotifyPropertyChanged(); } }

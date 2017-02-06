@@ -6,7 +6,7 @@
     <post_action pred="least" param="stability" effect="remove" />
   </card>
   <card name="hypatia" age="1" type="advisor" exp="dyn" cross="1">
-    <prod func="count" param="cross" book="1" />
+    <prod effect="foreach" param="cross" book="1" />
     <post_action pred="more_than" param="stability,2" effect="remove" />
   </card>
   <card name="mount_ararat" age="1" type="natural" exp="dyn" vp="0" turns="1">

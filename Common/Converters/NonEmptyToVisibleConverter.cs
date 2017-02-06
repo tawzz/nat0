@@ -14,8 +14,14 @@ namespace ations
   {
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
-      var specialOptions = value as ObservableCollection<Choice>;
-      return specialOptions.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
+      if (value is ObservableCollection<Choice> && (value as ObservableCollection<Choice>).Count > 0
+        ||
+        value is ObservableCollection<Res> && (value as ObservableCollection<Res>).Count > 0)
+        return Visibility.Visible;
+      else return Visibility.Collapsed;
+      //var specialOptions = value as ObservableCollection<Choice>;
+      //var reslist = value as ObservableCollection<Res>;
+      //return specialOptions != null && specialOptions.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
     }
 
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

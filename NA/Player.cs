@@ -75,7 +75,21 @@ namespace ations
     public List<Res> RoundResEffects = new List<Res>();// { get; set; }
     public List<Card> RoundCardEffects = new List<Card>();// { get; set; }
 
-
+    public List<Field> Colonies { get { return Civ.Fields.Where(x => !x.IsEmpty && x.Card.colony()).ToList(); } }
+    public List<Field> Buildings { get { return Civ.Fields.Where(x => !x.IsEmpty && x.Card.build()).ToList(); } }
+    public List<Field> MilitaryFields { get { return Civ.Fields.Where(x => !x.IsEmpty && x.Card.mil()).ToList(); } }
+    public List<Field> Advisors { get { return Civ.Fields.Where(x => !x.IsEmpty && x.Card.adv()).ToList(); } }
+    public List<Field> Wonders { get { return Civ.Fields.Where(x => !x.IsEmpty && x.Card.wonder()).ToList(); } }
+    public List<Field> Naturals { get { return Civ.Fields.Where(x => !x.IsEmpty && x.Card.natural()).ToList(); } }
+    public int NumColonies { get { return Cards.Count(x => x.colony()); } }
+    public int NumAdvisors { get { return Cards.Count(x => x.adv()); } }
+    public int NumBuildings { get { return Cards.Count(x => x.build()); } }
+    public int NumMilitaryFields { get { return Cards.Count(x => x.mil()); } }
+    public int NumWonders { get { return Cards.Count(x => x.wonder()); } }
+    public int NumNaturals { get { return Cards.Count(x => x.natural()); } }
+    public int NumWorkers { get { return Res.n("worker") + Cards.Where(x => x.buildmil()).Sum(x=>x.NumDeployed); } }
+    public int NumMilitaryDeployed { get { return Cards.Where(x => x.mil()).Sum(x => x.NumDeployed); } }
+    public bool HasColony { get { return Cards.Any(x => x.colony()); } }
     public bool HasAdvisor { get { return Cards.Any(x => x.adv()); } }
     public bool HasExtraworkers { get { return ExtraWorkers.Any(x => !x.IsCheckedOut); } }
     public bool HasWIC { get { return !WICField.IsEmpty; } }
@@ -83,6 +97,7 @@ namespace ations
     public bool HasMilitaryDeployed { get { return Cards.Any(x => x.mil() && x.NumDeployed > 0); } }
     public bool HasBuildingDeployed { get { return Cards.Any(x => x.build() && x.NumDeployed > 0); } }
     public bool HasBMDeployed { get { return Cards.Any(x => x.buildmil() && x.NumDeployed > 0); } }
+public bool Defeated { get { return Military < Game.Inst.Stats.WarLevel; } }
     public Field WICField { get { return Civ.Fields[CardType.iWIC]; } }
     public Field ADVField { get { return Civ.Fields[0]; } }
     public Field DYNField { get { return Civ.Fields[CardType.iDYN]; } }
@@ -395,7 +410,7 @@ namespace ations
       Debug.Assert(Civ.Dynasties.Contains(card), "UpgradeDynasty: card not in Dynasties!");
       Civ.Dynasties.Remove(card);
       if (f == null) { f = Civ.LargeSizeDynField; }
-      Checker.AddCivCard(this, card, f);
+      Checker.AddCivCard(this, card, f); //*********** Player.UpgradeDynasty: vielleicht kann man CheckUpgradeDynasty auch hier machen, wen add dynasty card!
     }
     public void RemoveAdvisor() { Checker.RemoveCivCard(this, Civ.Fields[CardType.iADV]); }
     public void WonderReady(Field targetField)

@@ -12,7 +12,7 @@ using ations;
 namespace ations
 {
   public enum cl { none, prog, civ, worker, arch, turm, pspecial, cspecial, res }
-  public enum ctx { none, start, pickCivField, special, wready, swapprogress, removeWorker, deployWorker, removeMilitaryWorker, countClickMilitaryWorkers }
+  public enum ctx { none, start, pickCivField, special, wready, swapprogress, pickProgress, removeWorker, deployWorker, removeMilitaryWorker, countClickMilitaryWorkers }
 
   public partial class Game
   {
@@ -36,7 +36,7 @@ namespace ations
       else if (context == ctx.removeWorker) { MarkBuildMilCardsWithWorkers(); return; }
       else if (context == ctx.deployWorker) { MarkBuildMilCards(); return; }
       else if (context == ctx.wready) { MarkPossiblePlacesForWIC(); return; }
-      else if (context == ctx.swapprogress) { MarkProgressCards(); return; }
+      else if (context == ctx.swapprogress || context == ctx.pickProgress) { MarkProgressCards(); return; }
       else if (context == ctx.start)
       {
         MarkPossibleProgressCards();

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
@@ -22,6 +23,15 @@ namespace ations
     public int BasicCost { get; set; } //depends only on row on progress board
     public int Price { get; set; } // includes alterations (bonuses...) and ist used for paying 
 
+    // clear every round
+    public List<Res> ListOfResources { get { return listOfResources; } set { if (listOfResources != value) { listOfResources = value; NotifyPropertyChanged(); } } }
+    List<Res> listOfResources = null;// new List<Res> { new Res("gold"), new Res("wheat") }; // includes architects on wonder in construction
+    public object Tag { get; set; } //just to store some associated info, eg., marked progress card for ethiopia_axumite_kingdom
+
+    //public ObservableCollection<Res> StoredResources { get { return storedResources; } }
+    //ObservableCollection<Res> storedResources = new ObservableCollection<Res>();
+    public int ActionTaken { get; set; } //counts how many times action was executed this round, reset each round start
+
     public int NumDeployed { get { return numDeployed; } set { if (numDeployed != value) { numDeployed = value; NotifyPropertyChanged(); } } }
     int numDeployed; // includes architects on wonder in construction
     public bool IsEnabled { get { return isEnabled; } set { if (isEnabled != value) { isEnabled = value; NotifyPropertyChanged(); } } }
@@ -29,9 +39,8 @@ namespace ations
     public bool IsSelected { get { return (bool)GetValue(IsSelectedProperty); } set { SetValue(IsSelectedProperty, value); } }
     public static readonly DependencyProperty IsSelectedProperty = DependencyProperty.Register("IsSelected", typeof(bool), typeof(Card), null);
 
-    public bool HasAction { get { return GetAction != null; } } 
     public bool ActionAvailable { get { return HasAction && ActionTaken < GetActionMax; } }
-    public int ActionTaken { get; set; } //counts how many times action was executed this round, reset each round start
+    public bool HasAction { get { return GetAction != null; } }
     public bool CanDeployOn { get { return this.buildmil() && NumDeployed < MaxDeploy; } }
     public int MaxDeploy { get { return X.aint("maxdeploy", 100); } }
 
@@ -119,9 +128,8 @@ namespace ations
       return MakeCard(Helpers.GetCardX(name));
     }
 
-
-    public int[] GetArchCostArray { get { return X.astring("arch").Split('_').Select(x => int.Parse(x)).ToArray(); } }
-    public int[] GetScoringArray { get { return X.astring("score").Split('_').Select(x => int.Parse(x)).ToArray(); } }
+    public int[] GetArchCostArray { get { var s = X.astring("arch"); return string.IsNullOrEmpty(s) ? new int[0] : s.Split('_').Select(x => int.Parse(x)).ToArray(); } }
+    public int[] GetScoringArray { get { var s = X.astring("score"); return string.IsNullOrEmpty(s) ? new int[0] : s.Split('_').Select(x => int.Parse(x)).ToArray(); } }
     public string GetEffect { get { return X.astring("effect"); } }
     public int GetMilitary { get { return X.aint("military", 0); } }
     public int GetMilmin { get { return X.aint("milmin", 0); } }
@@ -132,12 +140,12 @@ namespace ations
     public int GetTurns { get { return X.aint("turns"); } }
     public XElement GetAction { get { return X.Elements("a").FirstOrDefault(); } }
     public List<XElement> GetProdClauses { get { return X.Elements("prod").ToList(); } }
-    public int GetActionMax { get { return HasAction ? GetAction.aint("max", 1):0; } } 
+    public int GetActionMax { get { return HasAction ? GetAction.aint("max", 1) : 0; } }
 
-    public IEnumerable<Res> GetResources(IEnumerable<string> names=null)
+    public IEnumerable<Res> GetResources(IEnumerable<string> names = null)
     {
       List<Res> result = new List<Res>();
-      var reslist = names != null ? X.Attributes().Where(x => names.Contains(x.Name.ToString())).ToList() 
+      var reslist = names != null ? X.Attributes().Where(x => names.Contains(x.Name.ToString())).ToList()
         : X.Attributes().Where(x => !Res.CardAttributes.Contains(x.Name.ToString())).ToList();
       foreach (var attr in reslist)
       {

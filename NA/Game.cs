@@ -130,6 +130,11 @@ namespace ations
 
       // TEST SETUP FUER DESIGNER HERE **********************************************
       //design test
+      //var card = P0.GetCard("yurt");
+      //card.StoredResources.Add(new Res("gold"));
+      
+      
+      
       //ShowCardChoices = true;
       //var dyn = MainPlayer.Civ.Dynasties.ToList();
       //List<Choice> list = new List<Choice>();
@@ -165,7 +170,7 @@ namespace ations
     public void NumDeployedUpdated(FrameworkElement ui)
     {
       var card = (ui.DataContext as Field).Card;
-      if (card.NumDeployed <= 0) return;
+      if (card == null || card.NumDeployed <= 0) return;
       var sb = Storyboards.Scale(ui, TimeSpan.FromSeconds(.3), new Point(1, 1), new Point(5, 2), null, true);
       AnimationQueue.Add(sb);
     }

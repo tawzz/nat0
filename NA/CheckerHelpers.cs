@@ -50,15 +50,52 @@ namespace ations
       var game = Game.Inst;
       switch (effect) //TODO streamline shortcuts!
       {
-        case "regain_war_loss": if (pl.Military < game.Stats.WarLevel) { foreach (var res in pl.WarLoss) { pl.UpdateResBy(res.Name, res.Num); } } break;
         case "go_first": { List<Player> newlist = new List<Player> { pl }; newlist.AddRange(Others(pl)); game.Players.Clear(); foreach (var p in newlist) game.Players.Add(p); break; }
         case "go_last": { List<Player> newlist = Others(pl).ToList(); newlist.Add(pl); game.Players.Clear(); foreach (var p in newlist) game.Players.Add(p); } break;
         case "lose_all_gold_except_2": if (pl.Res.n("gold") > 2) pl.Res.set("gold", 2); break;
         case "may_undeploy_building_worker_for_2_coal_each": if (pl.HasBuildingDeployed) { var answer = await game.YesNoChoiceTask("undeploy from building for 2 coal each?"); if (answer) await game.PickUndeployForEachTask(pl, new string[] { "building" }, "coal", 2); } break;
         case "may_take_2_workers_and_4_coal": if (pl.ExtraWorkers.Count >= 2) { var answer = await game.YesNoChoiceTask("take out 2 worker and get 4 coal?"); if (answer) { for (int i = 0; i < 2; i++) await game.CheckoutExtraWorkerTask(pl); pl.UpdateResBy("coal", 4); } } break;
-
+        case "may_hire_2_arch_for_free": if (pl.HasWIC) { var answer = await game.YesNoChoiceTask("hire 2 architects for free?"); if (answer) await game.AddFreeArchitectsTask(pl, 2); } break;
+        case "may_deploy_2_workers_to_military_for_free": if (pl.NumMilitaryFields > 0) { var answer = await game.YesNoChoiceTask("deploy 2 workers to military for free?"); if (answer) { for (int i = 0; i < 2; i++) { await game.DeployWorkerForFreeTask(pl, new string[] { "military" }); } } } break;
+        case "regain_war_loss": if (pl.Military < game.Stats.WarLevel) { foreach (var res in pl.WarLoss) { pl.UpdateResBy(res.Name, res.Num); } } break;
+        case "remove_advisors": pl.RemoveAdvisor(); break;
+        case "remove_colony_if_none_pay_vp": { var n = pl.NumColonies; if (n > 1) { var f = await game.PickCivFieldOutOf(pl, pl.Colonies, "event"); RemoveCivCard(pl, f); } else if (n == 1) { RemoveCivCard(pl, pl.Colonies.First()); } else { await game.PayTask(pl, "vp", 1); } } break;
       }
       await Task.Delay(100);
+    }
+    public static List<Player> Filter(string pred, string param, IEnumerable<Player> basePlayerSet)
+    {
+      var game = Game.Inst;
+      switch (pred)
+      {
+        case "least":
+        case "not_least":
+        case "most":
+        case "not_most": return PlayersWith(pred, param, basePlayerSet);
+        case "most_bought": var max = basePlayerSet.Max(x => x.CardsBoughtThisRound.Count(y => y.Type == param)); return basePlayerSet.Where(x => x.CardsBoughtThisRound.Count(y => y.Type == param) == max).ToList();
+        case "pass_first": return basePlayerSet.Where(x => x.HasPassed && game.PassOrder.First() == x).ToList();
+        case "pass_last": return game.AllPlayersPassed ? basePlayerSet.Where(x => x.HasPassed && game.PassOrder.Last() == x).ToList() : new List<Player>();
+        case "defeated": return game.Stats.IsWar ? basePlayerSet.Where(x => x.Military < game.Stats.WarLevel).ToList() : new List<Player>();
+        case "not_defeated": return game.Stats.IsWar ? basePlayerSet.Where(x => x.Military >= game.Stats.WarLevel).ToList() : new List<Player>();
+        case "greater_than_war": return game.Stats.IsWar ? basePlayerSet.Where(x => x.Military > game.Stats.WarLevel).ToList() : new List<Player>();
+        case "have_medieval_advisor": return basePlayerSet.Where(x => x.Cards.Any(y => y.adv() && y.Age == 2)).ToList();
+        case "have_medieval_or_antiquity_advisor": return basePlayerSet.Where(x => x.Cards.Any(y => y.adv() && y.Age <= 2)).ToList();
+        case "if_at_least_1_industrial_colony": { return basePlayerSet.Where(x => x.Colonies.Count(y => y.Card.Age >= 4) >= 1).ToList(); }
+        case "most_workers_in_industrial_buildings":
+          {
+            Player plbest = null;
+            int nmax = 0;
+            foreach (var pl in basePlayerSet)
+            {
+              var nworkers = pl.Buildings.Where(x => x.Card.Age >= 4).Sum(x => x.Card.NumDeployed);
+              if (nworkers > nmax) { nmax = nworkers; plbest = pl; }
+              else if (nworkers == nmax) { plbest = null; }
+            }
+            if (plbest != null) return new List<Player> { plbest }; else return new List<Player>();
+          }
+        default: Console.WriteLine("\t\tunknown predicate: " + pred); break;
+      }
+      return basePlayerSet.ToList();
     }
     public static List<Player> CalcAffects(XElement ev, List<Player> basePlayerSet)
     {
@@ -76,24 +113,7 @@ namespace ations
       }
       var pred = ev.astring("pred");
       var param = ev.astring("param");
-      if (string.IsNullOrEmpty(pred)) return basePlayerSet;
-      switch (pred)
-      {
-        case "least":
-        case "not_least":
-        case "most":
-        case "not_most": return PlayersWith(pred, param, basePlayerSet);
-        case "most_bought": var max = basePlayerSet.Max(x => x.CardsBoughtThisRound.Count(y => y.Type == param)); return basePlayerSet.Where(x => x.CardsBoughtThisRound.Count(y => y.Type == param) == max).ToList();
-        case "pass_first": return basePlayerSet.Where(x => x.HasPassed && game.PassOrder.First() == x).ToList();
-        case "pass_last": return game.AllPlayersPassed ? basePlayerSet.Where(x => x.HasPassed && game.PassOrder.Last() == x).ToList() : new List<Player>();
-        case "defeated": return game.Stats.IsWar ? basePlayerSet.Where(x => x.Military < game.Stats.WarLevel).ToList() : new List<Player>();
-        case "not_defeated": return game.Stats.IsWar ? basePlayerSet.Where(x => x.Military >= game.Stats.WarLevel).ToList() : new List<Player>();
-        case "greater_than_war": return game.Stats.IsWar ? basePlayerSet.Where(x => x.Military > game.Stats.WarLevel).ToList() : new List<Player>();
-        case "have_medieval_advisor": return basePlayerSet.Where(x => x.Cards.Any(y => y.adv() && y.Age == 2)).ToList();
-        case "have_medieval_or_antiquity_advisor": return basePlayerSet.Where(x => x.Cards.Any(y => y.adv() && y.Age <= 2)).ToList();
-        default: Console.WriteLine("\t\tunknown predicate: " + pred); break;
-      }
-      return basePlayerSet;
+      if (string.IsNullOrEmpty(pred)) return basePlayerSet; else return Filter(pred, param, basePlayerSet);
       //else if (Selectors.ContainsKey(pred)) return Selectors[pred](ev.astring("param"), basePlayerSet);
       //else if (Predicates.ContainsKey(pred)) return basePlayerSet.Where(x => Predicates[pred](ev.astring("param"))).ToList();
       //else { Console.WriteLine(game.LongMessage = "pred " + pred + " unknown!"); return basePlayerSet; }
@@ -127,7 +147,7 @@ namespace ations
     }
     public static List<Res> GetResourcesForRule(XElement xel)
     {
-      List<string> exceptions = new List<string> { "eparam", "special_effect", "affects", "trigger", "pred", "param", "text", "min", "effect", "foreach", "func", "task", "type", "age" };
+      List<string> exceptions = new List<string> { "pred", "param", "effect", "eparam", "affects", "text", "max" };
       List<Res> result = new List<Res>();
       var reslist = xel.Attributes().Where(x => !exceptions.Contains(x.Name.ToString())).ToList();
       foreach (var attr in reslist)
@@ -140,25 +160,6 @@ namespace ations
       }
       return result;
     }
-    public static Action<object[]> GetSpecialEffect_legacy(XElement xel) // TODO: ersetze dEffectII durch EffectActions
-    {
-      var specialEffect = xel.astring("effect");
-      var result = string.IsNullOrEmpty(specialEffect) ? null
-        : dEffectII.ContainsKey(specialEffect) ? dEffectII[specialEffect]
-        : ImpossibleAction;
-      return result;
-    }
-    public static EffectAction GetEffectAction(XElement xel)
-    {
-      var specialEffect = xel.astring("effect");
-      Console.WriteLine("\teffect=" + specialEffect);
-      var result = string.IsNullOrEmpty(specialEffect) ? null
-        : Effects.ContainsKey(specialEffect) ? Effects[specialEffect]
-        : ImpossibleEffect;
-      return result;
-    }
-    public static void ImpossibleAction(object[] oarr) { }
-    public static EffectAction ImpossibleEffect = new EffectAction((a, b, c, d) => { });
     public static List<Player> PlayersWith(string pred, string resname, IEnumerable<Player> pls = null)
     {
       var game = Game.Inst;
@@ -218,6 +219,25 @@ namespace ations
       else if (Selectors.ContainsKey(pred)) return Selectors[pred](ev.astring("param"), basePlayerSet);
       else if (Predicates.ContainsKey(pred)) return basePlayerSet.Where(x => Predicates[pred](ev.astring("param"))).ToList();
       else { Console.WriteLine(game.LongMessage = "pred " + pred + " unknown!"); return basePlayerSet; }
+    }
+    public static EffectAction GetEffectAction(XElement xel)
+    {
+      var specialEffect = xel.astring("effect");
+      Console.WriteLine("\teffect=" + specialEffect);
+      var result = string.IsNullOrEmpty(specialEffect) ? null
+        : Effects.ContainsKey(specialEffect) ? Effects[specialEffect]
+        : ImpossibleEffect;
+      return result;
+    }
+    public static void ImpossibleAction(object[] oarr) { }
+    public static EffectAction ImpossibleEffect = new EffectAction((a, b, c, d) => { });
+    public static Action<object[]> GetSpecialEffect_legacy(XElement xel) // TODO: ersetze dEffectII durch EffectActions
+    {
+      var specialEffect = xel.astring("effect");
+      var result = string.IsNullOrEmpty(specialEffect) ? null
+        : dEffectII.ContainsKey(specialEffect) ? dEffectII[specialEffect]
+        : ImpossibleAction;
+      return result;
     }
 
     #endregion

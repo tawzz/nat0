@@ -74,9 +74,11 @@ namespace ations
           var addtypes = additionalTypesAllowed.Split(new char[] { ',' });
           foreach (var t in addtypes) types.Add(t);
         }
-
+        double px = i % 7 == 0 ? 0.2 : i % 7 == 6 ? .8 : .5;
+        double py = i < 7 ? 0.2 : 0.8;
+        //, RenderTransformOrigin=new Point(c==0?0:c==6?1:0.5,((double)r)/2)
         var margin = i == 8 && type == "wonder" ? CardMargins[EXTRA_WONDER_INDEX] : CardMargins[i];
-        Fields.Add(new Field { X = xfield, Type = type, Index = i, TypesAllowed = types, Margin = margin }); //TypesAllowedOriginal = types.ToList(), 
+        Fields.Add(new Field { X = xfield, Type = type, Index = i, TypesAllowed = types, Margin = margin, RenderTransformOrigin = new Point(px,py) }); //TypesAllowedOriginal = types.ToList(), 
       }
 
       Dynasties = new ObservableCollection<Card>();
@@ -110,7 +112,7 @@ namespace ations
       return result;
     }
 
-    public ObservableCollection<Worker> GetExtraWorkers()
+    public ObservableCollection<Worker> GetExtraWorkers() // Clear nicht neu machen!!!!!!
     {
       var result = new ObservableCollection<Worker>();
       var resarr = X.Element("workers").Elements().ToArray();
@@ -118,7 +120,7 @@ namespace ations
       foreach (var res in resarr)
       {
         var costres = res.astring("res");
-        var marginLeft = WorkerMargins.ContainsKey(Name) ? WorkerMargins[Name][i] : WorkerMargins["default"][i++];
+        var marginLeft = WorkerMargins.ContainsKey(Name) ? WorkerMargins[Name][i] : WorkerMargins["default"][i];i++;
         var margin = new Thickness(marginLeft - 6, 8, 0, 0);
         result.Add(new Worker(costres, res.aint("n"), margin, false)); 
         //result.Add(new Worker("coal", 0, margin, false)); //testing

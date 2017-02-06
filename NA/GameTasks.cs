@@ -135,7 +135,9 @@ namespace ations
 
       var chosen = await PickCardChoiceTask(list, "turmoil");
 
-      if (chosen.Tag is Card) MainPlayer.UpgradeDynasty((chosen.Tag as Card)); else MainPlayer.UpdateResBy("gold", 2);
+      if (chosen.Tag is Card) { var cdyn = chosen.Tag as Card; MainPlayer.UpgradeDynasty(cdyn); await Checker.CheckUpgradeDynasty(MainPlayer, cdyn); }
+      else MainPlayer.UpdateResBy("gold", 2);
+
       MainPlayer.TurmoilsTaken++;
       Stats.Turmoils--;
       Message = MainPlayer.Name + " took a turmoil"; await Task.Delay(200);
@@ -191,9 +193,9 @@ namespace ations
       Debug.Assert(res != null || !string.IsNullOrEmpty(card.GetEffect), "BuyGoldenAgeTask: no resource on golden age card AND no effect!");
 
       var goldenagebonus = MainPlayer.GoldenAgeBonus;
-      var costOfVP = Stats.Age - goldenagebonus;
       if (res != null) res.Num += goldenagebonus;
 
+      var costOfVP = Stats.Age - goldenagebonus;
       var resToPayForVP = MainPlayer.Res.List.Where(x => x.CanPayWith && x.Num > 0).ToList();
       var canaffordvp = resToPayForVP.Sum(x => x.Num) >= costOfVP;
 
@@ -211,19 +213,24 @@ namespace ations
         }
       }
 
-      // now res==null: execute effect, otherwise res contains name of resource to get and number to get for free
-      if (res != null && res.Name == "vp")
-      {
-        var reslist = await PickMultiResourceNumTask(resToPayForVP, costOfVP, "vp");
-        foreach (var rpay in reslist) MainPlayer.Pay(rpay.Num, rpay.Name);
-        MainPlayer.UpdateResBy("vp", 1);
-        await Checker.CheckBuyGoldenAge(MainPlayer, card, res);
-      }
-      else if (res == null || !string.IsNullOrEmpty(effect))
-      {
-        await Checker.CheckBuyGoldenAge(MainPlayer, card, res);
-      }
+      if (res != null && res.Name == "vp") { await BuyVPForGoldenAgeTask(MainPlayer, costOfVP, resToPayForVP, card); }
+      //{
+      //  var reslist = await PickMultiResourceNumTask(resToPayForVP, costOfVP, "vp");
+      //  foreach (var rpay in reslist) MainPlayer.Pay(rpay.Num, rpay.Name);
+      //  MainPlayer.UpdateResBy("vp", 1);
+      //  await Checker.CheckBuyGoldenAge(MainPlayer, card, res);
+      //}
+      else if (res == null || !string.IsNullOrEmpty(effect))      {        await Checker.CheckBuyGoldenAge(MainPlayer, card, res);      }
       else MainPlayer.UpdateResBy(res.Name, res.Num);
+    }
+    public async Task BuyVPForGoldenAgeTask(Player pl, int costOfVP, List<Res> resToPayForVP, Card card = null)
+    {
+      var plMain = MainPlayer; MainPlayer = pl;
+      var reslist = await PickMultiResourceNumTask(resToPayForVP, costOfVP, "vp");
+      foreach (var rpay in reslist) MainPlayer.Pay(rpay.Num, rpay.Name);
+      MainPlayer.UpdateResBy("vp", 1);
+      await Checker.CheckBuyGoldenAge(MainPlayer, card, new Res("vp"));
+      MainPlayer = plMain;
     }
     public async Task PickWonderOrGoldenAgeTask()
     {
@@ -263,6 +270,38 @@ namespace ations
       field2.Card = card1;
       ContextEnd();
     }
+    public async Task<Field> PickProgressCardTask(Player pl)
+    {
+      ContextInit(ctx.pickProgress);
+      UpdateUI();
+      while (Step == null)
+      {
+        //Message = "pick two progress cards";
+        await WaitForButtonClick();
+      }
+      // progress cards are swapped
+      var result = Steps.First().Obj as Field;
+      ContextEnd();
+      return result;
+    }
+
+    // options
+    public async Task OptionBuyVPTask(Player pl)
+    {
+      // first check if can afford vp
+      var goldenagebonus = pl.GoldenAgeBonus;
+      var costOfVP = Stats.Age - goldenagebonus;
+      var resToPayForVP = pl.Res.List.Where(x => x.CanPayWith && x.Num > 0).ToList();
+      var canaffordvp = resToPayForVP.Sum(x => x.Num) >= costOfVP;
+
+      if (!canaffordvp) return;
+
+      var plMain = MainPlayer; MainPlayer = pl;
+      var answer = await YesNoChoiceTask("buy VP?");
+      if (answer) { await BuyVPForGoldenAgeTask(pl, costOfVP, resToPayForVP); }
+
+      MainPlayer = plMain;
+    }
 
     // civ board
     public async Task<Field> PickFieldForType(Player pl, string type, string forwhat)
@@ -293,7 +332,32 @@ namespace ations
     }
 
     // workers
-    public async Task PickPlaceToDeployTask(Player pl)
+    public async Task DeployWorkerForFreeTask(Player pl, IEnumerable<string> types) // worker tasks kann man noch viel besser streamlinen, in refactoring phase
+    {
+      var plMain = MainPlayer; MainPlayer = pl;
+      if (pl.Res.n("worker") == 0) { await PickWorkerToUndeployTask(); }
+      var fields = pl.Civ.Fields.Where(x=>!x.IsEmpty && types.Contains(x.Card.Type)).ToList();
+      var field = await PickCivFieldOutOf(pl, fields, "free deployment");
+      pl.DeployWorker(1);
+      field.Card.NumDeployed++;
+      await WaitForAnimationQueueCompleted();
+      MainPlayer = plMain;
+    }
+    public async Task DeployAvailableWorkerTask(Player pl, IEnumerable<string> types)
+    {
+      if (MainPlayer != pl) { MainPlayer = pl; }
+      ContextInit(ctx.deployWorker, "pick civ card to deploy worker to");
+      UpdateUI();
+      while (Step == null)
+      {
+        await WaitForButtonClick();
+      }
+      pl.DeployWorker(1);
+      (Step.Obj as Field).Card.NumDeployed++;
+      await WaitForAnimationQueueCompleted();
+      ContextEnd();
+    }
+    public async Task DeployAvailableWorkerTask(Player pl)
     {
       if (MainPlayer != pl) { MainPlayer = pl; }
       ContextInit(ctx.deployWorker, "pick civ card to deploy worker to");
@@ -332,7 +396,7 @@ namespace ations
       }
       return wfree1;
     }
-    public async Task<int> PickUndeployForEachTask(Player pl,IEnumerable<string> cardtype,string resname,int nEach)
+    public async Task<int> PickUndeployForEachTask(Player pl, IEnumerable<string> cardtype, string resname, int nEach)
     {
       var times = await PickWorkerToUndeployMultipleTask(pl, cardtype);
       if (times == 0) return 0;
@@ -351,7 +415,7 @@ namespace ations
     public async Task PickWorkerToUndeployTask()
     {
       var fields = MainPlayer.Civ.Fields.Where(x => !x.IsEmpty && x.Card.buildmil() && x.Card.NumDeployed > 0).ToList();
-      Debug.Assert(fields.Count > 0, "PickWorkerToUndeployTask: no workers deployed!!!");
+      //Debug.Assert(fields.Count > 0, "PickWorkerToUndeployTask: no workers deployed!!!");
       var n = fields.Count();
       if (n == 0) return;
 
@@ -393,12 +457,13 @@ namespace ations
     }
     public async Task<Worker> CheckoutExtraWorkerTask(Player pl)
     {
-      var plMain = MainPlayer;  MainPlayer = pl;
+      var plMain = MainPlayer; MainPlayer = pl;
       var worker = await PickExtraWorkerTask();
       if (worker != null)
       {
         Message = MainPlayer.Name + " picked " + worker.CostRes.ToCapital() + " worker";
         MainPlayer.CheckOutWorker(worker);
+        Checker.CheckCheckOutExtraWorker(pl, worker);
       }
       MainPlayer = plMain;
       return worker;
@@ -503,7 +568,7 @@ namespace ations
       }
       return res;
     }
-    public async Task<IEnumerable<Res>> PickMultiResourceNumTask(IEnumerable<Res> reslist, int total, string forWhat)
+    public async Task<List<Res>> PickMultiResourceNumTask(IEnumerable<Res> reslist, int total, string forWhat)
     {//returns list of resources with number selected by player
       //reslist is copied so can pass player resource list as param
       Debug.Assert(ResChoices != null && ResChoices.Count == 0, "ResChoices not cleared for growth resource pick");
@@ -519,6 +584,25 @@ namespace ations
       ShowMultiResChoices = false;
       var result = ResChoices.ToList(); ResChoices.Clear();
       Message = MainPlayer.Name + " picked " + total + " resource"; Caption = capt;
+
+      return result;
+    }
+    public async Task<List<Res>> PickMultiResourceWithinRangeTask(IEnumerable<Res> reslist, int min, int max, string forWhat)
+    {//returns list of resources with number selected by player
+      //reslist is copied so can pass player resource list as param
+      Debug.Assert(ResChoices != null && ResChoices.Count == 0, "ResChoices not cleared for growth resource pick");
+      //Debug.Assert(SelectedResource == null, "start resource pick with resource already selected!");
+
+      // can pay at most MainPlayer.Res.n(resname) of each resource
+      ResChoices.Clear();
+      foreach (var res in reslist) ResChoices.Add(new Res(res.Name, 0));
+      ShowMultiResChoices = true; var capt = Caption; Caption = "Pick"; Message = MainPlayer.Name + ", pick between " + min + " and " + max + " resources for " + forWhat;
+
+      await MakeSureUserPicksBetween(min,max);
+
+      ShowMultiResChoices = false;
+      var result = ResChoices.ToList(); ResChoices.Clear();
+      Message = MainPlayer.Name + " picked " + result.Sum(x=>x.Num) + " resources"; Caption = capt;
 
       return result;
     }
@@ -637,6 +721,20 @@ namespace ations
         var reslist = ResChoices;
         picked = reslist.Sum(x => x.Num);
         if (picked != total) { Message = "PICK THE AMOUNT SPECIFIED: " + total + "!"; foreach (var r in ResChoices) r.Num = 0; }
+      }
+    }
+    public async Task MakeSureUserPicksBetween(int min, int max)
+    {
+      int picked = 0;
+      while (picked < min || picked > max)
+      {
+        await Task.Delay(shortDelay);
+        await WaitForButtonClick();
+
+        // how do I bind to a list of resources two way?!?!?!?!?!?!?!?!?!!!!!!!!
+        var reslist = ResChoices;
+        picked = reslist.Sum(x => x.Num);
+        if (picked <min || picked > max) { Message = "pick between " + min + " and " + max + " resources!"; foreach (var r in ResChoices) r.Num = 0; }
       }
     }
     public async Task WaitForAnimationQueueCompleted(int minAnimations = 0)

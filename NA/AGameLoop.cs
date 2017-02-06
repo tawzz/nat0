@@ -37,7 +37,7 @@ namespace ations
           if (SwitchProductionOn) { TestPreProduction?.Invoke(); await ProductionTask(); TestPostProduction?.Invoke(); }
           CustomizeProduction?.Invoke();
 
-          if (SwitchOrderOn && !NoChangeInTurn) PlayerOrder();
+          if (SwitchOrderOn) Checker.CalcPlayerOrder();
 
           if (SwitchWarOn) { TestPreWar?.Invoke(); await WarResolutionTask(); TestPostWar?.Invoke(); }
 
@@ -91,7 +91,7 @@ namespace ations
       foreach (var pl in Players) pl.Score = Checker.CalcScore(pl);
 
       var plscore = Players.OrderBy(x => x.Score).ToList();
-      LongMessage = "The Winner is " + plscore.Last().Name + "!!!!!!!!!!!!!!!!!!!!!!";
+      LongMessage = "The Winner is " + plscore.Last().Name + "!";
     }
 
     async Task GrowthPhaseTask()
@@ -216,6 +216,7 @@ namespace ations
           if (MainPlayer.IsBroke) break;
         }
 
+        await Checker.CheckPostProduction(MainPlayer);
         iplayer++;
         if (iplayer < NumPlayers) { Message = "next player..."; }//if (!IsTesting || stopAfterTest) await WaitForButtonClick(); }
         ChangesInResources.Clear();
@@ -225,17 +226,6 @@ namespace ations
       ShowChangesInResources = false;
 
       await Task.Delay(longDelay);
-    }
-
-    public void PlayerOrder()
-    {
-      var plarr = Players.OrderBy(x => x.Military).Reverse().ToArray();
-      Players.Clear();
-      foreach (var pl in plarr) Players.Add(pl);
-      for (int i = 0; i < Players.Count; i++) Players[i].Index = i;
-      MainPlayer = Players[0];
-
-      //RandomPlayerOrder();
     }
 
     public async Task WarResolutionTask()
@@ -285,33 +275,6 @@ namespace ations
       iplayer = 0;
     }
 
-    public async Task FamineTask()
-    {
-      var card = Stats.EventCard;
-      var xel = card.X;
-      var famine = xel.aint("famine");
-      if (famine == 0) return;
-      //{
-      //  Message = "no famine this time!"; await WaitForButtonClick(); return;
-      //}
-      Message = "famine is " + famine; //await WaitForButtonClick();
-      iplayer = 0;
-      while (iplayer < NumPlayers)
-      {
-        MainPlayer = Players[iplayer];
-
-        await Task.Delay(shortDelay);
-        await PayTask(MainPlayer, "wheat", famine);
-
-        await WaitForAnimationQueueCompleted();
-
-        iplayer++;
-        //if (iplayer < NumPlayers) { Message = "next player..."; await WaitForButtonClick(); }
-      }
-      iplayer = 0;
-
-    }
-
     public async Task EventResolutionTask()
     {
       LongMessage = "round " + iround + " event is being resolved..."; iphase = 2; Message = "Event Resolution..."; Debug.Assert(iplayer == 0, "event resolution phase not starting with ipl != 0!");
@@ -332,6 +295,28 @@ namespace ations
         //if (ev != events.Last()) { Message = "next event..."; await WaitForButtonClick(); }
       }
     }
+
+    public async Task FamineTask()
+    {
+      var card = Stats.EventCard;
+      var xel = card.X;
+      var famine = xel.aint("famine");
+      Message = "famine is " + famine;
+
+      foreach (var pl in Players)
+      {
+        int cost = Checker.CalcFamine(pl, famine);
+        if (cost > 0)
+        {
+          MainPlayer = pl;
+          await PayTask(pl, "wheat", cost);
+        }
+      }
+
+      await WaitForAnimationQueueCompleted();
+
+    }
+
 
     //async Task HandleSimpleEvent(XElement ev)
     //{

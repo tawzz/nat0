@@ -35,6 +35,8 @@ namespace ations
     };
     static Dictionary<cl[], Step[]> dSwapCards = new Dictionary<cl[], Step[]>()
     {
+      {new cl[] {cl.prog},
+        new Step[] {new Step("put cross here?", validator:(_)=>{ return IsCTX(ctx.pickProgress); }) } },
       {new cl[] {cl.prog, cl.prog},
         new Step[] {new Step("select another progress card"), new Step("swap?")} },
     };
@@ -78,6 +80,7 @@ namespace ations
       { ctx.pickCivField, "$Player, select civ card" },
       { ctx.wready, "wonder is ready!" },//weg
       { ctx.swapprogress, "swap two progress cards!" },
+      { ctx.pickProgress, "pick progress card!" },
       { ctx.removeWorker, "undeploy worker?" },//weg
       { ctx.deployWorker, "deploy worker?" },//weg
       { ctx.removeMilitaryWorker, "undeploy worker?" },//weg
@@ -90,6 +93,7 @@ namespace ations
       { ctx.pickCivField, dPickCivField },
       { ctx.wready, dWonderReady },//weg
       { ctx.swapprogress, dSwapCards },
+      { ctx.pickProgress, dSwapCards },
       { ctx.removeWorker, dBMChooser },//weg
       { ctx.deployWorker, dBMChooser },//weg
       { ctx.removeMilitaryWorker, dMChooser },//weg

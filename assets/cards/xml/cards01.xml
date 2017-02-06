@@ -41,7 +41,7 @@
   </card>
   <card name="hanging_gardens" age="1" type="wonder" vp="1" stability="1" arch="1_2" wheat="2" coal="-1"/>
   <card name="hannibal" age="1" type="advisor" raid="1">
-    <buy affects="others" effect="add_1_to_cost" param="type{battle}" />
+    <others_buy pred="cardtype" param="battle" effect="add_1_to_cost" />
   </card>
   <card name="hatshepsut" age="1" type="advisor" gold="1">
     <ready book="3"/>

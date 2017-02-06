@@ -23,9 +23,11 @@
   <arabia>
     <card name="kaba" age="1" type="building" maxdeploy="1" score="2"  deploy="2" gold="2" book="2" />
     <card name="bazaar" age="1" type="building" score="1"  deploy="2" gold="1" wheat="1"/>
-    <card name="arabia_dyn1" type="dynasty"/>
+    <card name="arabia_dyn1" type="dynasty">
+      <buy pred="cardtype" param="battle" effect="may_take_extraworker" />
+    </card>
     <card name="arabia_abbasid_caliphate" type="dynasty">
-      <buy trigger="others" pred="cardtype" param="golden" special_effect="may_buy_vp"/>
+      <others_buy pred="cardtype" param="golden" effect="may_buy_vp"/>
     </card>
     <card name="arabia_umayyad_caliphate" type="dynasty" milminbonus="4" />
   </arabia>
@@ -46,13 +48,13 @@
     <card name="egypt_dyn1" type="dynasty" >
       <a arch="1" />
     </card>
-    <card name="egypt_new_kingdom" type="dynasty">
-      <buy pred="cardtype" param="battle" effect="pay_2_less"/>
-    </card>
     <card name="egypt_old_kingdom" type="dynasty">
       <a effect="remove_advisor_place_counter_on_this_card" />
-      <prod book="2" foreach="counter"/>
+      <prod effect="foreach" param="cross" book="2" />
       <post_action pred="defeated" effect="remove_counter" />
+    </card>
+    <card name="egypt_new_kingdom" type="dynasty">
+      <buy pred="cardtype" param="battle" effect="pay_2_less"/>
     </card>
   </egypt>
   <ethiopia>
@@ -60,8 +62,13 @@
     <card name="ethiopia_dyn1" type="dynasty">
       <player_order eff="add military to stability"/>
     </card>
-    <card name="ethiopia_axumite_kingdom" type="dynasty"/>
-    <card name="ethiopia_sheba" type="dynasty"/>
+    <card name="ethiopia_axumite_kingdom" type="dynasty">
+      <pre_actions effect="place_cross_on_progress_card" />
+      <buy affects="others" pred="buy_card_with_cross" effect="pay_3_gold_to_owner"/>
+    </card>
+    <card name="ethiopia_sheba" type="dynasty">
+      <prod pred="bought" param="colony" effect="no_military_upkeep" />
+    </card>
   </ethiopia>
   <mongolia>
     <card name="yurt" age="1" type="building" score="1" deploy="1" wheat="1" gold="1"/>
@@ -82,12 +89,12 @@
       <post_prod pred="most" param="book" gold="3"/>
     </card>
     <card name="greece_sparta" type="dynasty" >
-      <update_military pred="military_deployed" param="1" military="4"/>
+      <update_military pred="exactly_1_military_deployed" military="4"/>
     </card>
   </greece>
   <india>
     <card name="varanasi" age="1" type="wonder" vp="0" >
-      <prod foreach="undeployed_worker" book="1" wheat="1"/>
+      <prod effect="foreach_undeployed_worker" book="1" wheat="1"/>
     </card>
     <card name="india_dyn1" type="dynasty" wheat="2" />
     <card name="india_mauryan_empire" type="dynasty" >
@@ -100,7 +107,7 @@
   <japan>
     <card name="emperor" age="1" type="advisor" stability="2" >
       <buy pred="cardtype" param="advisor" effect="remove_advisor" cross="1" />
-      <update_military foreach="cross" military="1" />
+      <update_military effect="foreach" eparam="cross" military="1" />
     </card>
     <card name="rice_fields" age="1" type="building" score="1" deploy="1" wheat="3"/>
     <card name="hokkaido" age="1" type="building" allows="dynasty"/>

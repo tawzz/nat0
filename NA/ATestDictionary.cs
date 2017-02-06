@@ -11,12 +11,246 @@ namespace ations
   public partial class Game
   {
     // base scoring america = 7.4, 2w 5c 7g 5vp, egypt = 2w 7c 5g 4vp
-    string startWithTest = "little_ice_age"; // autotests start with abraham_lincoln
+    string startWithTest = "mali_songhai_empire"; // autotests start with abraham_lincoln
     bool stopAfterTest = true;
     string initialMode = "testing";
 
     Dictionary<string, Action> TestDictionary = new Dictionary<string, Action>()
     {
+      // dynasties
+      {"america_dyn1", ()=> { TestAction(
+        "new natural wonder ready, plus 2 wheat", P0,
+        ()=> { P0_DYN("america_dyn1");P0_WIC("mount_kailash", 2); },
+        new List<Action> { ClickWonder1, ClickOk, ClickPass  },
+        ()=>{ return RD0("wheat") == 2; }); }
+      },
+      {"america_democratic_republicans", ()=> { TestAction(
+        "both players have to change dynasty, P0 should get 6 books", P0,
+        ()=> { P0_DYN("america_democratic_republicans"); },
+        new List<Action> { ClickDynasty, ClickOk, PickChoice0, ClickOk, PickChoice0,ClickOk, ClickPass },
+        ()=>{ return true; }); }
+      },
+      {"america_democratic_republicans_no", ()=> { TestAction(
+        "is dyn action possible? should be no", P0,
+        ()=> { P0_DYN("america_democratic_republicans");P0_MIL(3);P1.Civ.Dynasties.Clear(); },
+        new List<Action> {ClickDynasty, ClickPass },
+        ()=>{ return true; }); }
+      },
+      {"america_federalist_party", ()=> { TestAction(
+        "P0 buys progress building, coal should increase by 2 for dyn", P0,
+        ()=> { ProgressCard("forum",0); P0_DYN("america_federalist_party"); },
+        new List<Action> { ClickProg0, ClickBM3, ClickOk, ClickPass },
+        ()=>{ return RD0("coal") == 2; }); }
+      },
+      {"arabia_dyn1", ()=> { TestAction(      
+        "p0 checks out extra worker from buying battle", P0,
+        ()=> { P0_DYN("arabia_dyn1"); P0_MIL(6); ProgressCard("milvian_bridge",0); },
+        new List<Action> { ClickProg0, ClickOk, ClickOk, PickResource, ClickOk, PickResource, ClickOk, ClickPass },
+        ()=>{ return RD0("worker") == 1; }, "wheat"); }
+      },
+      {"arabia_abbasid_caliphate", ()=> { TestAction(
+        "P0 buys ga, p1 gets to buy vp and gets additional vp from carolus linneaus", P0,
+        ()=> { P1_DYN("arabia_abbasid_caliphate"); P1_ADV("carolus_linneaus"); ProgressCard("silk", 0);  },
+        new List<Action> { ClickProg0, ClickOk, ClickOk, PickResChoice, ClickOk, PickResource, ClickOk, ClickPass },
+        ()=>{ return RD1("vp") == 2; }, "coal",1); }
+      },
+      {"arabia_umayyad_caliphate", ()=> { TestActionAndProduction(
+        "P0 has milmin bonus of 4", P0,
+        ()=> { P0_DYN("arabia_umayyad_caliphate"); ProgressCard("nubia",0);  },
+        new List<Action> { ClickProg0, ClickFieldForColony, ClickOk, ClickPass },
+        ()=>{ return P0.HasColony; }); } 
+      },
+      {"china_dyn1", ()=> { TestProduction(
+        "P0 has passed first, he should get 1 wheat", P0,
+        ()=> { P0_DYN("china_dyn1"); G.PassOrder = new List<Player> { P0, P1 }; },
+        new List<Action> {  },
+        ()=>{ return RD0("wheat") == 1; }); }
+      },
+      {"china_ming_dynasty", ()=> { TestGrowth(      
+        "P0 should get 4 wheat with 1 worker", P0,
+        ()=> { P0_DYN("china_ming_dynasty");  },
+        new List<Action> { PickResource,ClickOk,PickFirstResource,ClickOk,PickFirstResource,ClickOk },
+        ()=>{ return RD0("worker") == 1 && RD0("wheat") == 4; },"worker"); }
+      },
+      {"china_qin_dynasty", ()=> { TestAction(
+        "return worker for free architect", P0,
+        ()=> { P0_DYN("china_qin_dynasty");P0_WIC("colosseum", 1); },
+        new List<Action> { ClickDynasty, ClickOk, ClickWonder1, ClickOk, ClickPass },
+        ()=>{ return RD0("worker") == -1 && !P0.HasWIC && RD0("coal") == 0; }); }
+      },
+      {"egypt_dyn1", ()=> { TestAction(
+        "same test as archimedes: perform architect action", P1,
+        ()=> { P1_WIC("colosseum", 1); },
+        new List<Action> { ClickDynasty, ClickOk, ClickWonder1, ClickOk, ClickPass },
+        ()=>{ return RD1("military") == 3 && RD1("wheat") == -2 && RD1("coal") == -2; }); }
+      },
+      {"egypt_old_kingdom prod", ()=> { TestProduction(
+        "P0 should get 2 times as many books as counters on dyn card", P0,
+        ()=> { P0_DYN("egypt_old_kingdom",3);  },
+        new List<Action> {  },
+        ()=>{ return RD0("book") == 6; }); }
+      },
+      {"egypt_old_kingdom action", ()=> { TestAction(
+        "action: place counter on dyn card", P0,
+        ()=> { P0_DYN("egypt_old_kingdom",3); P0_ADV("archimedes");  },
+        new List<Action> { ClickDynasty, ClickOk, ClickPass },
+        ()=>{ return P0.GetCard("egypt_old_kingdom").NumDeployed == 4 && !P0.HasAdvisor;}); }
+      },
+      {"egypt_old_kingdom prod if defeated", ()=> { TestProduction(
+        "prod if defeated: remove 1 counter", P0,
+        ()=> { P0_DYN("egypt_old_kingdom",3); P0_ADV("archimedes"); P1_WAR(); P0.Books = 10; },
+        new List<Action> {  },
+        ()=>{ return P0.GetCard("egypt_old_kingdom").NumDeployed == 2 && G.Stats.IsWar;}); }
+      },
+      {"egypt_new_kingdom", ()=> { TestAction(
+        "p0 pays 2 less for buying battle, test combination w/ abu", P0,
+        ()=> { P0_ADV("abu_bakr"); P0_DYN("egypt_new_kingdom"); P0_BM0("trireme",2); ProgressCard("milvian_bridge",0); },
+        new List<Action> { ClickProg0, ClickOk, PickResource, ClickOk, ClickPass },
+        ()=>{ return RD0("book") == 2 && RD0("gold") == -1; }, "wheat"); }
+      },
+      {"ethiopia_dyn1", ()=> { TestOrder(
+        "p0 goes first because of stability", P0,
+        ()=> { P0_DYN("ethiopia_dyn1"); P1_MIL(3); P0_ADV("buddha");P0_WOND0("hanging_gardens"); },
+        new List<Action> {  },
+        ()=>{ return G.Players[0] == P0; }); }
+      },
+      {"ethiopia_axumite_kingdom", ()=> { TestNewEventAndAction(
+        "p0 pays 2 less for buying battle, test combination w/ abu", P0,
+        ()=> { P0_DYN("ethiopia_axumite_kingdom"); P0_BM0("trireme",2); ProgressCard("forum",0); P1.HasPassed = false; P1.Res.set("gold",10); },
+        new List<Action> { ClickProg0, ClickOk, ClickPass, ClickProg0, ClickBM2, ClickOk, ClickPass },
+        ()=>{ return RD0("gold") == 3 && RD1("gold") == -6; }, "wheat"); }
+      },
+      {"ethiopia_sheba", ()=> { TestActionAndProduction(   
+        "no military cost if bought colony", P0,
+        ()=> { P0_DYN("ethiopia_sheba"); P0_MIL("hoplite",2); ProgressCard("nubia",0);  },
+        new List<Action> {ClickProg0, ClickFieldForColony, ClickOk, ClickPass },
+        ()=>{ return RD0("coal") == 0; }); }
+      },
+      {"mongolia_dyn1", ()=> { TestWar(   
+        "P0 defeated, P1 has mongolia dyn, P0 pays 2 more resources (8 books instead of 6)", P0,
+        ()=> { P1_DYN("mongolia_dyn1"); P1_WAR("first_crusade", 6); P0.Books = 10; },
+        new List<Action> {},
+        ()=>{ return RD0("vp") == -1 && RD0("book") == -8; }); }
+      },
+      {"mongolia_golden_horde", ()=> { TestAction(
+        "others buy war: gold goes to owner", P0,
+        ()=> { P1_DYN("mongolia_golden_horde"); ProgressCard("first_crusade",0);  },
+        new List<Action> {ClickProg0, ClickOk, ClickPass },
+        ()=>{ return RD1("gold") == 3; }); }
+      },
+      {"mongolia_yuan_dynasty", ()=> { TestAction(
+        "when played, check out 3 workers", P0,
+        ()=> { P0.InitCiv("mongolia");   },
+        new List<Action> { ClickTurmoil, ClickOk, PickChoice1, ClickOk, PickFirstResource, ClickOk, PickFirstResource, ClickOk, PickFirstResource, ClickOk,ClickPass },
+        ()=>{ return RD0("worker") == 3; }); }
+      },
+      {"greece_dyn1", ()=> { TestAction(
+        "golden age bonus", P0,
+        ()=> { P0_DYN("greece_dyn1"); ProgressCard("silk",0);  },
+        new List<Action> {ClickProg0, ClickOk, PickFirstResource, ClickOk, ClickPass },
+        ()=>{ return RD0("coal") == 3; }); }
+      },
+      {"greece_athens", ()=> { TestProduction(
+        "P0 should get 3 gold if most book", P0,
+        ()=> { P0_DYN("greece_athens"); P0_WOND0("notre_dame"); P0_STAB(3); },
+        new List<Action> {  },
+        ()=>{ return RD0("book") == 5 && RD0("gold") == 3; }); }
+      },
+      {"greece_sparta", ()=> { TestAction(
+        "exactly 1 military deployed: +4 military", P0,
+        ()=> { P0_DYN("greece_sparta"); P0_MIL(3); },
+        new List<Action> { ClickPass },
+        ()=>{ return P0.Military == 7; }); }
+      },
+      {"india_dyn1", ()=> { TestProduction(
+        "P0 should get 2 wheat", P0,
+        ()=> { P0.InitCiv("india"); P0_WOND0("notre_dame"); P0_STAB(3); },
+        new List<Action> {  },
+        ()=>{ return RD0("wheat") == 2; }); }
+      },
+      {"india_mauryan_empire", ()=> { TestGrowth(
+        "P0 takes worker, may take 2 more: yes", P0,
+        ()=> { P0_DYN("india_mauryan_empire");  },
+        new List<Action> { PickResource,ClickOk,PickFirstResource,ClickOk,ClickOk, PickFirstResource,ClickOk,PickFirstResource,ClickOk,PickFirstResource,ClickOk   },
+        ()=>{ return RD0("worker") == 3; },"worker"); }
+      },
+      {"india_mughal_empire", ()=> { TestAction(
+        "wonder ready get 1 vp", P0,
+        ()=> { P0_DYN("india_mughal_empire"); P0_WIC("hanging_gardens",1); },
+        new List<Action> { ClickArchitect, ClickOk, ClickWonder1, ClickOk, ClickPass },
+        ()=>{ return RD0("vp") == 1; }); }
+      },
+      {"emperor", ()=> { TestAction(
+        "action: buy advisor place counter on this card", P0,
+        ()=> { ProgressCard("elizabeth",0); P0_ADV("emperor");  },
+        new List<Action> { ClickProg0, ClickOk, ClickPass },
+        ()=>{ return P0.GetCard("emperor").NumDeployed == 1 && P0.Military == 1;}); }
+      },
+      {"japan_edo_period", ()=> { TestWar(
+        "prod if defeated: no effect", P0,
+        ()=> { P0_DYN("japan_edo_period"); P1_WAR(); P0.Books = 10; },
+        new List<Action> {  },
+        ()=>{ return RD0("book") == 0 && RD0("vp") == 0 && G.Stats.IsWar;}); }
+      },
+      {"japan_heian_period", ()=> { TestAction(
+        "P0 buys ga, 4 books", P0,
+        ()=> { P0_DYN("japan_heian_period"); ProgressCard("silk", 0);  },
+        new List<Action> { ClickProg0, ClickOk, PickFirstResource, ClickOk, ClickPass },
+        ()=>{ return RD0("book") == 4; }); }
+      },
+      {"korea_dyn1", ()=> { TestAction(
+        "P0 buys ga, may hire 2 architects for free", P0,
+        ()=> { P0_DYN("korea_dyn1"); ProgressCard("silk", 0); P0_WIC("colosseum",0);  },
+        new List<Action> { ClickProg0, ClickOk, ClickOk, ClickWonder0, ClickOk, PickFirstResource, ClickOk, ClickPass },
+        ()=>{ return !P0.HasWIC && RD0("coal") >= 0; }); }
+      },
+      {"korea_joseon_kingdom", ()=> { TestAction(
+        "action: place up to 2 resources on dyn card: place 2 gold there!!!", P0,
+        ()=> { P0_DYN("korea_joseon_kingdom"); },
+        new List<Action> { ClickDynasty, ClickOk, PickResChoice, ClickOk, ClickPass },
+        ()=>{ return RD0("gold") == 2; },"gold", 2); }
+      },
+      {"korea_koryo_kingdom", ()=> { TestWar(
+        "P0 is above war because of dyn", P0,
+        ()=> { P0_DYN("korea_koryo_kingdom"); P1_WAR("first_crusade",12); P0_MIL(6); },
+        new List<Action> {},
+        ()=>{ return RD0("vp") == 0 && RD0("book") == 0; }); }
+      },
+      {"mali_dyn1", ()=> { TestAction(
+        "golden age bonus", P0,
+        ()=> { P0_DYN("mali_dyn1"); ProgressCard("silk",0);  },
+        new List<Action> {ClickProg0, ClickOk, PickFirstResource, ClickOk, ClickPass },
+        ()=>{ return RD0("coal") == 3; }); }
+      },
+      {"mali_dyn1 growth", ()=> { TestGrowth(
+        "golden age bonus", P0,
+        ()=> { P0_DYN("mali_dyn1");  },
+        new List<Action> { PickResource, ClickOk, PickFirstResource, ClickOk },
+        ()=>{ return RD0("gold") == 5; },"gold"); }
+      },
+      {"mali_mali_empire", ()=> { TestAction(
+        "action: remove adv and pay 2 gold for 3 book+1vp", P0,
+        ()=> { P0_DYN("mali_mali_empire"); P0_ADV("archimedes");  },
+        new List<Action> { ClickDynasty, ClickOk, ClickPass },
+        ()=>{ return RD0("book") == 3 && RD0("gold") == -2 && RD0("vp") == 1 && !P0.HasAdvisor;}); }
+      },
+      {"mali_songhai_empire", ()=> { TestFamine(
+        "famine = 1. other if least mil pay 3 more wheat for famine: only P1 should pay!", P0,
+        ()=> { P0_DYN("mali_songhai_empire"); P0.Res.set("wheat",5);P1.Res.set("wheat",5);  },
+        new List<Action> {  },
+        ()=>{ return RD0("wheat") == -1 && RD1("wheat") == -4; }, "aryan_migration"); } 
+      },
+          //******************************************************************HIER!!!!!!!!!!!!!!
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
       // not yet used:
       {"fullgame" ,()=> { TestFullGame("testing complete game",
                 new List<Action> { ClickProg0, ClickOk, PickResource, ClickOk, ClickPass }); } },
@@ -44,6 +278,18 @@ namespace ations
       },
 
       // automatic tests: Events: ACHTUNG!!! name des events vor [SPC] wird als name of event card benuetzt!!!!!
+      {"american_revolution", ()=> { TestEventResolution( 
+        "P0 is least mil and most stab, P0 loses 1 colony, P1 loses advisor", P0,
+        ()=> { P1_MIL(6); P0_ADV("buddha"); P1_ADV("sun_tzu"); P0_COL0("armenia"); },
+        new List<Action> {  },
+        ()=>{ return !P0.HasColony && !P1.HasAdvisor; }); }
+      },
+      {"anarchism", ()=> { TestEventResolution( 
+        "P0 is least mil and most stab", P0,
+        ()=> { P1_MIL(6); P0_ADV("buddha"); P1_ADV("sun_tzu"); P0_WIC("colosseum",0); },
+        new List<Action> { ClickOk, ClickWonder1, ClickOk },
+        ()=>{ return RD0("vp") == -1 && !P0.HasAdvisor && !P0.HasWIC; }); }
+      },
       { "aryan_migration", ()=> { TestEventResolution(
         "P0 is least mil and not_least stab: should get 3 wheat and lose 3 book", P0,
         ()=> { P1_MIL(6); P0_ADV("buddha"); P0.Books = 3; },
@@ -92,6 +338,24 @@ namespace ations
         new List<Action> { ClickOk, ClickWorkerCounter1, ClickOk },
         ()=>{ return RD0("wheat") == 6 && RD1("coal") == 0  && RD0("coal") == 2;  }); }
       },
+      {"california_gold_rush", ()=> { TestEventResolution(
+        "P0 is least mil and most stab", P0,
+        ()=> { P1_MIL(6); P0_ADV("buddha"); P1_ADV("sun_tzu"); P0_COL0("armenia"); P1.Res.set("wheat",10); },
+        new List<Action> {  },
+        ()=>{ return RD1("gold") == 8 && RD1("wheat") == -8; }); }
+      },
+      {"entente_cordiale", ()=> { TestEventResolution(
+        "P0 is least mil and most stab", P0,
+        ()=> { P1_MIL(6); P0_ADV("buddha"); P1_ADV("sun_tzu"); P0_COL0("armenia"); },
+        new List<Action> { ClickOk },
+        ()=>{ Checker.CalcStabAndMil(P1); return RD1("coal") == -6 && P1.Military == 12; }); }
+      },
+      {"eruption_of_krakatoa", ()=> { TestEventResolution( //******************************** HIER!!!
+        "P0 is least mil and most stab", P0,
+        ()=> { P1_MIL(6); P0_ADV("buddha"); P1.Res.set("wheat",5); P1_ADV("sun_tzu"); P0_COL0("armenia"); },
+        new List<Action> {  },
+        ()=>{ return RD0("vp") == -1 && RD0("book") == 10 ; }); }
+      },
       {"janissaries", ()=> { TestEventResolution(
         "P0 is least mil and most stab", P0,
         ()=> { P1_MIL(6); P0_ADV("buddha"); P1.Res.set("wheat",5); },
@@ -110,6 +374,12 @@ namespace ations
         new List<Action> { PickChoice1, ClickOk },
         ()=>{ return RD0("book") == 1 && RD1("wheat") == -3 ;  }); }
       },
+      {"march_to_moscow", ()=> { TestEventResolution(
+        "P0 is least mil and most stab", P0,
+        ()=> { P1_MIL(6); P0_ADV("buddha"); P1_ADV("sun_tzu"); P0_COL0("armenia"); P1.Res.set("wheat",5); P1.Books = 20; },
+        new List<Action> {  },
+        ()=>{ return !P0.HasColony && RD0("vp") == 0 && RD1("book") == -10 && G.Players[0] == P0; }); }
+      },
       {"magellans_expedition", ()=> { TestEventResolution(
         "P0 is least mil and most stab: p0 hires arch for free", P0,
         ()=> { P1_MIL(6); P0_ADV("buddha"); P1.Res.set("wheat",5); P0_WIC("colosseum", 1); },
@@ -122,11 +392,59 @@ namespace ations
         new List<Action> { PickResource, ClickOk },
         ()=>{ return RD1("gold") == -3 && G.Players[0] == P0 && RD1("worker") == 1 ;  },"stability"); }
       },
+      {"romanticism", ()=> { TestEventResolution( 
+        "P0 is least mil and most stab, P1 is most wheat takes worker", P0,
+        ()=> { P1_MIL(6); P0_ADV("buddha"); P1_BM1("coal_mine",2); G.PassOrder = new List<Player> {P0,P1 }; },
+        new List<Action> {  },
+        ()=>{ return RD0("book") == 5 && RD1("vp") == 1 ;  }); }
+      },
+      {"scramble_for_africa", ()=> { TestEventResolution(
+        "P0 is least mil and most stab, P1 is least stab", P0,
+        ()=> { P1_MIL(6); P0_ADV("buddha"); P0_COL0("congo"); P1.Books = 10; P1.Res.set("wheat",5); },
+        new List<Action> {  },
+        ()=>{ return RD0("vp") == 1 && RD1("book") == -8;  }); }
+      },
+      {"sick_man_of_europe", ()=> { TestEventResolution( 
+        "P0 is least mil and most stab, P1 is most wheat takes worker", P0,
+        ()=> { P1_MIL(6); P0_ADV("buddha"); P0.Res.set("gold",9); },
+        new List<Action> {  },
+        ()=>{ return RD0("gold") == -8 && RD0("vp") == 1;  }); }
+      },
+      {"sokoto_caliphate", ()=> { TestEventResolution(
+        "P0 is least mil and most stab, all may trade 4 wheat for 8 gold, but P0 does not have 4 wheat, so only P1 trades!", P0,
+        ()=> { P1_MIL(6); P0_ADV("buddha"); P1.Res.set("wheat",5); },
+        new List<Action> { ClickOk }, //P0 is not asked because lacks wheat
+        ()=>{ return RD1("gold") == 1 && RD1("wheat") == -4 ;  }); }
+      },
+      {"tonghak_movement", ()=> { TestEventResolution(
+        "P0 is least mil and most stab, ", P0,
+        ()=> { P1_MIL(6); P0_ADV("buddha"); P1.Res.set("wheat",5); P0.Books = 10; },
+        new List<Action> {  },
+        ()=>{ return RD0("book") == -8 && RD0("coal") == 2 && RD1("gold") == -5 ;  }); }
+      },
+      {"weltpolitik", ()=> { TestEventResolution(   //*******************************************
+        "P0 is least mil and most stab, P1 is most wheat takes worker", P0,
+        ()=> { P1_MIL(6); P0_ADV("buddha"); P1.Res.set("wheat",5); P0_COL0("congo"); P0_COL1("algeria"); },
+        new List<Action> {  },
+        ()=>{ return RD0("vp") == 2 && RD1("worker") == -1 ;  }); }
+      },
       {"sinking_of_the_vasa", ()=> { TestEventResolution(
         "P0 is least mil and least stab: choses to pay gold and wheat", P0,
         ()=> { P1_MIL(6); P1_ADV("buddha"); P0.Res.set("wheat",5); P0.Books=11; },
         new List<Action> { PickChoice0, ClickOk },
         ()=>{ return RD0("gold") == -3 && RD0("wheat") == -5 && RD1("wheat") == 0 && RD1("gold") == 0;  }); }
+      },
+      {"spice_trade", ()=> { TestEventResolution(
+        "P0 is least mil and most stab, P1 is most wheat", P0,
+        ()=> { P1_MIL(6); P0_ADV("buddha"); P1.Res.set("wheat",5); },
+        new List<Action> {  },
+        ()=>{ return RD1("gold") == 4 && G.Players[0] == P0 && RD1("coal") == -3 ;  }); }
+      },
+      {"tulip_mania", ()=> { TestEventResolution(
+        "P0 is least mil and most stab, P1 passed last:lose 1 vp", P0,
+        ()=> { P1_MIL(6); P0_ADV("buddha"); P1.Res.set("wheat",5); G.PassOrder = new List<Player> {P0,P1 };  },
+        new List<Action> { },
+        ()=>{ return RD1("vp") == -1 && G.Players[0] == P0 && RD0("gold") == 3 ;  }); }
       },
       {"pax_romana", ()=> { TestEventResolution(
         "P0 is least mil and most stab, P1 1 vp, P0 choice: yes, picks wheat worker", P0,
@@ -240,7 +558,7 @@ namespace ations
         "P0 is most stab, P1 is most mil", P0,
         ()=> { P1_MIL(6); P0_ADV("buddha"); P0.Res.set("wheat", 5); P0_WIC("colosseum",1); P0.Books = 5; },
         new List<Action> {  },
-        ()=>{ return RD0("book") == -5 && RD0("wheat") == 4; }); }
+        ()=>{ return RD0("book") == -5 && RD0("gold") == 4; }); }
       },
       {"stupor_mundi", ()=> { TestEventResolution(
         "P0 is most stab, P1 is most mil", P0,
@@ -287,30 +605,6 @@ namespace ations
         ()=> { P0_ADV("alhazen"); P0_BM0("trireme",2); },
         new List<Action> { ClickAdvisor, ClickOk, ClickProg0, ClickProg10, ClickOk, ClickPass },
         ()=>{ return G.Progress.Fields[10].Card.BasicCost == 2; }); }
-      },
-      {"america_democratic_republicans", ()=> { TestAction(
-        "both players have to change dynasty, P0 should get 6 books", P0,
-        ()=> { P0_DYN("america_democratic_republicans"); },
-        new List<Action> { ClickDynasty, ClickOk, PickChoice0,ClickOk, PickChoice0,ClickOk, ClickPass },
-        ()=>{ return true; }); }
-      },
-      {"america_democratic_republicans_no", ()=> { TestAction(
-        "is dyn action possible? should be no", P0,
-        ()=> { P0_DYN("america_democratic_republicans");P0_MIL(3);P1.Civ.Dynasties.Clear(); },
-        new List<Action> {ClickDynasty, ClickPass },
-        ()=>{ return true; }); }
-      },
-      {"america_dyn1", ()=> { TestAction(
-        "new natural wonder ready, plus 2 wheat", P0,
-        ()=> { P0_WIC("mount_kailash", 2); },
-        new List<Action> { ClickWonder1, ClickOk, ClickPass  },
-        ()=>{ return RD0("wheat") == 2; }); }
-      },
-      {"america_federalist_party", ()=> { TestAction(
-        "P0 buys progress building, coal should increase by 2 for dyn", P0,
-        ()=> { ProgressCard("forum",0); P0_DYN("america_federalist_party"); },
-        new List<Action> { ClickProg0, ClickBM3, ClickOk, ClickPass },
-        ()=>{ return RD0("coal") == 2; }); }
       },
       {"angkor_wat", ()=> { TestProduction(
         "if P0 has least military looses 4 books", P0,
@@ -415,12 +709,6 @@ namespace ations
         new List<Action> {  },
         ()=>{ return RD0("book") == 4; }); }
       },
-      {"china_dyn1", ()=> { TestProduction(
-        "P0 has passed first, he should get 1 wheat", P0,
-        ()=> { P0_DYN("china_dyn1"); G.PassOrder = new List<Player> { P0, P1 }; },
-        new List<Action> {  },
-        ()=>{ return RD0("wheat") == 1; }); }
-      },
       {"colosseum", ()=> { TestAction(
         "when ready, minus 2 wheat", P1,
         ()=> { P1_WIC("colosseum",1); },
@@ -438,18 +726,6 @@ namespace ations
         ()=> { P0_WIC("darwins_voyage", 1);   },
         new List<Action> { ClickArchitect, ClickOk, ClickWonder1, ClickOk, ClickPass },
         ()=>{ return RD0("gold") == 15; }); }
-      },
-      {"egypt_dyn1", ()=> { TestAction(
-        "same test as archimedes: perform architect action", P1,
-        ()=> { P1_WIC("colosseum", 1); },
-        new List<Action> { ClickDynasty, ClickOk, ClickWonder1, ClickOk, ClickPass },
-        ()=>{ return RD1("military") == 3 && RD1("wheat") == -2 && RD1("coal") == -2; }); }
-      },
-      {"egypt_old_kingdom", ()=> { TestProduction(
-        "P0 should get 2 times as many books as counters on dyn card", P0,
-        ()=> { P0_DYN("egypt_old_kingdom",3);  },
-        new List<Action> {  },
-        ()=>{ return RD0("book") == 6; }); }
       },
       {"eleanor_of_aquitaine", ()=> { TestActionAndProduction(
         "P0 should get 5 gold if bought colony this round", P0,

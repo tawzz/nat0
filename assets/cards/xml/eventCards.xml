@@ -21,18 +21,18 @@
     <card name="hellenism" age="1" famine="1" architects="0">
       <e pred="most" param="military" coal="2" />
       <e pred="not_most" param="military" wheat="-2" />
-      <task text="undeploy military for 2 books?" task="undeploy_military_each" book="2"/>
+      <opt text="undeploy military for 2 books?" effect="foreach_undeploy_military" book="2"/>
     </card>
     <card name="pax_romana" age="1" famine="2" architects="0">
       <e pred="most" param="military" vp="1" />
-      <yesnoChoice pred="most" param="stability"  text="take out 1 worker and get 3 wheat with it?" worker="1" wheat="3" />
+      <yesnoChoice pred="most" param="stability" text="take out 1 worker and get 3 wheat with it?" worker="1" wheat="3" />
     </card>
     <card name="qin_unification" age="1" famine="1" architects="1">
       <e pred="greater_than_war" param="military" vp="1" />
       <e pred="most" param="stability" effect="go_first" />
     </card>
     <card name="rigveda" age="1" famine="2" architects="0">
-      <foreach func="nbought" param="type{war,battle}" vp="1" />
+      <foreach pred="cardtype" param="war,battle" vp="1" />
       <e pred="most" param="wheat" wheat="4" />
     </card>
     <card name="sea_peoples" age="1" famine="2" architects="1">
@@ -164,7 +164,7 @@
   </age3>
   <age4>
     <card name="american_revolution" age="4" famine="2" architects="1">
-      <e pred="least" param="military" effect="remove_colony_if_none_-1_vp" />
+      <complex pred="least" param="military" effect="remove_colony_if_none_pay_vp" />
       <e pred="least" param="stability" effect="remove_advisor_if_none_-2_vp" />
     </card>
     <card name="anarchism" age="4" famine="4" architects="1">
@@ -184,15 +184,15 @@
       <e pred="most" param="stability" book="10" />
     </card>
     <card name="march_to_moscow" age="4" famine="5" architects="1">
-      <e pred="least" param="wheat" effect="remove_colony_if_none_-1_vp" />
+      <e pred="least" param="wheat" effect="remove_colony_if_none_pay_vp" />
       <e pred="least" param="stability" book="-10" effect="go_last"/>
     </card>
     <card name="romanticism" age="4" famine="6" architects="2">
       <e pred="pass_first" book="5" />
-      <e effect="most_workers_in_industrial_buildings_1_vp" />
+      <e pred="most_workers_in_industrial_buildings" vp="1" />
     </card>
     <card name="scramble_for_africa" age="4" famine="4" architects="1">
-      <e effect="if_at_least_1_industrial_colony_1_vp" />
+      <e pred="if_at_least_1_industrial_colony" vp="1"  />
       <e pred="least" param="stability" book="-8" />
     </card>
     <card name="sick_man_of_europe" age="4" famine="1" architects="3">
@@ -200,7 +200,7 @@
       <e pred="most" param="stability" vp="1" />
     </card>
     <card name="sokoto_caliphate" age="4" famine="3" architects="0">
-      <e effect="may_trade" wheat="-4" gold="8" />
+      <opt effect="may_trade" wheat="-4" gold="8" />
       <e pred="least" param="stability" gold="-7" />
     </card>
     <card name="tonghak_movement" age="4" famine="5" architects="0">
@@ -208,7 +208,7 @@
       <e pred="least" param="stability" effect="go_last" gold="-5" />
     </card>
     <card name="weltpolitik" age="4" famine="2" architects="2">
-      <e effect="+5_gold_and_+5_coal_per_industrial_colony" />
+      <foreach effect="+5_gold_and_+5_coal_per_industrial_colony" />
       <e pred="least" param="stability" worker="-1" />
     </card>
   </age4>

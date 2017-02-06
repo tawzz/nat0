@@ -22,7 +22,7 @@ namespace ations
     public bool IncludeDynasty { get; set; }
     public bool IncludeFake { get; set; }
 
-    public Progress(int cols, bool inclDyn=true, bool inclFake=false)
+    public Progress(int cols, bool inclDyn = true, bool inclFake = false)
     {
       Rows = 3;
       Cols = cols;
@@ -33,14 +33,19 @@ namespace ations
       Margin = new Thickness(72, 50, 576 - 190 * (Cols - 4), -6); //fuer uniformgrid
       for (int r = 0; r < Rows; r++)
         for (int c = 0; c < Cols; c++)
-          Fields[r * Cols + c] = new Field { Index = r * Cols + c, Row = r, Col = c };
+          Fields[r * Cols + c] = new Field
+          {
+            Index = r * Cols + c,
+            Row = r,
+            Col = c,
+            RenderTransformOrigin = new Point(c == 0 ? 0.2 : c == 6 ? .8 : 0.5, r == 0 ? .2 : r == 2 ? .8 : .5) };
       Cards = new ObservableCollection<Card>();
     }
     public void UpdateDeck(int age)
     {
       if (age > Game.MAX_AGE) throw new Exception("Cannot UpdateDeck for age " + age + "!!!!!");
-      if (age < 1) { age = 1; Game.Inst.Stats.UpdateRound(0);Game.Inst.Stats.UpdateAge(); }
-      Deck = Helpers.GetCardarrayX(age,IncludeDynasty,IncludeFake).OrderBy(x => Rand.N()).ToArray();
+      if (age < 1) { age = 1; Game.Inst.Stats.UpdateRound(0); Game.Inst.Stats.UpdateAge(); }
+      Deck = Helpers.GetCardarrayX(age, IncludeDynasty, IncludeFake).OrderBy(x => Rand.N()).ToArray();
     }
     public void Deal()
     {
@@ -79,7 +84,7 @@ namespace ations
     public XElement ToXml()
     {
       var result = new XElement("progress");
-      foreach (var f in Fields) result.Add(new XAttribute("f"+f.Index,f.IsEmpty?"":f.Card.Name));
+      foreach (var f in Fields) result.Add(new XAttribute("f" + f.Index, f.IsEmpty ? "" : f.Card.Name));
       return result;
     }
     public void LoadXml(XElement xprogress, int age = 1) // assumes that the correct number of fields has been created

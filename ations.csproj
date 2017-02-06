@@ -75,11 +75,12 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Common\Converters\BooleanToDoubleConverter.cs" />
     <Compile Include="Common\Converters\NonEmptyToVisibleConverter.cs" />
     <Compile Include="Common\Converters\OptionAvailableToVisibleConverter.cs" />
     <Compile Include="Common\Converters\ZeroToVisibleConverter.cs" />
     <Compile Include="NA\CheckerHelpers.cs" />
-    <Compile Include="NA\CheckerDictionaries.cs" />
+    <Compile Include="NA\unused\CheckerDictionaries.cs" />
     <Compile Include="NA\CheckerIntelligent.cs" />
     <Compile Include="NA\GameTasks.cs" />
     <Compile Include="NA\unused\Rules.cs" />
@@ -670,14 +671,10 @@
     <Resource Include="assets\cards\civcards\age1_trireme.jpg" />
     <Resource Include="assets\cards\civcards\america_dyn1.JPG" />
     <Resource Include="assets\cards\civcards\arabia_dyn1.JPG" />
-    <Resource Include="assets\cards\civcards\arabia_dyn1_lg.JPG" />
     <Resource Include="assets\cards\civcards\china_dyn1.JPG" />
-    <Resource Include="assets\cards\civcards\china_dyn1_lg.JPG" />
     <Resource Include="assets\cards\civcards\colony.PNG" />
     <Resource Include="assets\cards\civcards\egypt_dyn1.JPG" />
-    <Resource Include="assets\cards\civcards\egypt_dyn1_lg.JPG" />
     <Resource Include="assets\cards\civcards\ethiopia_dyn1.JPG" />
-    <Resource Include="assets\cards\civcards\ethiopia_dyn1_lg.JPG" />
     <Resource Include="assets\cards\civcards\wic.PNG" />
     <Resource Include="assets\cards\civcards\wonder.PNG" />
   </ItemGroup>
@@ -889,6 +886,20 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="assets\cards\civcards\building.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="assets\cards\civcards\steppe.JPG" />
+    <Resource Include="assets\cards\civcards\yurt.JPG" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="assets\cards\civcards\age1_steppe.JPG" />
+    <Resource Include="assets\cards\civcards\age1_yurt.JPG" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="assets\cards\civcards\mongolia_dyn1.JPG" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="assets\cards\civcards\greece_dyn1.JPG" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

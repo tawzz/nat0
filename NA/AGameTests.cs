@@ -180,6 +180,16 @@ namespace ations
       G.Description = s;
       Args = args;
     }
+    public static void TestNewEventAndAction(string s, Player plMain, Action setup, List<Action> actions, Func<bool> verification, params object[] args)
+    {
+      G.SwitchActionOn = G.SwitchNewEventOn = true;
+      var plOther = plMain == P0 ? P1 : P0;
+      G.TestPreNewEvent = () => { G.MainPlayer = plMain; plOther.HasPassed = true; setup(); Checker.CalcStabAndMil(P0); Checker.CalcStabAndMil(P1); ResRecord(); };
+      G.TestInput = actions;
+      G.TestVerify = () => { ResEval(); G.MainPlayer = plMain; return verification(); };
+      G.Description = s;
+      Args = args;
+    }
     public static void TestProduction(string s, Player plMain, Action setup, List<Action> actions, Func<bool> verification, params object[] args)
     {
       G.SwitchProductionOn = true;
@@ -187,6 +197,15 @@ namespace ations
       G.TestPreProduction = () => { G.MainPlayer = plMain; setup(); Checker.CalcStabAndMil(plMain); ResRecord(); };
       G.TestInput = actions;
       G.TestVerify = () => { ResEval(); G.MainPlayer = plMain; return verification(); };
+      G.Description = s;
+      Args = args;
+    }
+    public static void TestOrder(string s, Player plMain, Action setup, List<Action> actions, Func<bool> verification, params object[] args)
+    {
+      G.SwitchOrderOn = true;
+      G.CustomizeProduction = () => { setup(); Checker.CalcStabAndMil(P0); Checker.CalcStabAndMil(P1); ResRecord(); };
+      G.TestInput = actions;
+      G.TestVerify = () => { ResEval(); return verification(); };
       G.Description = s;
       Args = args;
     }
@@ -213,7 +232,7 @@ namespace ations
     public static void TestEventResolution(string s, Player plMain, Action setup, List<Action> actions, Func<bool> verification, params object[] args)
     {
       G.SwitchEventOn = true;
-      G.TestPreEventResolution = () => { G.Stats.EventCard = Card.MakeEventCard(G.TestKey.StringBefore(" ")); setup(); Checker.CalcStabAndMil(P0); Checker.CalcStabAndMil(P1); ResRecord(); };
+      G.TestPreEventResolution = () => { P0.HasPassed = P1.HasPassed = true; G.Stats.EventCard = Card.MakeEventCard(G.TestKey.StringBefore(" ")); setup(); Checker.CalcStabAndMil(P0); Checker.CalcStabAndMil(P1); ResRecord(); };
       G.TestInput = actions;
       G.TestVerify = () => { ResEval(); return verification(); };
       G.Description = s;
@@ -223,6 +242,15 @@ namespace ations
     {
       G.SwitchEventOn = G.SwitchWarOn = true;
       G.TestPreWar = () => { G.Stats.EventCard = Card.MakeEventCard(G.TestKey); setup(); Checker.CalcStabAndMil(P0); Checker.CalcStabAndMil(P1); ResRecord(); };
+      G.TestInput = actions;
+      G.TestVerify = () => { ResEval(); return verification(); };
+      G.Description = s;
+      Args = args;
+    }
+    public static void TestFamine(string s, Player plMain, Action setup, List<Action> actions, Func<bool> verification, params object[] args)
+    {
+      G.SwitchFamineOn = true;
+      G.CustomizeProduction = () => { if (args.Length > 0) G.Stats.EventCard = Card.MakeEventCard(args[0] as string); setup(); Checker.CalcStabAndMil(plMain); ResRecord(); };
       G.TestInput = actions;
       G.TestVerify = () => { ResEval(); return verification(); };
       G.Description = s;
@@ -276,6 +304,7 @@ namespace ations
     public static void P0_ADV(string name, int ndeploy = 0) { var card = Card.MakeCard(name); Checker.AddCivCard(P0, card, P0.ADVField); card.NumDeployed = ndeploy; }
     public static void P1_ADV(string name, int ndeploy = 0) { var card = Card.MakeCard(name); Checker.AddCivCard(P1, card, P1.ADVField); card.NumDeployed = ndeploy; }
     public static void P0_DYN(string name, int ndeploy = 0) { var card = Card.MakeCard(name); Checker.AddCivCard(P0, card, P0.DYNField); card.NumDeployed = ndeploy; }
+    public static void P1_DYN(string name, int ndeploy = 0) { var card = Card.MakeCard(name); Checker.AddCivCard(P1, card, P1.DYNField); card.NumDeployed = ndeploy; }
     public static void P0_BM0(string name, int ndeploy = 0) { var card = Card.MakeCard(name); Checker.AddCivCard(P0, card, P0.Civ.Fields[1]); card.NumDeployed = ndeploy; }
     public static void P0_BM1(string name, int ndeploy = 0) { var card = Card.MakeCard(name); Checker.AddCivCard(P0, card, P0.Civ.Fields[2]); card.NumDeployed = ndeploy; }
     public static void P0_BM2(string name, int ndeploy = 0) { var card = Card.MakeCard(name); Checker.AddCivCard(P0, card, P0.Civ.Fields[3]); card.NumDeployed = ndeploy; }
@@ -295,9 +324,10 @@ namespace ations
     public static void ProgressCard(string name, int i) { var card = Card.MakeCard(name); G.Progress.Fields[i].Card = card; card.BasicCost = 3 - (i / G.Progress.Cols); }
     public static void Progress0(string name) { var card = Card.MakeCard(name); G.Progress.Fields[0].Card = card; card.BasicCost = 3; }
     public static void P0_WAR(string name, int warlevel) { P0_MIL(warlevel); G.Stats.UpdateWarPosition(P0, Card.MakeCard(name)); }
-    public static void P1_WAR(string name, int warlevel) { P1_MIL(warlevel); G.Stats.UpdateWarPosition(P1, Card.MakeCard(name)); }
+    public static void P1_WAR(string name= "first_crusade", int warlevel=6) { P1_MIL(warlevel); G.Stats.UpdateWarPosition(P1, Card.MakeCard(name)); }
     public static void P0_STAB(int stab) { P0_BM3("ziggurat", 1 + stab / 2); Checker.CalcStabAndMil(P0); } //stab soll odd und unter 10 sein!
     public static void P0_MIL(int mil) { P0_BM2("hoplite", mil / 3); Checker.CalcStabAndMil(P0); } //mil soll multiple von 3 sein!
+    public static void P0_MIL(string name, int ndeploy) { P0_BM2(name, ndeploy); Checker.CalcStabAndMil(P0); } //mil soll multiple von 3 sein!
     public static void P1_STAB(int stab) { P1_BM3("ziggurat", 1 + stab / 2); Checker.CalcStabAndMil(P1); } //stab soll odd und unter 10 sein!
     public static void P1_MIL(int mil) { P1_BM2("hoplite", mil / 3); Checker.CalcStabAndMil(P1); } //mil soll multiple von 3 sein!
     public static Player MP { get { return G.MainPlayer; } }
@@ -336,6 +366,9 @@ namespace ations
     public static void PickChoice0() { Debug.Assert(Game.Inst.Choices.Count > 0, "PickChoice0: missing Choice[0]!!!"); Game.Inst.SelectedChoice = Game.Inst.Choices[0]; }
     public static void PickChoice1() { Debug.Assert(Game.Inst.Choices.Count > 0, "PickChoice1: missing Choice[1]!!!"); Game.Inst.SelectedChoice = Game.Inst.Choices[1]; }
     public static void PickVP() { var game = Game.Inst; game.SelectedResource = game.ResChoices.FirstOrDefault(x => x.Name == "vp"); }
+    public static void PickWheat() { var game = Game.Inst; game.SelectedResource = game.ResChoices.FirstOrDefault(x => x.Name == "wheat"); }
+    public static void PickWorker() { var game = Game.Inst; game.SelectedResource = game.ResChoices.FirstOrDefault(x => x.Name == "worker"); }
+    public static void PickFirstResource() { var game = Game.Inst; game.SelectedResource = game.ResChoices.FirstOrDefault(); }
     public static void PickResource() { var game = Game.Inst; Debug.Assert(Args.Length > 0, "PickResource: missing Arg[0]!!!"); game.SelectedResource = game.ResChoices.FirstOrDefault(x => x.Name == Args[0] as string); }
     public static bool NO_ADVISOR(Player pl) { return pl.Civ.Fields[CardType.iADV].IsEmpty; }
   }
