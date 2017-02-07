@@ -135,10 +135,11 @@ namespace ations
 
       var chosen = await PickCardChoiceTask(list, "turmoil");
 
-      if (chosen.Tag is Card) { var cdyn = chosen.Tag as Card; MainPlayer.UpgradeDynasty(cdyn); await Checker.CheckUpgradeDynasty(MainPlayer, cdyn); }
+      var newdyncard = chosen.Tag as Card;
+      if (newdyncard != null) { MainPlayer.UpgradeDynasty(newdyncard); await Checker.CheckUpgradeDynasty(MainPlayer, newdyncard); }
       else MainPlayer.UpdateResBy("gold", 2);
 
-      MainPlayer.TurmoilsTaken++;
+      await Checker.CheckTurmoil(MainPlayer, newdyncard == null);// MainPlayer.TurmoilsTaken++;
       Stats.Turmoils--;
       Message = MainPlayer.Name + " took a turmoil"; await Task.Delay(200);
     }
@@ -182,7 +183,7 @@ namespace ations
       if (card.war()) { Stats.UpdateWarPosition(MainPlayer, card); }
       else if (card.golden()) { await BuyGoldenAgeTask(card); }
       else if (card.battle()) { await PickResourceAndGetItTask(new string[] { "wheat", "coal", "book" }, MainPlayer.RaidValue, "battle"); }
-      else { Debug.Assert(card.civ(), "BuyProgressCard: not a civ card:" + card.Name); Checker.AddCivCard(MainPlayer, card, fieldPlace); }
+      else { Debug.Assert(card.civ(), "BuyProgressCard: not a civ card:" + card.Name); await Checker.AddCivCard(MainPlayer, card, fieldPlace); }
 
       Message = MainPlayer.Name + " bought " + card.Name;
     }
@@ -192,10 +193,9 @@ namespace ations
       var effect = card.GetEffect;
       Debug.Assert(res != null || !string.IsNullOrEmpty(card.GetEffect), "BuyGoldenAgeTask: no resource on golden age card AND no effect!");
 
-      var goldenagebonus = MainPlayer.GoldenAgeBonus;
-      if (res != null) res.Num += goldenagebonus;
+      if (res != null) res.Num += MainPlayer.GoldenAgeBonus; ;
 
-      var costOfVP = Stats.Age - goldenagebonus;
+      var costOfVP = Stats.Age - MainPlayer.GoldenAgeBonusForVP;
       var resToPayForVP = MainPlayer.Res.List.Where(x => x.CanPayWith && x.Num > 0).ToList();
       var canaffordvp = resToPayForVP.Sum(x => x.Num) >= costOfVP;
 

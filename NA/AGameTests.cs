@@ -108,6 +108,7 @@ namespace ations
     }
     public void TestStartSequence()
     {
+      Debug.Assert(TestDictionary.ContainsKey(startWithTest), "startWithTest NOT in TestDictionary!!! " + startWithTest);
       if (TestSequence == null) TestSequence = TestDictionary.Keys.ToArray();
       testIndex = TestDictionary.Keys.ToList().IndexOf(startWithTest) - 1;
       IsTesting = true;
@@ -299,27 +300,27 @@ namespace ations
     public static void ResEval() { G.ResDiff0 = P0.GetResDiff(G.ResBefore0); G.ResDiff1 = P1.GetResDiff(G.ResBefore1); }
     public static int RD0(string res) { return G.ResDiff0.ContainsKey(res) ? G.ResDiff0[res] : 0; }
     public static int RD1(string res) { return G.ResDiff1.ContainsKey(res) ? G.ResDiff1[res] : 0; }
-    public static void P0_WIC(string civcardname, int ndeploy = 0) { var card = Card.MakeCard(civcardname); Checker.AddCivCard(P0, card, P0.WICField); card.NumDeployed = ndeploy; }
-    public static void P1_WIC(string civcardname, int ndeploy = 0) { var card = Card.MakeCard(civcardname); Checker.AddCivCard(P1, card, P1.WICField); card.NumDeployed = ndeploy; }
-    public static void P0_ADV(string name, int ndeploy = 0) { var card = Card.MakeCard(name); Checker.AddCivCard(P0, card, P0.ADVField); card.NumDeployed = ndeploy; }
-    public static void P1_ADV(string name, int ndeploy = 0) { var card = Card.MakeCard(name); Checker.AddCivCard(P1, card, P1.ADVField); card.NumDeployed = ndeploy; }
-    public static void P0_DYN(string name, int ndeploy = 0) { var card = Card.MakeCard(name); Checker.AddCivCard(P0, card, P0.DYNField); card.NumDeployed = ndeploy; }
-    public static void P1_DYN(string name, int ndeploy = 0) { var card = Card.MakeCard(name); Checker.AddCivCard(P1, card, P1.DYNField); card.NumDeployed = ndeploy; }
-    public static void P0_BM0(string name, int ndeploy = 0) { var card = Card.MakeCard(name); Checker.AddCivCard(P0, card, P0.Civ.Fields[1]); card.NumDeployed = ndeploy; }
-    public static void P0_BM1(string name, int ndeploy = 0) { var card = Card.MakeCard(name); Checker.AddCivCard(P0, card, P0.Civ.Fields[2]); card.NumDeployed = ndeploy; }
-    public static void P0_BM2(string name, int ndeploy = 0) { var card = Card.MakeCard(name); Checker.AddCivCard(P0, card, P0.Civ.Fields[3]); card.NumDeployed = ndeploy; }
-    public static void P0_BM3(string name, int ndeploy = 0) { var card = Card.MakeCard(name); Checker.AddCivCard(P0, card, P0.Civ.Fields[4]); card.NumDeployed = ndeploy; }
-    public static void P1_BM0(string name, int ndeploy = 0) { var card = Card.MakeCard(name); Checker.AddCivCard(P1, card, P1.Civ.Fields[1]); card.NumDeployed = ndeploy; }
-    public static void P1_BM1(string name, int ndeploy = 0) { var card = Card.MakeCard(name); Checker.AddCivCard(P1, card, P1.Civ.Fields[2]); card.NumDeployed = ndeploy; }
-    public static void P1_BM2(string name, int ndeploy = 0) { var card = Card.MakeCard(name); Checker.AddCivCard(P1, card, P1.Civ.Fields[3]); card.NumDeployed = ndeploy; }
-    public static void P1_BM3(string name, int ndeploy = 0) { var card = Card.MakeCard(name); Checker.AddCivCard(P1, card, P1.Civ.Fields[4]); card.NumDeployed = ndeploy; }
+    public static void P0_WIC(string civcardname, int ndeploy = 0) { var card = Card.MakeCard(civcardname); Checker.AddCivCardSync(P0, card, P0.WICField); card.NumDeployed = ndeploy; }
+    public static void P1_WIC(string civcardname, int ndeploy = 0) { var card = Card.MakeCard(civcardname); Checker.AddCivCardSync(P1, card, P1.WICField); card.NumDeployed = ndeploy; }
+    public static void P0_ADV(string name, int ndeploy = 0) { var card = Card.MakeCard(name); Checker.AddCivCardSync(P0, card, P0.ADVField); card.NumDeployed = ndeploy; }
+    public static void P1_ADV(string name, int ndeploy = 0) { var card = Card.MakeCard(name); Checker.AddCivCardSync(P1, card, P1.ADVField); card.NumDeployed = ndeploy; }
+    public static void P0_DYN(string name, int ndeploy = 0) { var card = Card.MakeCard(name); Checker.AddCivCardSync(P0, card, P0.DYNField); card.NumDeployed = ndeploy; }
+    public static void P1_DYN(string name, int ndeploy = 0) { var card = Card.MakeCard(name); Checker.AddCivCardSync(P1, card, P1.DYNField); card.NumDeployed = ndeploy; }
+    public static void P0_BM0(string name, int ndeploy = 0) { var card = Card.MakeCard(name); Checker.AddCivCardSync(P0, card, P0.Civ.Fields[1]); card.NumDeployed = ndeploy; }
+    public static void P0_BM1(string name, int ndeploy = 0) { var card = Card.MakeCard(name); Checker.AddCivCardSync(P0, card, P0.Civ.Fields[2]); card.NumDeployed = ndeploy; }
+    public static void P0_BM2(string name, int ndeploy = 0) { var card = Card.MakeCard(name); Checker.AddCivCardSync(P0, card, P0.Civ.Fields[3]); card.NumDeployed = ndeploy; }
+    public static void P0_BM3(string name, int ndeploy = 0) { var card = Card.MakeCard(name); Checker.AddCivCardSync(P0, card, P0.Civ.Fields[4]); card.NumDeployed = ndeploy; }
+    public static void P1_BM0(string name, int ndeploy = 0) { var card = Card.MakeCard(name); Checker.AddCivCardSync(P1, card, P1.Civ.Fields[1]); card.NumDeployed = ndeploy; }
+    public static void P1_BM1(string name, int ndeploy = 0) { var card = Card.MakeCard(name); Checker.AddCivCardSync(P1, card, P1.Civ.Fields[2]); card.NumDeployed = ndeploy; }
+    public static void P1_BM2(string name, int ndeploy = 0) { var card = Card.MakeCard(name); Checker.AddCivCardSync(P1, card, P1.Civ.Fields[3]); card.NumDeployed = ndeploy; }
+    public static void P1_BM3(string name, int ndeploy = 0) { var card = Card.MakeCard(name); Checker.AddCivCardSync(P1, card, P1.Civ.Fields[4]); card.NumDeployed = ndeploy; }
     public static void P0_Deploy(int fieldindex, int ndeploy) { P0.Civ.Fields[fieldindex].Card.NumDeployed = ndeploy; Checker.CalcStabAndMil(P0); }
     public static void P1_Deploy(int fieldindex, int ndeploy) { P1.Civ.Fields[fieldindex].Card.NumDeployed = ndeploy; Checker.CalcStabAndMil(P1); }
-    public static void P0_WOND0(string name) { var card = Card.MakeCard(name); Checker.AddCivCard(P0, card, P0.Civ.Fields[9]); }
-    public static void P0_WOND1(string name) { var card = Card.MakeCard(name); Checker.AddCivCard(P0, card, P0.Civ.Fields[10]); }
-    public static void P0_WOND2(string name) { var card = Card.MakeCard(name); Checker.AddCivCard(P0, card, P0.Civ.Fields[11]); }
-    public static void P0_COL0(string name) { var card = Card.MakeCard(name); Checker.AddCivCard(P0, card, P0.Civ.Fields[7]); }
-    public static void P0_COL1(string name) { var card = Card.MakeCard(name); Checker.AddCivCard(P0, card, P0.Civ.Fields[8]); }
+    public static void P0_WOND0(string name) { var card = Card.MakeCard(name); Checker.AddCivCardSync(P0, card, P0.Civ.Fields[9]); }
+    public static void P0_WOND1(string name) { var card = Card.MakeCard(name); Checker.AddCivCardSync(P0, card, P0.Civ.Fields[10]); }
+    public static void P0_WOND2(string name) { var card = Card.MakeCard(name); Checker.AddCivCardSync(P0, card, P0.Civ.Fields[11]); }
+    public static void P0_COL0(string name) { var card = Card.MakeCard(name); Checker.AddCivCardSync(P0, card, P0.Civ.Fields[7]); }
+    public static void P0_COL1(string name) { var card = Card.MakeCard(name); Checker.AddCivCardSync(P0, card, P0.Civ.Fields[8]); }
     public static void P0_GOLD(int n) { P0.Res.set("gold", n); }
     public static void ProgressCard(string name, int i) { var card = Card.MakeCard(name); G.Progress.Fields[i].Card = card; card.BasicCost = 3 - (i / G.Progress.Cols); }
     public static void Progress0(string name) { var card = Card.MakeCard(name); G.Progress.Fields[0].Card = card; card.BasicCost = 3; }
@@ -364,7 +365,8 @@ namespace ations
     public static void ClickWorkerCounter3() { G.OnClickWorkerCounter(G.MainPlayer.Civ.Fields[4]); }
     public static void PickResChoice() { Debug.Assert(Args.Length > 0, "PickResChoice: missing Args!!!"); var res = G.ResChoices.FirstOrDefault(x => x.Name == Args[0] as string); if (res != null) res.Num = (int)Args[1]; }
     public static void PickChoice0() { Debug.Assert(Game.Inst.Choices.Count > 0, "PickChoice0: missing Choice[0]!!!"); Game.Inst.SelectedChoice = Game.Inst.Choices[0]; }
-    public static void PickChoice1() { Debug.Assert(Game.Inst.Choices.Count > 0, "PickChoice1: missing Choice[1]!!!"); Game.Inst.SelectedChoice = Game.Inst.Choices[1]; }
+    public static void PickChoice1() { Debug.Assert(Game.Inst.Choices.Count > 1, "PickChoice1: missing Choice[1]!!!"); Game.Inst.SelectedChoice = Game.Inst.Choices[1]; }
+    public static void PickChoice2() { Debug.Assert(Game.Inst.Choices.Count > 2, "PickChoice1: missing Choice[2]!!!"); Game.Inst.SelectedChoice = Game.Inst.Choices[2]; }
     public static void PickVP() { var game = Game.Inst; game.SelectedResource = game.ResChoices.FirstOrDefault(x => x.Name == "vp"); }
     public static void PickWheat() { var game = Game.Inst; game.SelectedResource = game.ResChoices.FirstOrDefault(x => x.Name == "wheat"); }
     public static void PickWorker() { var game = Game.Inst; game.SelectedResource = game.ResChoices.FirstOrDefault(x => x.Name == "worker"); }

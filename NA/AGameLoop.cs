@@ -72,6 +72,7 @@ namespace ations
         pl.HasPassed = false;
         pl.TurmoilsTaken = 0;
         pl.RoundsToWaitForNaturalWonder = 0;
+        pl.GrowthResourcePicked = null;
         pl.Defaulted.Clear();
         pl.RoundResEffects.Clear();
         pl.RoundCardEffects.Clear();
@@ -113,7 +114,7 @@ namespace ations
 
         if (Interrupt) throw (new Exception("STOPPED BY PLAYER!"));
 
-        var resPicked = await PickResourceAndGetItTask(reslist, num, "growth");
+        var resPicked = MainPlayer.GrowthResourcePicked =  await PickResourceAndGetItTask(reslist, num, "growth");
 
         await Checker.CheckGrowth(resPicked);
 
@@ -126,6 +127,7 @@ namespace ations
 
     async Task PlayerActionTask()
     {
+      await Checker.CheckPreActionPhase();
       while (!MainPlayer.HasPassed)
       {
         MainPlayer.NumActions = await Checker.CalcNumActions(iturn == 0);
@@ -149,7 +151,7 @@ namespace ations
 
     public async Task ActionLoop()
     {
-      int testCounter = 0; ActionComplete = false; State.ActionBegin();
+      int testCounter = 0; ActionComplete = false; State.ActionBegin(); await Checker.CheckPreAction(iturn == 0);
       while (!ActionComplete)
       {
         UpdateUI();

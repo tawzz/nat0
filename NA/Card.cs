@@ -27,9 +27,6 @@ namespace ations
     public List<Res> ListOfResources { get { return listOfResources; } set { if (listOfResources != value) { listOfResources = value; NotifyPropertyChanged(); } } }
     List<Res> listOfResources = null;// new List<Res> { new Res("gold"), new Res("wheat") }; // includes architects on wonder in construction
     public object Tag { get; set; } //just to store some associated info, eg., marked progress card for ethiopia_axumite_kingdom
-
-    //public ObservableCollection<Res> StoredResources { get { return storedResources; } }
-    //ObservableCollection<Res> storedResources = new ObservableCollection<Res>();
     public int ActionTaken { get; set; } //counts how many times action was executed this round, reset each round start
 
     public int NumDeployed { get { return numDeployed; } set { if (numDeployed != value) { numDeployed = value; NotifyPropertyChanged(); } } }

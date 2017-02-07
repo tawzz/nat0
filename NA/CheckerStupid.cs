@@ -121,6 +121,7 @@ namespace ations
     { //checks precondition (players affected non-empty) and effect applicable if any)
       var game = Game.Inst;
       if (card.Name == "abraham_lincoln") { return pl.HasExtraworkers; }
+      if (card.Name == "archimedes") { return pl.HasWIC; }
       if (card.Name == "alhazen" || card.Name == "grand_duchy_of_finland") { return true; }
       if (card.Name == "america_democratic_republicans") { return PlayersWith("least", "military", game.Players).Any(x => x.Civ.Dynasties.Count > 0); }
       if (card.Name == "china_qin_dynasty") { return pl.HasWIC && pl.NumWorkers >= 1; }
@@ -131,8 +132,11 @@ namespace ations
       if (card.Name == "korea_joseon_kingdom") { return pl.Res.n("coal") > 0 || pl.Res.n("gold") > 0 || pl.Res.n("wheat") > 0; }
       if (card.Name == "mali_mali_empire") { return pl.Res.n("gold") >= 2 && pl.HasAdvisor; }
       if (card.Name == "marco_polo") { return pl.Res.n("wheat") >= 2 || pl.Res.n("coal") >= 2; }
+      if (card.Name == "old_uppsala") { return pl.Res.n("wheat") >= 1; }
       if (card.Name == "piazza_san_marco") { return pl.Res.n("gold") >= 2; }
       if (card.Name == "petra") { return pl.Res.n("wheat") >= 1; }
+      if (card.Name == "poland_polish-lithuanian_commonwealth") { return pl.Res.n("gold") >= 3 && WonderAdvisorsAvailableOnOwnerOf(card); }
+      if (card.Name == "rome_roman_republic") { return pl.HasWIC && pl.WIC.NumDeployed > 0; }
       if (card.Name == "royal_society") { return pl.Res.n("worker") >= 1; }
       if (card.Name == "suleiman") { return PlayerHas(pl, "most", "military") && pl.HasExtraworkers; }
       if (card.Name == "simon_bolivar") { return pl.Cards.Any(x => x.colony()); }
@@ -160,13 +164,12 @@ namespace ations
       {
         var owner = game.Players.FirstOrDefault(x => x.HasCard("frederic_chopin"));
         Debug.Assert(owner != null, "ExecuteActionStupid: nobody owns frederic chopin!!!");
-        //var chopinChoice = GetSpecialOption("frederic_chopin", owner);
         pl.UpdateResBy("gold", -5); owner.UpdateResBy("gold", 5);
         var field = owner.GetFieldOf("frederic_chopin");
         var newcard = field.Card;
         RemoveCivCard(owner, field);//special options for chopin removed from owner and everyone else!
         var newfield = await game.PickFieldForType(pl, "advisor", "frederic_chopin");
-        AddCivCard(pl, newcard, newfield);
+        await AddCivCard(pl, newcard, newfield);
       }
       else if (card.Name == "grand_duchy_of_finland") { return; } //skips turn
       else if (card.Name == "galileo_galilei") { await game.PickWonderOrGoldenAgeTask(); }
@@ -180,7 +183,6 @@ namespace ations
         card.Tag = card.ListOfResources = reslist.Where(x => x.Num != 0).ToList();// foreach (var res in reslist) { card.StoredResources.Add(res); }
       }
       else if (card.Name == "mali_mali_empire") { pl.RemoveAdvisor(); pl.UpdateResBy("book", 3); await game.PayTask(pl, "gold", 2); pl.UpdateResBy("vp", 1); }
-      else if (card.Name == "shwedagon_pagoda") { pl.RoundResEffects.Add(new Res("stability", 1)); }
       else if (card.Name == "marco_polo")
       {
         var resname = "";
@@ -194,13 +196,50 @@ namespace ations
         pl.UpdateResBy(resname, -2);
         pl.UpdateResBy("gold", 4);
       }
+      else if (card.Name == "old_uppsala") { pl.UpdateResBy("wheat", -1); pl.RoundResEffects.Add(new ations.Res("military", 3)); }
       else if (card.Name == "piazza_san_marco")
       {
         var res = await game.PickResourceAndGetItTask(new string[] { "book", "wheat", "coal" }, 5, "action");
         pl.UpdateResBy("gold", -2);
       }
       else if (card.Name == "petra") { var res = await game.PickResourceAndGetItTask(new string[] { "book", "coal", "gold" }, 3, "action"); pl.UpdateResBy("wheat", -1); }
+      else if (card.Name == "poland_polish-lithuanian_commonwealth")
+      {
+        var owner = game.Players.FirstOrDefault(x => x.HasCard("poland_polish-lithuanian_commonwealth"));
+        Debug.Assert(owner != null, "ExecuteActionStupid: nobody owns poland_polish-lithuanian_commonwealth!!!");
+        pl.UpdateResBy("gold", -3); owner.UpdateResBy("gold", 3);
+        // now pl must select among one of the advisors placed on owner's wonder spaces
+        // get owners advisors placed on wonder spaces
+        var ownerFields = owner.Civ.Fields.Where(x => x.TypesAllowed.Contains("wic")).ToList();
+        var ownerFieldsWithAdvisors = ownerFields.Where(x => !x.IsEmpty && x.Card.adv()).ToList();
+
+        // if there is more than one, put cards in card selector, let pl select one
+        // otherwise, 
+        Card newcard = null;
+        Debug.Assert(ownerFieldsWithAdvisors.Count > 0, "ExecuteAction buy advisor from poland with no advisor to buy!!!");
+        if (ownerFieldsWithAdvisors.Count > 1)
+        {
+          List<Choice> list = new List<Choice>();
+          foreach (var f in ownerFieldsWithAdvisors) { var ch = new Choice(); ch.Tag = f.Card; ch.Text = "buy"; list.Add(ch); }
+
+          var chosen = await game.PickCardChoiceTask(list, "buy action");
+          newcard = chosen.Tag as Card;
+        }
+        else newcard = ownerFieldsWithAdvisors.First().Card;
+
+        var fieldChosen = owner.Civ.Fields.FirstOrDefault(x => x.Card == newcard);
+
+        //var field = //owner.GetFieldOf("poland_polish-lithuanian_commonwealth");
+        //var newcard = field.Card;
+        RemoveCivCard(owner, fieldChosen);//special options for chopin removed from owner and everyone else!
+
+        // where to place new advisor on pl's board?
+        var fieldForNewAdvisor = await game.PickFieldForType(pl, "advisor", "new advisor");
+        await AddCivCard(pl, newcard, fieldForNewAdvisor);
+      }
+      else if (card.Name == "rome_roman_republic") { pl.RoundResEffects.Add(new Res("stability", 1)); pl.WIC.NumDeployed--; }
       else if (card.Name == "royal_society") { await game.DeployAvailableWorkerTask(pl); }
+      else if (card.Name == "shwedagon_pagoda") { pl.RoundResEffects.Add(new Res("stability", 1)); }
       else if (card.Name == "suleiman" || card.Name == "abraham_lincoln")
       {
         await game.CheckoutExtraWorkerTask(game.MainPlayer);
@@ -255,19 +294,22 @@ namespace ations
 
         pl.UpdateResBy("book", 3);
       }
-      if (pl.HasCard("montezuma") && (card.battle() || card.war())) pl.UpdateResBy("book", 3);
+      if (pl.HasCard("montezuma") && (card.battle() || card.war())) { pl.UpdateResBy("book", 3); }
       if (pl.HasCard("mansa_musa") && card.Price == pl.Res.n("gold")) { pl.UpdateResBy("wheat", 1); pl.UpdateResBy("book", 2); }
-      if (pl.HasCard("red_fort") && card.Price == 1) pl.UpdateResBy("book", 2);
-      if (pl.HasCard("sejong_the_great") && card.golden()) pl.UpdateResBy("coal", 2);
-      if (pl.HasCard("siwa_oasis") && card.colony()) pl.UpdateResBy("book", 3);
+      if (pl.HasCard("portugal_kingdom_of_leon") && card.war()) { await game.PickResourceAndGetItTask(new string[] { "wheat", "coal", "book" }, pl.RaidValue, "dynasty effect"); }
+      if (pl.HasCard("red_fort") && card.Price == 1) { pl.UpdateResBy("book", 2); }
+      if (pl.HasCard("sejong_the_great") && card.golden()) { pl.UpdateResBy("coal", 2); }
+      if (pl.HasCard("siwa_oasis") && card.colony()) { pl.UpdateResBy("book", 3); }
       if (pl.HasCard("shaka_zulu") && (card.colony())) { foreach (var p in Others(pl)) p.UpdateResBy("coal", 5); }
+      if (pl.HasCard("vikings_varangians") && card.adv()) pl.UpdateResBy("book", 4);
 
       if (card.NumDeployed > 0) { var p = PlayerThatHas("ethiopia_axumite_kingdom"); await game.PayTask(pl, "gold", 3); p.UpdateResBy("gold", 3); }
       if (card.Name == "genghis_khan") foreach (var p in game.Players) p.Stability -= 3;
 
       Player plOther = null;
-      if ((plOther = PlayerThatHas("arabia_abbasid_caliphate")) != null) await game.OptionBuyVPTask(plOther);
-      if (card.war() && (plOther = PlayerThatHas("mongolia_golden_horde")) != null && plOther != pl) plOther.UpdateResBy("gold", card.Price);
+      if ((plOther = PlayerThatHas("arabia_abbasid_caliphate")) != null) { await game.OptionBuyVPTask(plOther); }
+      if (card.war() && (plOther = PlayerThatHas("mongolia_golden_horde")) != null && plOther != pl) { plOther.UpdateResBy("gold", card.Price); }
+      if ((card.war() || card.battle()) && (plOther = PlayerThatHas("venice_pactum_warmundi")) != null && plOther != pl) { plOther.UpdateResBy("gold", 1); }
     }
     public static async Task CheckBuyGoldenAgeStupid(Player pl, Card card, Res resPicked)
     {
@@ -316,12 +358,20 @@ namespace ations
 
       return gabonus;
     }
+    public static int CalcGoldenAgeBonusForVPStupid(Player pl)
+    {
+      int gabonus = CalcGoldenAgeBonusStupid(pl);
+      if (pl.HasCard("constantinople")) gabonus += 1;
+
+      return gabonus;
+    }
     public static int CalcPriceStupid(Card card)
     {
       var game = Game.Inst; var pl = game.MainPlayer;
 
       if (pl.HasCard("egypt_new_kingdom") && card.battle()) return Math.Max(0, card.BasicCost - 2);
       if (OtherPlayerHas(pl, "hannibal") && card.battle()) return card.BasicCost + 1;
+      if (pl.HasCard("portugal_dyn1") && card.BasicCost == 3) return 2;
 
       return card.BasicCost;
     }
@@ -330,7 +380,8 @@ namespace ations
       if (pl.HasMilitaryDeployed)
       {
         var raid = pl.Cards.Where(x => x.mil() && x.NumDeployed > 0).Max(x => x.GetRaid);
-        //card effects
+        if (raid > 0) raid += pl.Cards.Where(x => !x.buildmil()).Sum(x => x.GetRaid);
+
         return raid;
       }
       return 0;
@@ -401,7 +452,7 @@ namespace ations
           var extra = Card.MakeCard("extra_siberia");
           var fields = plMain.GetPossiblePlacesForType("wic").Where(x => x != newwonderfield).ToList();
           var field = await game.PickCivFieldOutOf(plMain, fields, "extra siberia");
-          AddCivCard(plMain, extra, field);
+          await AddCivCard(plMain, extra, field);
           break;
         case "terracotta_army":
           foreach (var pl in PlayersWith("least", "stability", game.Players))
@@ -442,6 +493,13 @@ namespace ations
       }
 
     }
+    public static async Task CheckTurmoilStupid(Player pl, bool tookGold)
+    {
+      if (pl.HasCard("persia_sassanid_empire") && tookGold) return;
+
+      pl.TurmoilsTaken++;
+      await Task.Delay(100);
+    }
     public static async Task CheckUpgradeDynastyStupid(Player pl, Card newdyn)
     {
       var game = Game.Inst;
@@ -456,6 +514,45 @@ namespace ations
     }
     #endregion
 
+    public static async Task CheckPreActionPhaseStupid()
+    {
+      var game = Game.Inst;
+
+      var pl = PlayerThatHas("poland_jagellonian_dynasty");
+      if (pl != null && pl.Res.n("gold") > 0)
+      {
+        var plReceiver = pl == game.MainPlayer ? game.Players[1] : game.MainPlayer;
+        var plMain = game.MainPlayer; game.MainPlayer = pl;
+        game.Caption = "Ok"; game.AnimationQueue.Clear(); game.ContextStack.Clear(); game.ContextInit(ctx.start, game.MainPlayer.Name + ", choose action");
+        var answer = await game.YesNoChoiceTask(pl.Name + " pay 1 gold to " + plReceiver.Name + " to take extra action before regular action round?");
+        if (answer)
+        {
+
+          // pay 1 gold to first (or second) player
+          await game.PayTask(pl, "gold", 1); plReceiver.UpdateResBy("gold", 1);
+
+          // do the action:
+          game.Caption = "Ok"; game.AnimationQueue.Clear(); game.ContextStack.Clear(); game.ContextInit(ctx.start, game.MainPlayer.Name + ", choose action");
+          await game.ActionLoop();
+          await game.WaitForAnimationQueueCompleted(); game.DisableAndUnselectAll(); game.PassClicked = game.OkStartClicked = game.CancelClicked = false;
+        }
+        game.MainPlayer = plMain;
+      }
+
+      await Task.Delay(100);
+    }
+    public static async Task CheckPreActionStupid(bool isFirstTurn)
+    {
+      var game = Game.Inst; var plMain = game.MainPlayer;
+      CalcStabAndMil(plMain);
+
+      if (isFirstTurn && plMain.HasCard("persia_achaimenid_empire") && plMain.GrowthResourcePicked.Name == "worker")
+      {
+        var answer = await game.YesNoChoiceTask("place new worker for free?");
+        if (answer) { game.ActionComplete = true; await game.DeployAvailableWorkerTask(plMain); }
+      }
+
+    }
     public static async Task CheckPostActionStupid()
     {
       var game = Game.Inst; var plMain = game.MainPlayer;
@@ -500,31 +597,34 @@ namespace ations
       }
       foreach (var w in pl.ExtraWorkers.Where(x => x.IsCheckedOut)) { if (w.CostRes != "military" && w.CostRes != "stability") AddToRes(extraworkerscost, w.CostRes, -w.Cost); }
 
+      if (pl.HasCard("alfred_nobel")) { var n = pl.Cards.Where(x => x.build() && x.Age == 4).Sum(x => x.NumDeployed); AddToRes(production, "coal", 3 * n); }
+      if (pl.HasCard("angkor_wat") && PlayerHas(pl, "least", "military")) { AddToRes(production, "book", -4); }
+      if (pl.HasCard("anna_komnene") || pl.HasCard("ethiopia_sheba") && pl.CardsBoughtThisRound.Any(x => x.colony())) militarycost.Clear();
       if (pl.HasCard("augustus") && PlayerHas(pl, "most", "military")) AddToRes(production, "coal", 2);
-      if (pl.HasCard("china_dyn1") && pl.PassedFirst) AddToRes(production, "wheat", 1);
-      if (pl.HasCard("forbidden_palace") && pl.PassedFirst) AddToRes(production, "vp", 1);
-      if (pl.HasCard("egypt_old_kingdom")) { var c = pl.GetCard("egypt_old_kingdom"); AddToRes(production, "book", c.NumDeployed * 2); if (pl.Defeated && c.NumDeployed > 0) c.NumDeployed--; }
-      if (pl.HasCard("varanasi")) { var numUndeployedWorkers = pl.Res.n("worker"); AddToRes(production, "book", numUndeployedWorkers); AddToRes(production, "wheat", numUndeployedWorkers); }
       if (pl.HasCard("benjamin_disraeli") && pl.CardsBoughtThisRound.Any(x => x.colony())) AddToRes(production, "wheat", 8);
       if (pl.HasCard("coffee_house") && pl.PassedLast) AddToRes(production, "book", 2 * pl.GetCard("coffee_house").NumDeployed);
       if (pl.HasCard("cyrus_the_great") && pl.CardsBoughtThisRound.Any(x => x.colony())) AddToRes(production, "gold", 3);
-      if (pl.HasCard("saint_augustine") && PlayerHas(pl, "most", "stability")) AddToRes(production, "book", 2);
-      if (pl.HasCard("angkor_wat") && PlayerHas(pl, "least", "military")) { AddToRes(production, "book", -4); }
-      if (pl.HasCard("lin_zexu") && PlayerHas(pl, "least", "military")) AddToRes(production, "book", -8);
-      if (pl.HasCard("notre_dame") && PlayerHas(pl, "most", "stability")) { AddToRes(production, "book", 3); }
-      if (pl.HasCard("anna_komnene") || pl.HasCard("ethiopia_sheba") && pl.CardsBoughtThisRound.Any(x => x.colony())) militarycost.Clear();
+      if (pl.HasCard("china_dyn1") && pl.PassedFirst) AddToRes(production, "wheat", 1);
+      if (pl.HasCard("egypt_old_kingdom")) { var c = pl.GetCard("egypt_old_kingdom"); AddToRes(production, "book", c.NumDeployed * 2); if (pl.Defeated && c.NumDeployed > 0) c.NumDeployed--; }
       if (pl.HasCard("eleanor_of_aquitaine") && pl.CardsBoughtThisRound.Any(x => x.colony())) AddToRes(production, "gold", 5);
-      if (pl.HasCard("thomas_aquino") && PlayerHas(pl, "most", "stability")) AddToRes(production, "book", 4);
-      if (pl.HasCard("isabella")) { var n = pl.Cards.Where(x => x.colony() && x.Age == 3); AddToRes(production, "gold", 3 * n.Count()); }
-      if (pl.HasCard("tokugawa")) { var n = pl.Cards.Where(x => x.buildmil() && x.Age == 3); AddToRes(production, "coal", 2 * n.Count()); }
-      if (pl.HasCard("alfred_nobel")) { var n = pl.Cards.Where(x => x.build() && x.Age == 4).Sum(x => x.NumDeployed); AddToRes(production, "coal", 3 * n); }
+      if (pl.HasCard("frederic_chopin")) { var resbook = production.FirstOrDefault(x => x.Name == "book"); if (resbook != null) AddToRes(production, "book", resbook.Num * 2); }
+      if (pl.HasCard("forbidden_palace") && pl.PassedFirst) AddToRes(production, "vp", 1);
       if (pl.HasCard("hypatia")) { var card = pl.GetCard("hypatia"); card.NumDeployed++; AddToRes(production, "gold", card.NumDeployed); }
+      if (pl.HasCard("lin_zexu") && PlayerHas(pl, "least", "military")) { AddToRes(production, "book", -8); }
+      if (pl.HasCard("isabella")) { var n = pl.Cards.Where(x => x.colony() && x.Age == 3); AddToRes(production, "gold", 3 * n.Count()); }
+      if (pl.HasCard("notre_dame") && PlayerHas(pl, "most", "stability")) { AddToRes(production, "book", 3); }
+      if (pl.HasCard("poland_dyn1") && game.Stats.IsWar && pl.Military >= game.Stats.WarLevel) { AddToRes(production, "book", 3); }
       if (pl.HasCard("peter_the_great") && game.Stats.IsWar && pl.Military > game.Stats.WarLevel)
       {
         var res = await game.PickResourceTask(new string[] { "gold", "coal", "book" }, "Peter the Great");
         AddToRes(production, res.Name, 5);
       }
-      if (pl.HasCard("frederic_chopin")) { var resbook = production.FirstOrDefault(x => x.Name == "book"); if (resbook != null) AddToRes(production, "book", resbook.Num * 2); }
+      if (pl.HasCard("rome_roman_empire") && PlayerHas(pl, "most", "stability")) { if (PlayerHas(pl, "most", "military")) AddToRes(production, "vp", 1); else AddToRes(production, "book", 2); }
+      if (pl.HasCard("saint_augustine") && PlayerHas(pl, "most", "stability")) { AddToRes(production, "book", 2); }
+      if (pl.HasCard("thomas_aquino") && PlayerHas(pl, "most", "stability")) AddToRes(production, "book", 4);
+      if (pl.HasCard("tokugawa")) { var n = pl.Cards.Where(x => x.buildmil() && x.Age == 3); AddToRes(production, "coal", 2 * n.Count()); }
+      if (pl.HasCard("varanasi")) { var numUndeployedWorkers = pl.Res.n("worker"); AddToRes(production, "book", numUndeployedWorkers); AddToRes(production, "wheat", numUndeployedWorkers); }
+      if (pl.HasCard("venice_dyn1") && pl.PassedLast) AddToRes(production, "book", 2);
 
 
       await Task.Delay(100);
@@ -541,6 +641,13 @@ namespace ations
     {
       var game = Game.Inst;
 
+      if (pl.HasCard("vikings_dyn1"))
+      {
+        var plMain = game.MainPlayer;game.MainPlayer = plMain;
+        var res = await game.PickResourceTask(new string[] { "wheat", "coal", "gold", "book" }, "penalty");
+        foreach (var p in Others(pl)) await game.PayTask(p, res.Name, 1);
+        game.MainPlayer = plMain;
+      }
       if (pl.HasCard("greece_athens") && PlayerHas(pl, "most", "book")) pl.UpdateResBy("gold", 3);
 
       await Task.Delay(100);
@@ -778,7 +885,7 @@ namespace ations
     {
       var game = Game.Inst;
 
-      if (PlayerHas(pl,"least","military") && OtherPlayerHas(pl, "mali_songhai_empire")) { famine += 3; }
+      if (PlayerHas(pl, "least", "military") && OtherPlayerHas(pl, "mali_songhai_empire")) { famine += 3; }
 
       return famine;
     }
@@ -853,7 +960,32 @@ namespace ations
     }
 
     #region add remove
-    public static void AddCivCardStupid(Player pl, Field field, Card card)
+    public static async Task AddCivCardStupid(Player pl, Field field, Card card)
+    {
+      var game = Game.Inst;
+      if (pl.HasCard("venice_domains_of_the_sea") && card.colony()) { var answer = await game.YesNoChoiceTask("discard colony for 2 gold and 1 vp?"); if (answer) { pl.UpdateResBy("gold", 2); pl.UpdateResBy("vp", 1); return; } }
+      AddCivCardStupidSync(pl, field, card);
+    }
+    //  if (pl.HasCard("emperor") && card.adv()) { pl.GetCard("emperor").NumDeployed++; return; }
+
+    //  if (card.adv() && !field.IsEmpty && field.Card.Name == "zhu_xi") { pl.ExtraAdvisor = field.Card; }
+    //  else { RemoveCivCard(pl, field); if (card.adv() && pl.HasExtraAdvisor) pl.ExtraAdvisor = null; }
+
+    //  pl.Cards.Add(card);
+    //  field.Card = card;
+    //  card.NumDeployed = 0;
+    //  if (card.natural()) field.TypesAllowed.Clear();
+
+    //  if (card.Name == "frederic_chopin") AddSpecialOption(Others(pl), card);
+    //  if (card.Name == "porcelain_tower") { field.TypesAllowed.Add("advisor"); }
+    //  if (card.Name == "poland_polish-lithuanian_commonwealth")
+    //  {
+    //    foreach (var f in pl.Civ.Fields.Where(x => x.TypesAllowed.Contains("wic"))) f.TypesAllowed.Add("advisor");
+    //    AddSpecialOption(Others(pl), card);
+    //  }
+    //  if (card.Name == "portugal_portugese_empire") { foreach (var f in pl.Civ.Fields.Where(x => x.TypesAllowed.Contains("wic"))) f.TypesAllowed.Add("colony"); }
+    //}
+    public static void AddCivCardStupidSync(Player pl, Field field, Card card)
     {
       if (pl.HasCard("emperor") && card.adv()) { pl.GetCard("emperor").NumDeployed++; return; }
 
@@ -867,6 +999,12 @@ namespace ations
 
       if (card.Name == "frederic_chopin") AddSpecialOption(Others(pl), card);
       if (card.Name == "porcelain_tower") { field.TypesAllowed.Add("advisor"); }
+      if (card.Name == "poland_polish-lithuanian_commonwealth")
+      {
+        foreach (var f in pl.Civ.Fields.Where(x => x.TypesAllowed.Contains("wic"))) f.TypesAllowed.Add("advisor");
+        AddSpecialOption(Others(pl), card);
+      }
+      if (card.Name == "portugal_portugese_empire") { foreach (var f in pl.Civ.Fields.Where(x => x.TypesAllowed.Contains("wic"))) f.TypesAllowed.Add("colony"); }
     }
     public static void RemoveCivCardStupid(Player pl, Field field)
     {
@@ -876,9 +1014,11 @@ namespace ations
       field.Card = Card.MakeEmptyCard(field);
       pl.Cards.Remove(card);
 
-      if (card.Name == "porcelain_tower") { field.TypesAllowed.Remove("advisor"); }
+      if (card.Name == "porcelain_tower" && !pl.HasCard("poland_polish-lithuanian_commonwealth")) { field.TypesAllowed.Remove("advisor"); }
       if (card.Name == "frederic_chopin") { RemoveSpecialOption(card.Name); }
       if (card.Name == "ethiopia_axumite_kingdom") { var f = card.Tag as Field; if (!f.IsEmpty) f.Card.NumDeployed = 0; }
+      if (card.Name == "poland_polish-lithuanian_commonwealth") { foreach (var f in pl.Civ.Fields.Where(x => x.TypesAllowed.Contains("wic"))) if (f.IsEmpty || f.Card.Name != "porcelain_tower") f.TypesAllowed.Remove("advisor"); RemoveSpecialOption(card.Name); }
+      if (card.Name == "portugal_portugese_empire") { foreach (var f in pl.Civ.Fields.Where(x => x.TypesAllowed.Contains("wic"))) f.TypesAllowed.Remove("colony"); }
     }
     public static void AddWICStupid(Player pl, Card card)
     {
@@ -903,6 +1043,12 @@ namespace ations
         choice.Text = "buy Chopin";
         choice.IsSelectable = true;
       }
+      if (card.Name == "poland_polish-lithuanian_commonwealth")
+      {
+        choice.Tag = card;
+        choice.Text = "buy Advisor";
+        choice.IsSelectable = true;
+      }
       foreach (var pl in pls) pl.SpecialOptions.Add(choice);
     }
     //public static void TransferSpecialOption(string cardname, Player fromPl, Player toPl)
@@ -925,6 +1071,14 @@ namespace ations
     }
     #endregion
 
+    public static bool WonderAdvisorsAvailableOnOwnerOf(Card card)
+    {
+      // get owner of this card
+      var owner = PlayerThatHas(card.Name);
+      var ownerFields = owner.Civ.Fields.Where(x => x.TypesAllowed.Contains("wic")).ToList();
+      var ownerFieldsWithAdvisors = ownerFields.Where(x => !x.IsEmpty && x.Card.adv()).ToList();
+      return ownerFieldsWithAdvisors.Count > 0;
+    }
 
 
 

@@ -32,7 +32,7 @@ namespace ations
         new Thickness(1585, 42, 17, 565),   //6 wonder in construction
         //row 2
         new Thickness(5, 425, 1594, 186),   //7 colonies 1 and 2
-        new Thickness(265, 425, 1344, 186), //8 (>14 fuer wonder 0 instead of colony 2 sowie in china)
+        new Thickness(265, 425, 1344, 186), //8 (=> index 14 fuer wonder 0 instead of colony 2 sowie in china)
         new Thickness(565, 425, 1039, 186), //9 wonders 1 to 5
         new Thickness(820, 425, 784, 186),  //10
         new Thickness(1075, 425, 529, 186), //11
@@ -41,8 +41,12 @@ namespace ations
         // wonder instead of colony 2
         new Thickness(315, 425, 1289, 186), //14 wonder 0 (extra wonder) instead of colony
         new Thickness(1330, 45, 284, 570),  //15 special ability when upgraded dynasty or if it is a 5th building (japan)
+        new Thickness(265, 45, 1344, 570),  //16 COLONY_IN_FIRST_ROW
+        new Thickness(1310, 45, 302, 570),  //17 japan or persia: starting with building instead of dynasty
       };
     const int EXTRA_WONDER_INDEX = 14;
+    const int COLONY_IN_FIRST_ROW = 16;
+    const int BUILDING_INSTEAD_OF_DYN = 17;
     public static Dictionary<string, int[]> WorkerMargins = new Dictionary<string, int[]>{
         {"china", new int[] {72,168,260,390,480,576,670,0} },
         {"mongolia", new int[] {22,120,210,340,436,530,620,716} },
@@ -77,13 +81,17 @@ namespace ations
         double px = i % 7 == 0 ? 0.2 : i % 7 == 6 ? .8 : .5;
         double py = i < 7 ? 0.2 : 0.8;
         //, RenderTransformOrigin=new Point(c==0?0:c==6?1:0.5,((double)r)/2)
-        var margin = i == 8 && type == "wonder" ? CardMargins[EXTRA_WONDER_INDEX] : CardMargins[i];
+        var margin = i == 8 && type == "wonder" ? CardMargins[EXTRA_WONDER_INDEX] 
+          : i == 1 && type == "colony" ? CardMargins[COLONY_IN_FIRST_ROW]
+          : i == 5 && type != "dynasty"? CardMargins[BUILDING_INSTEAD_OF_DYN]
+          : CardMargins[i];
+        
         Fields.Add(new Field { X = xfield, Type = type, Index = i, TypesAllowed = types, Margin = margin, RenderTransformOrigin = new Point(px,py) }); //TypesAllowedOriginal = types.ToList(), 
       }
 
       Dynasties = new ObservableCollection<Card>();
       var dcNames = Helpers.CardDictionary.Keys.Where(x => x.StartsWith(civ+"_")).ToList();
-      Debug.Assert(dcNames.Count == 3, "did NOT get exactly 3 dynasty cards for " + civ);
+      Debug.Assert(civ == "persia" || civ == "japan" || dcNames.Count == 3, "did NOT get exactly 3 dynasty cards for " + civ);
       var dynCards = dcNames.Skip(1).Select(x => Card.MakeCard(x)).ToList();
       foreach (Card dc in dynCards) Dynasties.Add(dc);
 

@@ -11,7 +11,7 @@ namespace ations
   public partial class Game
   {
     // base scoring america = 7.4, 2w 5c 7g 5vp, egypt = 2w 7c 5g 4vp
-    string startWithTest = "mali_songhai_empire"; // autotests start with abraham_lincoln
+    string startWithTest = "vikings_varangians"; // autotests start with abraham_lincoln
     bool stopAfterTest = true;
     string initialMode = "testing";
 
@@ -42,7 +42,7 @@ namespace ations
         new List<Action> { ClickProg0, ClickBM3, ClickOk, ClickPass },
         ()=>{ return RD0("coal") == 2; }); }
       },
-      {"arabia_dyn1", ()=> { TestAction(      
+      {"arabia_dyn1", ()=> { TestAction(
         "p0 checks out extra worker from buying battle", P0,
         ()=> { P0_DYN("arabia_dyn1"); P0_MIL(6); ProgressCard("milvian_bridge",0); },
         new List<Action> { ClickProg0, ClickOk, ClickOk, PickResource, ClickOk, PickResource, ClickOk, ClickPass },
@@ -58,7 +58,7 @@ namespace ations
         "P0 has milmin bonus of 4", P0,
         ()=> { P0_DYN("arabia_umayyad_caliphate"); ProgressCard("nubia",0);  },
         new List<Action> { ClickProg0, ClickFieldForColony, ClickOk, ClickPass },
-        ()=>{ return P0.HasColony; }); } 
+        ()=>{ return P0.HasColony; }); }
       },
       {"china_dyn1", ()=> { TestProduction(
         "P0 has passed first, he should get 1 wheat", P0,
@@ -66,7 +66,7 @@ namespace ations
         new List<Action> {  },
         ()=>{ return RD0("wheat") == 1; }); }
       },
-      {"china_ming_dynasty", ()=> { TestGrowth(      
+      {"china_ming_dynasty", ()=> { TestGrowth(
         "P0 should get 4 wheat with 1 worker", P0,
         ()=> { P0_DYN("china_ming_dynasty");  },
         new List<Action> { PickResource,ClickOk,PickFirstResource,ClickOk,PickFirstResource,ClickOk },
@@ -120,13 +120,13 @@ namespace ations
         new List<Action> { ClickProg0, ClickOk, ClickPass, ClickProg0, ClickBM2, ClickOk, ClickPass },
         ()=>{ return RD0("gold") == 3 && RD1("gold") == -6; }, "wheat"); }
       },
-      {"ethiopia_sheba", ()=> { TestActionAndProduction(   
+      {"ethiopia_sheba", ()=> { TestActionAndProduction(
         "no military cost if bought colony", P0,
         ()=> { P0_DYN("ethiopia_sheba"); P0_MIL("hoplite",2); ProgressCard("nubia",0);  },
         new List<Action> {ClickProg0, ClickFieldForColony, ClickOk, ClickPass },
         ()=>{ return RD0("coal") == 0; }); }
       },
-      {"mongolia_dyn1", ()=> { TestWar(   
+      {"mongolia_dyn1", ()=> { TestWar(
         "P0 defeated, P1 has mongolia dyn, P0 pays 2 more resources (8 books instead of 6)", P0,
         ()=> { P1_DYN("mongolia_dyn1"); P1_WAR("first_crusade", 6); P0.Books = 10; },
         new List<Action> {},
@@ -238,8 +238,141 @@ namespace ations
         "famine = 1. other if least mil pay 3 more wheat for famine: only P1 should pay!", P0,
         ()=> { P0_DYN("mali_songhai_empire"); P0.Res.set("wheat",5);P1.Res.set("wheat",5);  },
         new List<Action> {  },
-        ()=>{ return RD0("wheat") == -1 && RD1("wheat") == -4; }, "aryan_migration"); } 
+        ()=>{ return RD0("wheat") == -1 && RD1("wheat") == -4; }, "aryan_migration"); }
       },
+      {"persia_achaimenid_empire", ()=> { TestAction(
+        "action: place new worker for free", P0,
+        ()=> { P0_DYN("persia_achaimenid_empire"); P0_BM0("hoplite"); P0.GrowthResourcePicked = new Res("worker");  },
+        new List<Action> { ClickOk, ClickBM0, ClickOk, ClickPass },
+        ()=>{ return RD0("coal") == 0 && P0.Military == 3;}); }
+      },
+      {"persia_sassanid_empire", ()=> { TestAction(
+        "when gold does not hurt stability", P0,
+        ()=> { P0_DYN("persia_sassanid_empire");   },
+        new List<Action> { ClickTurmoil, ClickOk, PickChoice2, ClickOk, ClickPass },
+        ()=>{ return P0.Stability == 0 && RD0("gold") == 2; }); }
+      },
+      {"persia_sassanid_empire dynasty", ()=> { TestAction(
+        "when dynasty, do lose 2 stability", P0,
+        ()=> { P0.InitCiv("america"); P0_DYN("persia_sassanid_empire");   },
+        new List<Action> { ClickTurmoil, ClickOk, PickChoice1, ClickOk, ClickPass },
+        ()=>{ return P0.Stability == -2 && RD0("gold") == 0; }); }
+      },
+      {"poland_dyn1", ()=> { TestProduction(
+        "gets 3 book if war and not defeated", P0,
+        ()=> { P0_DYN("poland_dyn1"); P1_WAR("first_crusade",0);  },
+        new List<Action> {  },
+        ()=>{ return RD0("book") == 3; }); }
+      },
+      {"poland_jagellonian_dynasty", ()=> { TestAction(
+        "pay 1 gold to first/second player and take action before all others", P0,
+        ()=> { P0_DYN("poland_jagellonian_dynasty"); P1.HasPassed = false;  },
+        new List<Action> { ClickOk, ClickTurmoil, ClickOk, PickChoice2, ClickOk, ClickPass, ClickPass },
+        ()=>{ return P0.Stability == -2 && RD0("gold") == 1 && RD1("gold") == 1; }); }
+      },
+      {"poland_jagellonian_dynasty 2", ()=> { TestAction(
+        "pay 1 gold to first/second player and take action before all others", P0,
+        ()=> { P1_DYN("poland_jagellonian_dynasty");  P1.HasPassed = false;   },
+        new List<Action> { ClickOk, ClickTurmoil, ClickOk, PickChoice2, ClickOk, ClickPass, ClickPass },
+        ()=>{ return P1.Stability == -2 && RD1("gold") == 1 && RD1("gold") == 1; }); }
+      },
+      {"poland_polish-lithuanian_commonwealth", ()=> { TestAction(
+        "poland_polish-lithuanian_commonwealth: Felix buys advisor, places it on wonder space, Amanda performs special action and buys it", P0,
+        ()=> { P0_DYN("poland_polish-lithuanian_commonwealth",0); P1.HasPassed = false; ProgressCard("archimedes",0); },
+        new List<Action> {ClickProg0, ClickOk, ClickWonder0, ClickOk, ClickSpecialOption0, ClickOk, ClickPass, ClickPass },
+        ()=>{ return RD0("gold") == 0 && RD1("gold") == -3 && P1.Advisors.FirstOrDefault() != null; }); }
+      },
+      {"portugal_dyn1", ()=> { TestAction(
+        "pay 2 for cards of price 3", P0,
+        ()=> { P0_DYN("portugal_dyn1"); ProgressCard("forum",0);},
+        new List<Action> {ClickProg0, ClickBM0, ClickOk, ClickPass},
+        ()=>{ return RD0("gold") == -2; },"coal"); }
+      },
+      {"portugal_kingdom_of_leon", ()=> { TestAction(
+        "pay war, get battle effect", P0,
+        ()=> { P0_DYN("portugal_kingdom_of_leon"); ProgressCard("first_crusade",0); P0_MIL(6); },
+        new List<Action> {ClickProg0, ClickOk, PickResource, ClickOk, ClickPass},
+        ()=>{ return RD0("wheat") == 3; },"wheat"); }
+      },
+      {"portugal_portugese_empire", ()=> { TestAction(
+        "portugal_portugese_empire: can place colonies on wonder fields", P0,
+        ()=> { P0_DYN("portugal_portugese_empire"); P0_MIL(6); ProgressCard("nubia",0); },
+        new List<Action> {ClickProg0, ClickOk, ClickWonder0, ClickOk, ClickPass },
+        ()=>{ return RD0("gold") == -3 && P0.HasColony; }); }
+      },
+      {"persia", ()=> { TestAction(
+        "persia check out start board", P0,
+        ()=> { P0.InitCiv("persia"); P0_MIL(6); ProgressCard("nubia",0); },
+        new List<Action> { ClickProg0, ClickOk, ClickBM0, ClickOk, ClickPass },
+        ()=>{ return RD0("gold") == -3 && P0.HasColony; }); }
+      },
+      {"rome_dyn1", ()=> { TestAction(
+        "rome check out start board", P0,
+        ()=> { P0.InitCiv("rome"); },
+        new List<Action> { ClickPass },
+        ()=>{ return P0.Military == 2; }); }
+      },
+      {"rome_roman_empire", ()=> { TestProduction(
+        "vp for most stab and mil, 2 book for most stab only", P0,
+        ()=> { P0_DYN("rome_roman_empire"); P0_MIL(6); P0_ADV("buddha"); G.PassOrder = new List<Player> { P0, P1 }; },
+        new List<Action> {  },
+        ()=>{ return RD0("vp") == 1; }); }
+      },
+      {"rome_roman_republic", ()=> { TestAction(
+        "discard architect, gain 1 stability", P0,
+        ()=> { P0_DYN("rome_roman_republic"); P0_WIC("colosseum",1); },
+        new List<Action> { ClickDynasty, ClickOk, ClickPass },
+        ()=>{ return P0.WIC.NumDeployed == 0 && P0.Stability == 1; }); }
+      },
+      {"constantinople", ()=> { TestAction(
+        "buy ga vp costs 1 less, so get vp for free", P0,
+        ()=> { P0_COL0("constantinople"); ProgressCard("silk", 0); G.Stats.Age = 1; },
+        new List<Action> { ClickProg0, ClickOk, PickResource, ClickOk, ClickPass },
+        ()=>{ return RD0("vp") == 1; }, "vp", 1); }
+      },
+      {"venice_dyn1", ()=> { TestProduction(
+        "P0 has passed last, he should get 2 book", P0,
+        ()=> { P0_DYN("venice_dyn1"); G.PassOrder = new List<Player> { P1, P0 }; },
+        new List<Action> {  },
+        ()=>{ return RD0("book") == 2; }); }
+      },
+      {"venice_domains_of_the_sea", ()=> { TestAction(
+        "buy colony, option: discard it for vp and 2 gold", P0,
+        ()=> { ProgressCard("nubia",0); P0_DYN("venice_domains_of_the_sea"); P0_MIL(6); },
+        new List<Action> { ClickProg0, ClickColony0, ClickOk, ClickOk, ClickPass },
+        ()=>{ return !P0.HasColony && RD0("gold") == -1 && RD0("vp") == 1;}); }
+      },
+      {"venice_pactum_warmundi", ()=> { TestAction(
+        "others buy war or battle: get 1 gold", P0,
+        ()=> { P1_DYN("venice_pactum_warmundi"); ProgressCard("first_crusade",0); P0_MIL(3);  },
+        new List<Action> {ClickProg0, ClickOk, ClickPass },
+        ()=>{ return RD1("gold") == 1; }); }
+      },
+      {"old_uppsala", ()=> { TestAction(
+        "click wonder to trade 1 wheat for 3 military until end of round", P0,
+        ()=> { P0_WOND0("old_uppsala"); },
+        new List<Action> { ClickWonder0, ClickOk, ClickPass },
+        ()=>{ return RD0("wheat") == -1 && P0.Military == 3; }); }
+      },
+      {"vikings_dyn1", ()=> { TestProduction(
+        "P0 picks wheat, P1 defaults in both wheat and book", P0,
+        ()=> { P0_DYN("vikings_dyn1");P1.Res.set("wheat",0); },
+        new List<Action> { PickFirstResource, ClickOk, PickResChoice, ClickOk },
+        ()=>{ return RD1("vp") == -2 && RD1("gold") == -1; },"gold",1); }
+      },
+      {"vikings_normans", ()=> { TestAction(
+        "raid plus 3", P0,
+        ()=> { P0_DYN("vikings_normans"); ProgressCard("milvian_bridge",0); P0_MIL(3);  },
+        new List<Action> {ClickProg0, ClickOk, PickResource, ClickOk, ClickPass },
+        ()=>{ return RD0("wheat") == 6; },"wheat"); }
+      },
+      {"vikings_varangians", ()=> { TestAction(
+        "4 books when buy advisor", P0,
+        ()=> { P0_DYN("vikings_varangians"); ProgressCard("archimedes",0); P0_MIL(3);  },
+        new List<Action> {ClickProg0, ClickOk, ClickPass },
+        ()=>{ return RD0("book") == 4; }); }
+      },
+
           //******************************************************************HIER!!!!!!!!!!!!!!
       
       
@@ -278,13 +411,13 @@ namespace ations
       },
 
       // automatic tests: Events: ACHTUNG!!! name des events vor [SPC] wird als name of event card benuetzt!!!!!
-      {"american_revolution", ()=> { TestEventResolution( 
+      {"american_revolution", ()=> { TestEventResolution(
         "P0 is least mil and most stab, P0 loses 1 colony, P1 loses advisor", P0,
         ()=> { P1_MIL(6); P0_ADV("buddha"); P1_ADV("sun_tzu"); P0_COL0("armenia"); },
         new List<Action> {  },
         ()=>{ return !P0.HasColony && !P1.HasAdvisor; }); }
       },
-      {"anarchism", ()=> { TestEventResolution( 
+      {"anarchism", ()=> { TestEventResolution(
         "P0 is least mil and most stab", P0,
         ()=> { P1_MIL(6); P0_ADV("buddha"); P1_ADV("sun_tzu"); P0_WIC("colosseum",0); },
         new List<Action> { ClickOk, ClickWonder1, ClickOk },
@@ -392,7 +525,7 @@ namespace ations
         new List<Action> { PickResource, ClickOk },
         ()=>{ return RD1("gold") == -3 && G.Players[0] == P0 && RD1("worker") == 1 ;  },"stability"); }
       },
-      {"romanticism", ()=> { TestEventResolution( 
+      {"romanticism", ()=> { TestEventResolution(
         "P0 is least mil and most stab, P1 is most wheat takes worker", P0,
         ()=> { P1_MIL(6); P0_ADV("buddha"); P1_BM1("coal_mine",2); G.PassOrder = new List<Player> {P0,P1 }; },
         new List<Action> {  },
@@ -404,7 +537,7 @@ namespace ations
         new List<Action> {  },
         ()=>{ return RD0("vp") == 1 && RD1("book") == -8;  }); }
       },
-      {"sick_man_of_europe", ()=> { TestEventResolution( 
+      {"sick_man_of_europe", ()=> { TestEventResolution(
         "P0 is least mil and most stab, P1 is most wheat takes worker", P0,
         ()=> { P1_MIL(6); P0_ADV("buddha"); P0.Res.set("gold",9); },
         new List<Action> {  },

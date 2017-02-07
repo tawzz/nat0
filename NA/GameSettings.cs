@@ -36,7 +36,7 @@ namespace ations
 
     public static string[] PlayerNames = { "Felix", "Amanda", "Taka", "Franzl", "Bertl" };
     public static bool[] PlayerType = { false, true, true, true, true };
-    public static string[] PlayerCivs = { "mongolia", "egypt", "arabia", "china", "ethiopia" }; //TODO: choose civs,random civs,daten eingeben!
+    public static string[] PlayerCivs = { "persia", "japan", "arabia", "china", "ethiopia" }; //TODO: choose civs,random civs,daten eingeben!
     public static Brush[] PlayerBrushes = {
         new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FF0050EF")), //blue
         new SolidColorBrush(Color.FromArgb(255, 96, 169, 23)),//Green

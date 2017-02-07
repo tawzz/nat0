@@ -261,7 +261,6 @@
     <Resource Include="assets\cards\age1\age1_trireme.jpg" />
     <Resource Include="assets\cards\age1\age1_warring_states.jpg" />
     <Resource Include="assets\cards\age1\age1_wars_of_alexander.jpg" />
-    <Resource Include="assets\cards\age1\age1_ziggurat.jpg" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="assets\cards\xml\cards01.xml">
@@ -900,6 +899,12 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="assets\cards\civcards\greece_dyn1.JPG" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="assets\cards\age1\age1_ziggurat.JPG" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="assets\cards\civcards\age1_old_uppsala.JPG" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -177,7 +177,7 @@
   <rome>
     <card name="rome_dyn1" type="dynasty" military="2"/>
     <card name="rome_roman_empire" type="dynasty">
-      <prod effect="most_mil_and_stab_1_vp,most_stab_2_books" />
+      <prod effect="most_mil_and_stab_1_vp, most_stab_2_books" />
     </card>
     <card name="rome_roman_republic" type="dynasty" >
       <a effect="discard_architect_from_wic_plus_1_stability" />
@@ -202,7 +202,7 @@
     <card name="slave_church" age="1" type="building" score="1" book="1" stability="1"/>
     <card name="berserker" age="1" type="military" raid="3" score="1" military="3" wheat="-2" />
     <card name="old_uppsala" age="1" type="wonder" vp="-2">
-      <a wheat="-1" military="3"/>
+      <a wheat="-1" military="3" effect="round"/>
     </card>
     <card name="vikings_dyn1" type="dynasty" >
       <prod effect="choose_resource_others_lose_1" />

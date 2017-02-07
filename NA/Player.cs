@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
 using System.Xml.Linq;
@@ -52,10 +53,21 @@ namespace ations
     public IEnumerable<Field> NonEmptyBMFields { get { return Civ.Fields.Where(x => !x.IsEmpty && x.Card.buildmil()).ToList(); } }
 
     public ResDict Res { get; set; }
+    public ObservableCollection<Choice> SpecialOptions { get; set; }
     public ObservableCollection<Worker> ExtraWorkers { get; set; }//cost res, cost count, margin, is checked out
     public int GratisExtraWorkers { get; set; }
+
+    // clear every round (or less)
     public Dictionary<string, int> Defaulted { get; set; } //to record by how much defaulted per resource in current round
-    public ObservableCollection<Choice> SpecialOptions { get; set; }
+    public bool HasPassed { get { return hasPassed; } set { if (hasPassed != value) { hasPassed = value; NotifyPropertyChanged(); } } }
+    bool hasPassed;
+    public List<Res> RoundResEffects = new List<Res>();// { get; set; }
+    public List<Card> RoundCardEffects = new List<Card>();// { get; set; }
+    public List<Card> CardsBoughtThisRound = new List<Card>();
+    public List<Res> WarLoss { get; set; }
+    public int TurmoilsTaken { get; set; }
+    public int RoundsToWaitForNaturalWonder { get; set; }
+    public Res GrowthResourcePicked { get; set; }
 
     public int Index { get; set; }
     //public bool IsMainPlayer { get { return Game.Inst.MainPlayer == this; } }// isMainPlayer; } set { isMainPlayer = value; NotifyPropertyChanged(); } }
@@ -63,17 +75,9 @@ namespace ations
     bool isMainPlayer;
     public int NumActions { get { return numActions; } set { if (numActions != value) { numActions = value; NotifyPropertyChanged(); } } }
     int numActions;
-    public bool HasPassed { get { return hasPassed; } set { if (hasPassed != value) { hasPassed = value; NotifyPropertyChanged(); } } }
-    bool hasPassed;
     public bool PassedFirst { get { return this == Game.Inst.PassOrder.First(); } }
     public bool PassedLast { get { return Game.Inst.PassOrder.Count == Game.Inst.NumPlayers && this == Game.Inst.PassOrder.Last(); } }
-    public int RoundsToWaitForNaturalWonder { get; set; }
     public bool IsBroke { get; set; }
-    public List<Res> WarLoss { get; set; }
-    public int TurmoilsTaken { get; set; }
-    public List<Card> CardsBoughtThisRound = new List<Card>();
-    public List<Res> RoundResEffects = new List<Res>();// { get; set; }
-    public List<Card> RoundCardEffects = new List<Card>();// { get; set; }
 
     public List<Field> Colonies { get { return Civ.Fields.Where(x => !x.IsEmpty && x.Card.colony()).ToList(); } }
     public List<Field> Buildings { get { return Civ.Fields.Where(x => !x.IsEmpty && x.Card.build()).ToList(); } }
@@ -102,6 +106,7 @@ public bool Defeated { get { return Military < Game.Inst.Stats.WarLevel; } }
     public Field ADVField { get { return Civ.Fields[0]; } }
     public Field DYNField { get { return Civ.Fields[CardType.iDYN]; } }
     public int GoldenAgeBonus { get { return Checker.CalcGoldenAgeBonus(this); } }
+    public int GoldenAgeBonusForVP { get { return Checker.CalcGoldenAgeBonusForVP(this); } }
     public int RaidValue { get { return Checker.CalcRaid(this); } }
     // Res.n("raid"); } set { if (Res.n("raid") != value) { Res.set("raid", value); NotifyPropertyChanged(); } } }
     ////    public int MilminBonus { get; set; }
@@ -410,14 +415,14 @@ public bool Defeated { get { return Military < Game.Inst.Stats.WarLevel; } }
       Debug.Assert(Civ.Dynasties.Contains(card), "UpgradeDynasty: card not in Dynasties!");
       Civ.Dynasties.Remove(card);
       if (f == null) { f = Civ.LargeSizeDynField; }
-      Checker.AddCivCard(this, card, f); //*********** Player.UpgradeDynasty: vielleicht kann man CheckUpgradeDynasty auch hier machen, wen add dynasty card!
+      Checker.AddCivCardSync(this, card, f); //*********** Player.UpgradeDynasty: vielleicht kann man CheckUpgradeDynasty auch hier machen, wen add dynasty card!
     }
     public void RemoveAdvisor() { Checker.RemoveCivCard(this, Civ.Fields[CardType.iADV]); }
     public void WonderReady(Field targetField)
     {
       var card = WIC;
       card.NumDeployed = 0;
-      Checker.AddCivCard(this, card, targetField);
+      Checker.AddCivCardSync(this, card, targetField);
       Checker.RemoveWIC(this);
     }
 

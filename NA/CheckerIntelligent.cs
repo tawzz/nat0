@@ -46,6 +46,7 @@ namespace ations
     public static async Task CheckBuyGoldenAge(Player pl, Card card, Res resPicked) { await CheckBuyGoldenAgeStupid(pl, card, resPicked); }
     public static int CalcDeployCost(Player pl, Card card) { return CalcDeployCostStupid(pl, card); }
     public static int CalcGoldenAgeBonus(Player pl) { return CalcGoldenAgeBonusStupid(pl); }
+    public static int CalcGoldenAgeBonusForVP(Player pl) { return CalcGoldenAgeBonusForVPStupid(pl); }
     public static int CalcPrice(Card card) { return CalcPriceStupid(card); }
     public static int CalcRaid(Player pl) { return CalcRaidStupid(pl); }
     public static bool CheckMilminCondition(Player pl, Card card) { return CheckMilminConditionStupid(pl, card); }
@@ -56,9 +57,12 @@ namespace ations
     public static async Task CheckReady(Field newwonder) { await CheckReadyStupid(newwonder); }
     public static int CheckArchitectCost(Player pl, Card card, int baseCost) { return CheckArchitectCostStupid(pl, card, baseCost); }
     public static async Task CheckHireArchitect(Player pl) { await CheckHireArchitectStupid(pl); }
+    public static async Task CheckTurmoil(Player pl, bool tookGold) { await CheckTurmoilStupid(pl,tookGold); }
     public static async Task CheckUpgradeDynasty(Player pl, Card newdyn) { await CheckUpgradeDynastyStupid(pl, newdyn); }
     #endregion
 
+    public static async Task CheckPreActionPhase() { await CheckPreActionPhaseStupid(); }
+    public static async Task CheckPreAction(bool isFirstTurn) { await CheckPreActionStupid(isFirstTurn); }
     public static async Task CheckPostAction() { await CheckPostActionStupid(); }
     public static async Task CheckPostActionPhase() { await CheckPostActionPhaseStupid(); }
 
@@ -75,9 +79,13 @@ namespace ations
     public static double CalcScore(Player pl) { return CalcScoreStupid(pl); }
 
     #region add remove
-    public static void AddCivCard(Player pl, Card card, Field field)
+    public static async Task AddCivCard(Player pl, Card card, Field field)
     {
-      if (field == pl.WICField) AddWIC(pl, card); else AddCivCardStupid(pl, field, card);
+      if (field == pl.WICField) AddWIC(pl, card); else await AddCivCardStupid(pl, field, card);
+    }
+    public static void AddCivCardSync(Player pl, Card card, Field field)
+    {
+      if (field == pl.WICField) AddWIC(pl, card); else AddCivCardStupidSync(pl, field, card);
     }
     public static void RemoveCivCard(Player pl, Field field) { RemoveCivCardStupid(pl, field); }
     public static void RemoveCivCard(Player pl, string name)

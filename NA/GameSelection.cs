@@ -94,10 +94,10 @@ namespace ations
     public Field ProgressField { get { return Steps.Count > 0 && Steps[0].Click == cl.prog ? Steps[0].Obj as Field : null; } }
     public Field CivBoardPlace { get { return Steps.Count > 1 ? Steps[1].Obj as Field : null; } }
     public bool ActionComplete { get; set; }
-    ContextInfo Context { get; set; }
-    Stack<ContextInfo> ContextStack { get; set; }
-    List<Step> Steps { get { Debug.Assert(Context != null, "Steps accessed: Context is null"); return Context.Steps; } }
-    Step Step { get { Debug.Assert(Context.Steps != null, "Step accessed: Context.Steps is null!"); return Context.Steps.LastOrDefault(); } }
+    public ContextInfo Context { get; set; }
+    public Stack<ContextInfo> ContextStack { get; set; }
+    public List<Step> Steps { get { Debug.Assert(Context != null, "Steps accessed: Context is null"); return Context.Steps; } }
+    public Step Step { get { Debug.Assert(Context.Steps != null, "Step accessed: Context.Steps is null!"); return Context.Steps.LastOrDefault(); } }
 
     public void OnClickSpecialOption(Choice choice) { UpdateSteps(new Step(cl.cspecial, choice)); }
     //{
