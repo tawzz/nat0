@@ -19,7 +19,7 @@ namespace ations
     public List<Field> Fields { get; set; }
     public ObservableCollection<Card> Dynasties { get; set; }
 
-    public Field LargeSizeDynField { get { var f = Fields[CardType.iDYN]; f.Margin = CardMargins[15]; return f; } }
+    public Field LargeSizeDynField { get { var f = Fields[CardType.iDYN]; f.Margin = Name == "japan"||Name == "persia"?CardMargins[17]: CardMargins[15]; return f; } }
 
     #region Civ.Margins margins of cards and workers on civboard
     public static Thickness[] CardMargins = {
@@ -80,7 +80,6 @@ namespace ations
         }
         double px = i % 7 == 0 ? 0.2 : i % 7 == 6 ? .8 : .5;
         double py = i < 7 ? 0.2 : 0.8;
-        //, RenderTransformOrigin=new Point(c==0?0:c==6?1:0.5,((double)r)/2)
         var margin = i == 8 && type == "wonder" ? CardMargins[EXTRA_WONDER_INDEX] 
           : i == 1 && type == "colony" ? CardMargins[COLONY_IN_FIRST_ROW]
           : i == 5 && type != "dynasty"? CardMargins[BUILDING_INSTEAD_OF_DYN]
@@ -91,8 +90,17 @@ namespace ations
 
       Dynasties = new ObservableCollection<Card>();
       var dcNames = Helpers.CardDictionary.Keys.Where(x => x.StartsWith(civ+"_")).ToList();
-      Debug.Assert(civ == "persia" || civ == "japan" || dcNames.Count == 3, "did NOT get exactly 3 dynasty cards for " + civ);
-      var dynCards = dcNames.Skip(1).Select(x => Card.MakeCard(x)).ToList();
+      List<Card> dynCards = new List<Card>();
+      if (civ == "persia" || civ == "japan")
+      {
+        Debug.Assert(dcNames.Count == 2, "did NOT get exactly 2 dynasty cards for " + civ);
+        dynCards = dcNames.Select(x => Card.MakeCard(x)).ToList();
+      }
+      else
+      {
+        Debug.Assert(dcNames.Count == 3, "did NOT get exactly 3 dynasty cards for " + civ);
+        dynCards = dcNames.Skip(1).Select(x => Card.MakeCard(x)).ToList();
+      }
       foreach (Card dc in dynCards) Dynasties.Add(dc);
 
 
@@ -131,36 +139,15 @@ namespace ations
         var marginLeft = WorkerMargins.ContainsKey(Name) ? WorkerMargins[Name][i] : WorkerMargins["default"][i];i++;
         var margin = new Thickness(marginLeft - 6, 8, 0, 0);
         result.Add(new Worker(costres, res.aint("n"), margin, false)); 
-        //result.Add(new Worker("coal", 0, margin, false)); //testing
       }
       return result;
     }
 
-    //public void AddCard(Card card, Field field)
-    //{
-    //  field.Card = card;
-    //  //Game.Inst.AddCardEffectsFrom(card); //!!!
-    //}
-
     public void UpgradeDynasty(string cardname)
     {
-      //var dc = Dynasties.FirstOrDefault(x => x.Name == cardname);
-      //Debug.Assert(dc != null, "Civ.UpgradeDynasty: cannot upgrade to " + cardname);
-      //Dynasties.Remove(dc);
       var field = Fields[CardType.iDYN];
       field.Margin = CardMargins[15];
-      //AddCard(dc, field);
     }
-
-    //public void RemoveCard(Field field)
-    //{
-    //  Debug.Assert(!field.IsEmpty, "Civ: RemoveCard from empty field!");
-    //  var card = field.Card;
-    //  //Game.Inst.RemoveCardEffectsFrom(card); //!!!
-    //  field.Card = Card.MakeEmptyCard(field);
-    //}
-
-    //public void RemoveWIC() { var wicfield = Fields[CardType.iWIC]; wicfield.Card = Card.MakeEmptyCard(wicfield); }
 
     public override string ToString() { return Name; }
 

@@ -4,9 +4,9 @@ using System.Linq;
 
 namespace ations
 {
-  public delegate List<Player> SelFunc(string param = null, IEnumerable<Player> pls = null, Card card = null, Player owner = null, GameState state = null);
-  public delegate bool PredFunc(string param = null, Card card = null, Player owner = null, GameState state = null);
-  public delegate void EffectAction(string param = null, Card card = null, Player owner = null, GameState state = null);
+  public delegate List<Player> SelFunc(string param = null, IEnumerable<Player> pls = null, Card card = null, Player owner = null, object state = null);
+  public delegate bool PredFunc(string param = null, Card card = null, Player owner = null, object state = null);
+  public delegate void EffectAction(string param = null, Card card = null, Player owner = null, object state = null);
 
   public static partial class Checker
   {

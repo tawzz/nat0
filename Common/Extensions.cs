@@ -159,6 +159,18 @@ namespace ations
       return trim ? s.Trim() : s;
     }
 
+    public static bool TryLoadXElement(this string s, out XElement x)
+    {
+      if (s == null || !File.Exists(s))
+      {
+        x = null;
+        return false;
+      }
+
+      try { x = XElement.Load(s); return true; }
+      catch { x = null; return false; }
+    }
+
     public static Color Hex2Color(this string hex)
     {
       if (hex == "") return Colors.LightGray;
@@ -293,6 +305,26 @@ namespace ations
     public static double ActualTop(this UIElement ui, Visual visual)
     {
       return ui.ActualPosition(visual).Y;
+    }
+    public static double GetWindowLeft(this Window window)
+    {
+      if (window.WindowState == WindowState.Maximized)
+      {
+        var leftField = typeof(Window).GetField("_actualLeft", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        return (double)leftField.GetValue(window);
+      }
+      else
+        return window.Left;
+    }
+    public static double GetWindowTop(this Window window)
+    {
+      if (window.WindowState == WindowState.Maximized)
+      {
+        var topField = typeof(Window).GetField("_actualTop", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        return (double)topField.GetValue(window);
+      }
+      else
+        return window.Top;
     }
 
     public static void CopyFileFromResourceTo(this string filename, string directory) // wpf version

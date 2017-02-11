@@ -175,7 +175,14 @@ namespace ations
     {
       G.SwitchActionOn = true;
       var plOther = plMain == P0 ? P1 : P0;
-      G.TestPreAction = () => { G.MainPlayer = plMain; plOther.HasPassed = true; setup(); Checker.CalcStabAndMil(P0); Checker.CalcStabAndMil(P1); ResRecord(); };
+      G.TestPreAction = () => 
+      {
+        G.MainPlayer = plMain;
+        setup();
+        var otherPassed = args.FirstOrDefault(x => x is bool);
+        plOther.HasPassed = otherPassed == null ? true:(bool)otherPassed;
+        Checker.CalcStabAndMil(P0); Checker.CalcStabAndMil(P1); ResRecord();
+      };
       G.TestInput = actions;
       G.TestVerify = () => { ResEval(); G.MainPlayer = plMain; return verification(); };
       G.Description = s;
@@ -185,7 +192,14 @@ namespace ations
     {
       G.SwitchActionOn = G.SwitchNewEventOn = true;
       var plOther = plMain == P0 ? P1 : P0;
-      G.TestPreNewEvent = () => { G.MainPlayer = plMain; plOther.HasPassed = true; setup(); Checker.CalcStabAndMil(P0); Checker.CalcStabAndMil(P1); ResRecord(); };
+      G.TestPreNewEvent = () => 
+      {
+        G.MainPlayer = plMain;
+        setup();
+        var otherPassed = args.FirstOrDefault(x => x is bool);
+        plOther.HasPassed = otherPassed == null ? true : (bool)otherPassed;
+        Checker.CalcStabAndMil(P0); Checker.CalcStabAndMil(P1); ResRecord();
+      };
       G.TestInput = actions;
       G.TestVerify = () => { ResEval(); G.MainPlayer = plMain; return verification(); };
       G.Description = s;
@@ -214,7 +228,12 @@ namespace ations
     {
       G.SwitchActionOn = G.SwitchProductionOn = true;
       var plOther = plMain == P0 ? P1 : P0;
-      G.TestPreAction = () => { G.MainPlayer = plMain; plOther.HasPassed = true; setup(); Checker.CalcStabAndMil(plMain); ResRecord(); };
+      G.TestPreAction = () => {
+        G.MainPlayer = plMain;
+        setup();
+        var otherPassed = args.FirstOrDefault(x => x is bool);
+        plOther.HasPassed = otherPassed == null ? true : (bool)otherPassed;
+        Checker.CalcStabAndMil(plMain); ResRecord(); };
       G.TestInput = actions;
       G.TestVerify = () => { ResEval(); G.MainPlayer = plMain; return verification(); };
       G.Description = s;
@@ -354,6 +373,7 @@ namespace ations
     public static void ClickColony1() { G.OnClickCivField(MP.Civ.Fields[8]); }
     public static void ClickFieldForColony() { G.OnClickCivField(MP.Civ.Fields[7]); }
     public static void ClickProg0() { G.OnClickProgressField(G.Progress.Fields[0]); }
+    public static void ClickProg7() { G.OnClickProgressField(G.Progress.Fields[7]); }
     public static void ClickProg10() { G.OnClickProgressField(G.Progress.Fields[10]); }
     public static void ClickProg15() { G.OnClickProgressField(G.Progress.Fields[15]); }
     public static void ClickProg(int i) { G.OnClickProgressField(G.Progress.Fields[i]); }

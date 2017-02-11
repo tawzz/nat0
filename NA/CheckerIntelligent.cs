@@ -164,25 +164,25 @@ namespace ations
       //  if (pl != plSelected.Last()) { Message = "next player..."; await WaitForButtonClick(); }
       //}
     }
-    public static async Task ExecuteEffectForPlayer(XElement ev, Player pl, Card card)
-    { // assume: when getting here the action IS possible, pl is owner of card
+    //public static async Task ExecuteEffectForPlayer(XElement ev, Player pl, Card card)
+    //{ // assume: when getting here the action IS possible, pl is owner of card
 
-      //get the effects
-      var resEffects = GetResourcesForRule(ev);
-      var effectAction = GetEffectAction(ev);
+    //  //get the effects
+    //  var resEffects = GetResourcesForRule(ev);
+    //  var effectAction = GetEffectAction(ev);
 
-      // select players affected (pred param / affects)
-      var pls = CalcAffects(ev, new List<Player> { pl }); // default is only owner of activated card affected
+    //  // select players affected (pred param / affects)
+    //  var pls = CalcAffects(ev, new List<Player> { pl }); // default is only owner of activated card affected
 
-      //check if effects are possible
-      var cando = CheckResEffects(pl, resEffects) || effectAction != null; if (!cando) return;
+    //  //check if effects are possible
+    //  var cando = CheckResEffects(pl, resEffects) || effectAction != null; if (!cando) return;
 
-      foreach (var reff in resEffects) await ApplyResEffectTask(reff);
+    //  foreach (var reff in resEffects) await ApplyResEffectTask(reff);
 
-      if (effectAction == ImpossibleEffect) await Checker.ExecuteEffectForPlayerStupid(ev, pl, card);
-      else effectAction?.Invoke(ev.astring("eparam"), card, pl);
+    //  if (effectAction == ImpossibleEffect) await Checker.ExecuteEffectForPlayerStupid(ev, pl, card);
+    //  else effectAction?.Invoke(ev.astring("eparam"), card, pl);
 
-    }
+    //}
     public static List<string> BuyResources(Card card) { return BuyResourcesStupid(card); }
     //public static List<Player> CalcPlayersDefeated() { return CalcPlayersDefeatedStupid(); }
     #endregion

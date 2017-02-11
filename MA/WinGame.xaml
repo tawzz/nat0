@@ -1,0 +1,21 @@
+﻿<Window x:Class="ations.MA.WinGame"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ations.MA"
+        mc:Ignorable="d"
+        DataContext="{Binding VM, RelativeSource={RelativeSource Self}}" 
+        d:DataContext="{Binding VM, Source={d:DesignInstance IsDesignTimeCreatable=True, Type={x:Type local:VMDesignTime}}}"
+        WindowStartupLocation="Manual"
+        Title="{Binding Name}">
+  <!--DataContext="{Binding VM, RelativeSource={RelativeSource Self}}"-->
+  <Grid Background="Red">
+    <StackPanel>
+      <TextBlock Text="hallo" />
+      <TextBlock Text="{Binding Name}" />
+      <TextBlock Text="hallo" />
+      <Button Click="OnClickSaveSettings">Save Settings</Button>
+    </StackPanel>
+  </Grid>
+</Window>

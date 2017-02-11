@@ -222,6 +222,39 @@ namespace ations.NA
     #endregion
 
     #region Game
+    //public void InitPlayers(int num, IEnumerable<string> civs)
+    //{
+    //  Debug.Assert(Players != null, "InitPlayers with Players==null");
+    //  NumPlayers = num;
+    //  Players.Clear();
+    //  for (int i = 0; i < NumPlayers; i++)
+    //    Players.Add(PlayerType[i] ? new AI(PlayerNames[i], PlayerCivs[i], PlayerBrushes[i], Levels.Chieftain, i) : new Player(PlayerNames[i], PlayerCivs[i], PlayerBrushes[i], Levels.Chieftain, i));
+    //  MainPlayer = Players[0];
+    //  NotifyPropertyChanged("Players");
+    //  NotifyPropertyChanged("NumPlayers");
+    //  NotifyPropertyChanged("MainPlayer");
+
+    //}
+
+
+    //public async Task<Card> IndependentDynastyUpgradeTask(Player pl)
+    //{
+    //  var dyn = pl.Civ.Dynasties.ToList();
+    //  if (dyn.Count == 0) { return null; }
+    //  if (dyn.Count == 1) { pl.UpgradeDynasty(dyn[0]); return dyn[0]; }
+
+    //  if (MainPlayer != pl) { MainPlayer = pl; await Task.Delay(1000); }
+
+    //  List<Choice> list = new List<Choice>();
+    //  foreach (var c in dyn) { var ch = new Choice(); ch.Tag = c; ch.Text = "upgrade"; list.Add(ch); }
+
+    //  var chosen = await PickCardChoiceTask(list, "dynasty change");
+    //  var dyncard = chosen.Tag as Card;
+    //  MainPlayer.UpgradeDynasty(dyncard);
+    //  return dyncard;
+    //}
+
+
     //public bool CycleCountingEnabled { get; set; }//(((
     //public void MarkAllPlayerChoices()
     //{

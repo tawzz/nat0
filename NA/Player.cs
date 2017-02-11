@@ -70,13 +70,12 @@ namespace ations
     public Res GrowthResourcePicked { get; set; }
 
     public int Index { get; set; }
-    //public bool IsMainPlayer { get { return Game.Inst.MainPlayer == this; } }// isMainPlayer; } set { isMainPlayer = value; NotifyPropertyChanged(); } }
     public bool IsMainPlayer { get { return isMainPlayer; } set { isMainPlayer = value; NotifyPropertyChanged(); } }
     bool isMainPlayer;
     public int NumActions { get { return numActions; } set { if (numActions != value) { numActions = value; NotifyPropertyChanged(); } } }
     int numActions;
-    public bool PassedFirst { get { return this == Game.Inst.PassOrder.First(); } }
-    public bool PassedLast { get { return Game.Inst.PassOrder.Count == Game.Inst.NumPlayers && this == Game.Inst.PassOrder.Last(); } }
+    public bool PassedFirst(Game game) { return this == game.PassOrder.First(); } 
+    public bool PassedLast(Game game) { return game.PassOrder.Count == game.NumPlayers && this == game.PassOrder.Last();  }
     public bool IsBroke { get; set; }
 
     public List<Field> Colonies { get { return Civ.Fields.Where(x => !x.IsEmpty && x.Card.colony()).ToList(); } }
@@ -95,13 +94,14 @@ namespace ations
     public int NumMilitaryDeployed { get { return Cards.Where(x => x.mil()).Sum(x => x.NumDeployed); } }
     public bool HasColony { get { return Cards.Any(x => x.colony()); } }
     public bool HasAdvisor { get { return Cards.Any(x => x.adv()); } }
+    public bool HasRemovableAdvisor { get { return Cards.Any(x => x.adv() && x.Name!="emperor"); } }
     public bool HasExtraworkers { get { return ExtraWorkers.Any(x => !x.IsCheckedOut); } }
     public bool HasWIC { get { return !WICField.IsEmpty; } }
     public bool HasNaturalWIC { get { return RoundsToWaitForNaturalWonder > 0; } }
     public bool HasMilitaryDeployed { get { return Cards.Any(x => x.mil() && x.NumDeployed > 0); } }
     public bool HasBuildingDeployed { get { return Cards.Any(x => x.build() && x.NumDeployed > 0); } }
     public bool HasBMDeployed { get { return Cards.Any(x => x.buildmil() && x.NumDeployed > 0); } }
-public bool Defeated { get { return Military < Game.Inst.Stats.WarLevel; } }
+    public bool Defeated(Game game) { return Military < game.Stats.WarLevel; } 
     public Field WICField { get { return Civ.Fields[CardType.iWIC]; } }
     public Field ADVField { get { return Civ.Fields[0]; } }
     public Field DYNField { get { return Civ.Fields[CardType.iDYN]; } }

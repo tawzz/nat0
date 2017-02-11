@@ -20,7 +20,7 @@ namespace ations
         IsOkStartEnabled = false; IsRunning = true;
         while (Stats.Round < rounds)
         {
-          TestOrPlayMode(); Title = TestKey; iphase = 0; State.RoundBegin(); RoundBegin();
+          TestOrPlayMode(); Title = TestKey; iphase = 0; RoundBegin(); //State.RoundBegin();
 
           if (SwitchRoundAndAgeOn) { Stats.UpdateRound(); Stats.UpdateAge(); await WaitForRoundMarkerAnimationCompleted(); }
 
@@ -97,16 +97,11 @@ namespace ations
 
     async Task GrowthPhaseTask()
     {
-      //growth phase --------------------------
       Debug.Assert(IsOkStartEnabled == false, "Start growth phase with button enabled!!!");
-      //Title = "Round " + (ird + 1); LongMessage = "growth phase is starting...";
-
-      Debug.Assert(iplayer == 0, "growth phase starting with ipl != 0!");
+      iplayer = 0;
       while (iplayer < NumPlayers)
       {
         MainPlayer = Players[iplayer];
-
-        // just 1 growth pick action for now
 
         var reslist = new List<string> { "wheat", "coal", "gold" };
         if (MainPlayer.ExtraWorkers.Count(x => !x.IsCheckedOut) > 0) reslist.Add("worker");
@@ -114,7 +109,7 @@ namespace ations
 
         if (Interrupt) throw (new Exception("STOPPED BY PLAYER!"));
 
-        var resPicked = MainPlayer.GrowthResourcePicked =  await PickResourceAndGetItTask(reslist, num, "growth");
+        var resPicked = MainPlayer.GrowthResourcePicked = await PickResourceAndGetItTask(reslist, num, "growth");
 
         await Checker.CheckGrowth(resPicked);
 
@@ -127,7 +122,8 @@ namespace ations
 
     async Task PlayerActionTask()
     {
-      await Checker.CheckPreActionPhase();
+      iplayer = 0; MainPlayer = Players[iplayer]; await Checker.CheckPreActionPhase();
+
       while (!MainPlayer.HasPassed)
       {
         MainPlayer.NumActions = await Checker.CalcNumActions(iturn == 0);
@@ -151,7 +147,8 @@ namespace ations
 
     public async Task ActionLoop()
     {
-      int testCounter = 0; ActionComplete = false; State.ActionBegin(); await Checker.CheckPreAction(iturn == 0);
+      int testCounter = 0; ActionComplete = false; //State.ActionBegin();
+      await Checker.CheckPreAction(iturn == 0);
       while (!ActionComplete)
       {
         UpdateUI();
@@ -171,7 +168,8 @@ namespace ations
         }
         else LongMessage = "action incomplete... please complete your action " + (++testCounter);
       }
-      State.ActionEnd(); await Checker.CheckPostAction();
+      //State.ActionEnd();
+      await Checker.CheckPostAction();
     }
 
     public async Task PerformCardActionTask(Card card) { await Checker.ExecuteAction(MainPlayer, card); card.ActionTaken++; }
@@ -187,8 +185,8 @@ namespace ations
 
     public async Task ProductionTask()
     {
-      LongMessage = "round " + iround + " production is starting..."; iphase = 2; Message = "Production...";
-      Debug.Assert(iplayer == 0, "production phase not starting with ipl != 0!");
+      iphase = 2; iplayer = 0; LongMessage = "round " + iround + " production is starting..."; Message = "Production...";
+
       foreach (var pl in Players) Checker.CalcStabAndMil(pl); // brauch ich dann auch in War und Event resolution
 
       ChangesInResources.Clear();
@@ -243,7 +241,7 @@ namespace ations
       var reslist = warcard.GetResources().ToList();
 
       foreach (var pl in Players) Checker.CalcStabAndMil(pl);
-      var pls = Players.Where(x => x.Military < Stats.WarLevel).ToList(); 
+      var pls = Players.Where(x => x.Military < Stats.WarLevel).ToList();
 
       ChangesInResources.Clear();
       foreach (var pl in pls)
@@ -290,7 +288,7 @@ namespace ations
 
       if (complexEvents.Count > 0) { await Checker.HandleEventCard(card); return; } //jede karte mit complex event wird gleich als ganzes gehandled
 
-      foreach (var ev in simpleEvents) 
+      foreach (var ev in simpleEvents)
       {
         await Checker.HandleSimpleEvent(ev, card);
 
@@ -374,299 +372,299 @@ namespace ations
     }
 
 
-    #region gameloop event resolution schlechter code!!!!!
-    public async Task EventResolutionTask_complex()
-    {
-      //Title = "Round " + (ird + 1) + ": Event"; 
-      LongMessage = "round " + iround + " event is being resolved..."; iphase = 2; Message = "Event Resolution..."; Debug.Assert(iplayer == 0, "event resolution phase not starting with ipl != 0!");
+    //#region gameloop event resolution schlechter code!!!!!
+    //public async Task EventResolutionTask_complex()
+    //{
+    //  //Title = "Round " + (ird + 1) + ": Event"; 
+    //  LongMessage = "round " + iround + " event is being resolved..."; iphase = 2; Message = "Event Resolution..."; Debug.Assert(iplayer == 0, "event resolution phase not starting with ipl != 0!");
 
-      var xel = Stats.EventCard.X;
-      var events = xel.Elements().ToList();
-      var pls = Players.ToList();
+    //  var xel = Stats.EventCard.X;
+    //  var events = xel.Elements().ToList();
+    //  var pls = Players.ToList();
 
-      foreach (var ev in events)
-      {
-        if (ev.Name == "e") await EffectHandler_complex(ev, null, pls, false, false, true);
-        else if (ev.Name == "foreach") await EffectHandler_complex(ev, null, pls, false, true, true);
-        else if (ev.Name == "yesnoChoice") await EffectHandler_complex(ev, null, pls, true, false, true);
-        else if (ev.Name == "yesnoInsideForeach") await EffectHandler_complex(ev, null, pls, true, true, true);
-        else if (ev.Name == "task") await HandleTaskEvent_complex(ev);
-        else if (ev.Name == "orChoice") await HandleOrChoiceEvent_complex(ev);
+    //  foreach (var ev in events)
+    //  {
+    //    if (ev.Name == "e") await EffectHandler_complex(ev, null, pls, false, false, true);
+    //    else if (ev.Name == "foreach") await EffectHandler_complex(ev, null, pls, false, true, true);
+    //    else if (ev.Name == "yesnoChoice") await EffectHandler_complex(ev, null, pls, true, false, true);
+    //    else if (ev.Name == "yesnoInsideForeach") await EffectHandler_complex(ev, null, pls, true, true, true);
+    //    else if (ev.Name == "task") await HandleTaskEvent_complex(ev);
+    //    else if (ev.Name == "orChoice") await HandleOrChoiceEvent_complex(ev);
 
-        //if (ev.Name == "e") await HandleSimpleEvent(ev);
-        //else if (ev.Name == "foreach") await HandleForeachEvent(ev);
-        //else if (ev.Name == "yesnoChoice") await HandleYesnoEvent(ev);
-        //else if (ev.Name == "task") await HandleTaskEvent(ev);
-        //else if (ev.Name == "orChoice") await HandleOrChoiceEvent(ev);
+    //    //if (ev.Name == "e") await HandleSimpleEvent(ev);
+    //    //else if (ev.Name == "foreach") await HandleForeachEvent(ev);
+    //    //else if (ev.Name == "yesnoChoice") await HandleYesnoEvent(ev);
+    //    //else if (ev.Name == "task") await HandleTaskEvent(ev);
+    //    //else if (ev.Name == "orChoice") await HandleOrChoiceEvent(ev);
 
-        if (ev != events.Last()) { Message = "next event..."; await WaitForButtonClick(); }
-      }
+    //    if (ev != events.Last()) { Message = "next event..."; await WaitForButtonClick(); }
+    //  }
 
-      await FamineTask();
+    //  await FamineTask();
 
-      //LongMessage = "event resolved..."; Console.WriteLine("\t" + LongMessage); await Task.Delay(longDelay);
-    }
-    public async Task EffectHandler_complex(XElement ev, object[] oarr = null, List<Player> basegroup = null, bool isYesNo = false, bool isCounter = false, bool waitForStartPress = false) // not for or choice events!!! >>in that case choice first
-    {
-      if (waitForStartPress) { Caption = "start"; LongMessage = "click start to start effect handler task for: " + ev.ToString() + "... start!"; await WaitForButtonClick(); Caption = "Ok"; }
+    //  //LongMessage = "event resolved..."; Console.WriteLine("\t" + LongMessage); await Task.Delay(longDelay);
+    //}
+    //public async Task EffectHandler_complex(XElement ev, object[] oarr = null, List<Player> basegroup = null, bool isYesNo = false, bool isCounter = false, bool waitForStartPress = false) // not for or choice events!!! >>in that case choice first
+    //{
+    //  if (waitForStartPress) { Caption = "start"; LongMessage = "click start to start effect handler task for: " + ev.ToString() + "... start!"; await WaitForButtonClick(); Caption = "Ok"; }
 
-      var plSelected = oarr == null ? CalcPlayersAffectedByPredOnPlayer_complex(ev, basegroup) : CalcPlayersAffectedByPredOnObjects_complex(ev, basegroup, oarr);
-      var resEffects = Checker.GetResourcesForRule(ev);
-      var effectAction = Checker.GetSpecialEffect_legacy(ev); // spaeter liste
+    //  var plSelected = oarr == null ? CalcPlayersAffectedByPredOnPlayer_complex(ev, basegroup) : CalcPlayersAffectedByPredOnObjects_complex(ev, basegroup, oarr);
+    //  var resEffects = Checker.GetResourcesForRule(ev);
+    //  var effectAction = Checker.GetSpecialEffect_legacy(ev); // spaeter liste
 
-      foreach (var pl in plSelected)
-      {
-        var cando = CheckResEffects(pl, resEffects) || effectAction != null; if (!cando) continue;
+    //  foreach (var pl in plSelected)
+    //  {
+    //    var cando = CheckResEffects(pl, resEffects) || effectAction != null; if (!cando) continue;
 
-        var num = isCounter ? CalcCounter_complex(ev, pl) : 1; if (num == 0) continue;
+    //    var num = isCounter ? CalcCounter_complex(ev, pl) : 1; if (num == 0) continue;
 
-        MainPlayer = pl; //switch ui to this player
-        await Task.Delay(longDelay);
+    //    MainPlayer = pl; //switch ui to this player
+    //    await Task.Delay(longDelay);
 
-        if (isYesNo && !isCounter)
-        {
-          var answer = await YesNoChoiceTask(ev.astring("text"));
-          if (!answer) continue;
-        }
+    //    if (isYesNo && !isCounter)
+    //    {
+    //      var answer = await YesNoChoiceTask(ev.astring("text"));
+    //      if (!answer) continue;
+    //    }
 
-        for (int i = 0; i < num; i++)
-        {
-          cando = CheckResEffects(pl, resEffects) || effectAction != null; if (!cando) continue;
+    //    for (int i = 0; i < num; i++)
+    //    {
+    //      cando = CheckResEffects(pl, resEffects) || effectAction != null; if (!cando) continue;
 
-          if (isYesNo && isCounter)
-          {
-            var answer = await YesNoChoiceTask(ev.astring("text"));
-            if (!answer) break;
-          }
+    //      if (isYesNo && isCounter)
+    //      {
+    //        var answer = await YesNoChoiceTask(ev.astring("text"));
+    //        if (!answer) break;
+    //      }
 
-          if (oarr == null) { Message = "oarr is null in EffectHandler!"; }
-          effectAction?.Invoke(oarr);
-          foreach (var reff in resEffects) await Checker.ApplyResEffectTask(reff);
-        }
+    //      if (oarr == null) { Message = "oarr is null in EffectHandler!"; }
+    //      effectAction?.Invoke(oarr);
+    //      foreach (var reff in resEffects) await Checker.ApplyResEffectTask(reff);
+    //    }
 
-        await Task.Delay(shortDelay);
-        await WaitForAnimationQueueCompleted();
+    //    await Task.Delay(shortDelay);
+    //    await WaitForAnimationQueueCompleted();
 
-        if (pl != plSelected.Last()) { Message = "next player..."; await WaitForButtonClick(); }
-      }
-    }
-
-
-    List<object> ParseParams_complex(XElement ev)
-    {
-      List<string> strResult = new List<string>();
-      List<object> result = new List<object>();
-      var par = ev.astring("param");
-      if (string.IsNullOrEmpty(par)) return result;
-
-      if (par.Contains("{")) // func="nbought" param="type{battle,war}"
-      {
-        var attrname = par.StringBefore("{");
-        var attrvals = par.StringBetween("{", "}").Split(new char[] { ',' });
-        strResult.Add(attrname);
-        strResult.AddRange(attrvals);
-      }
-      else if (par.Contains(",")) // pred="greater" param="stability,2"
-      {
-        var strings = par.Split(new char[] { ',' });
-        strResult.AddRange(strings);
-      }
-      else // pred="least" param="stability"
-      {
-        strResult.Add(par);
-      }
-      foreach (var obj in strResult) // converts strings to integers if possible
-      {
-        int i = 0;
-        if (int.TryParse(obj, out i)) result.Add(i); else result.Add(obj);
-      }
-      return result;
-    }
-    async Task HandleOrChoiceEvent_complex(XElement ev, Field field = null)
-    {
-      LongMessage = "event: " + ev.ToString() + "... start!"; await WaitForButtonClick();
-
-      var plSelected = CalcPlayersAffectedByPredOnPlayer_complex(ev);
-
-      foreach (var pl in plSelected)
-      {
-        MainPlayer = pl;
-
-        // check wieviele choices moeglich sind, wenn nur 1 oder keines, kein choice
-        var choices = ev.Elements().ToList();
-        var possibleChoices = new List<XElement>();
-        var texts = new List<string>();
-        foreach (var choice in choices)
-        {
-          var resEffects = Checker.GetResourcesForRule(choice);
-          var effectAction = Checker.GetSpecialEffect_legacy(choice);
-          var resEffectsPossible = CheckResEffects(pl, resEffects);
-          if (!resEffectsPossible && effectAction == null) continue;
-
-          possibleChoices.Add(choice); var text = choice.astring("text"); texts.Add(text);
-        }
-
-        if (possibleChoices.Count == 0) continue;
-        else
-        {
-          var selectedNum = 0;
-          if (possibleChoices.Count > 1)
-          {
-            var txt = await PickTextChoiceTask(texts, "event");
-            for (int i = 0; i < texts.Count; i++) if (txt.Text == texts[i]) selectedNum = i;
-          }
-          var choice = possibleChoices[selectedNum];
-          // just apply effects without choice
-          var resEffects = Checker.GetResourcesForRule(choice);
-          var effectAction = Checker.GetSpecialEffect_legacy(choice);
-          var possible = CheckResEffects(pl, resEffects);
-          var resEffectsPossible = CheckResEffects(pl, resEffects);
-          effectAction?.Invoke(new object[] { MainPlayer, field });
-          if (resEffectsPossible) foreach (var resEffect in resEffects) await Checker.ApplyResEffectTask(resEffect);
-        }
-
-        await Task.Delay(shortDelay);
-        await WaitForAnimationQueueCompleted();
-
-        if (pl != plSelected.Last()) { Message = "next player..."; await WaitForButtonClick(); }
-      }
-    }
-    async Task HandleTaskEvent_complex(XElement ev, Field field = null)
-    {
-      // this option is for hardcoded events - these events would make the code just ugly, so they are hardcoded
-      LongMessage = "event: " + ev.ToString() + "... start!"; await WaitForButtonClick();
-      var plSelected = CalcPlayersAffectedByPredOnPlayer_complex(ev);
-      var task = ev.astring("task");
-      var resEffects = Checker.GetResourcesForRule(ev);
-      var effectAction = Checker.GetSpecialEffect_legacy(ev);
-
-      foreach (var pl in plSelected)
-      {
-        MainPlayer = pl; //switch ui to this player
-        var resEffectsPossible = CheckResEffects(pl, resEffects);
-        if (!resEffectsPossible && effectAction == null) continue;
-
-        switch (task)
-        {
-          case "undeploy_military_each":
-            // cond is have workers on military
-            var n = pl.Cards.Where(x => x.mil()).Sum(x => x.NumDeployed);
-            if (n <= 0) continue;
-
-            var answer = await YesNoChoiceTask(ev.astring("text"));
-            if (answer)
-            {
-              var fields = await CountClickWorkerTask("military");
-              int times = 0;
-              foreach (var f in fields) { MainPlayer.UndeployFrom(f, f.Counter); times += f.Counter; }
-
-              for (int i = 0; i < times; i++)
-              {
-                effectAction?.Invoke(new object[] { MainPlayer, field });
-                if (resEffectsPossible) foreach (var resEffect in resEffects) await Checker.ApplyResEffectTask(resEffect);
-              }
-              await Task.Delay(shortDelay);
-              await WaitForAnimationQueueCompleted();
-
-            }
-            break;
-        }
+    //    if (pl != plSelected.Last()) { Message = "next player..."; await WaitForButtonClick(); }
+    //  }
+    //}
 
 
-        if (pl != plSelected.Last()) { Message = "next player..."; await WaitForButtonClick(); }
-      }
-    }
+    //List<object> ParseParams_complex(XElement ev)
+    //{
+    //  List<string> strResult = new List<string>();
+    //  List<object> result = new List<object>();
+    //  var par = ev.astring("param");
+    //  if (string.IsNullOrEmpty(par)) return result;
 
-    int CalcCounter_complex(XElement ev, Player pl)
-    {
-      var func = ev.astring("func");
-      var olist = ParseParams_complex(ev);
-      olist.Add(pl);
-      Debug.Assert(dCountersII.ContainsKey(func), "CalcCounter: dCountersII does not contain key: " + func);
-      int result = dCountersII[func](olist.ToArray());
-      return result;
-    }
-    List<Player> CalcPredAnderOnObjects_complex(XElement ev, List<Player> basePlayerSet, object[] oarr)
-    {
-      // nimm alle <p> elements von ev: example <p pred="most" param="military" />
-      var predlist = ev.Elements("p").ToList();
-      var result = basePlayerSet;
-      foreach (var predev in predlist) result = CalcPlayersAffectedByPredOnObjects_complex(predev, result, oarr);
-      return result;
-    }
-    List<Player> CalcPredOrerOnObjects_complex(XElement ev, List<Player> basePlayerSet, object[] oarr)
-    {
-      // nimm alle <p> elements von ev: example <p pred="most" param="military" />
-      var predlist = ev.Elements("p").ToList();
-      var result = new List<Player>();
-      foreach (var predev in predlist) result = result.Union(CalcPlayersAffectedByPredOnObjects_complex(predev, basePlayerSet, oarr)).ToList();
-      return result;
-    }
-    List<Player> CalcPlayersAffectedByPredOnObjects_complex(XElement ev, List<Player> basePlayerSet = null, object[] oarr = null)
-    {
-      // select players affected by event
-      var pred = ev.astring("pred");
-      if (pred == "and") return CalcPredAnderOnObjects_complex(ev, basePlayerSet, oarr); else if (pred == "or") return CalcPredOrerOnObjects_complex(ev, basePlayerSet, oarr);
-      var par = ev.astring("param");
-      basePlayerSet = Checker.CalcAffects(ev, basePlayerSet);
-      var plSelected = basePlayerSet ?? Players.ToList();//all players is default group
-      if (dPredicates_old.ContainsKey(pred))
-      {
-        var result = new List<Player>();
-        var args = new List<object>();
-        if (oarr != null)
-        {
-          foreach (var obj in oarr) args.Add(obj);
-        }
-        args.Add(par);
-        foreach (var pl in basePlayerSet) if (dPredicates_old[pred].Invoke(args.ToArray())) result.Add(pl);
-        plSelected = result;
-      }
-      else if (dPlayerSelectors.ContainsKey(pred))
-      {
-        var predFunc = dPlayerSelectors[pred];
-        plSelected = predFunc(par, plSelected).ToList();
-      }
-      return plSelected;
-    }
-    List<Player> CalcPredAnder_complex(XElement ev)
-    {
-      // nimm alle <p> elements von ev: example <p pred="most" param="military" />
-      var predlist = ev.Elements("p").ToList();
-      var result = Players.ToList();
-      foreach (var predev in predlist) result = CalcPlayersAffectedByPredOnPlayer_complex(predev, result);
-      return result;
-    }
-    List<Player> CalcPredOrer_complex(XElement ev)
-    {
-      // nimm alle <p> elements von ev: example <p pred="most" param="military" />
-      var predlist = ev.Elements("p").ToList();
-      var basePlayerSet = Players.ToList();
-      var result = new List<Player>();
-      foreach (var predev in predlist) result = result.Union(CalcPlayersAffectedByPredOnPlayer_complex(predev)).ToList();
-      return result;
-    }
-    List<Player> CalcPlayersAffectedByPredOnPlayer_complex(XElement ev, List<Player> basePlayerSet = null)
-    {
-      // select players affected by event
-      var pred = ev.astring("pred");
-      if (pred == "and") return CalcPredAnder_complex(ev); else if (pred == "or") return CalcPredOrer_complex(ev);
+    //  if (par.Contains("{")) // func="nbought" param="type{battle,war}"
+    //  {
+    //    var attrname = par.StringBefore("{");
+    //    var attrvals = par.StringBetween("{", "}").Split(new char[] { ',' });
+    //    strResult.Add(attrname);
+    //    strResult.AddRange(attrvals);
+    //  }
+    //  else if (par.Contains(",")) // pred="greater" param="stability,2"
+    //  {
+    //    var strings = par.Split(new char[] { ',' });
+    //    strResult.AddRange(strings);
+    //  }
+    //  else // pred="least" param="stability"
+    //  {
+    //    strResult.Add(par);
+    //  }
+    //  foreach (var obj in strResult) // converts strings to integers if possible
+    //  {
+    //    int i = 0;
+    //    if (int.TryParse(obj, out i)) result.Add(i); else result.Add(obj);
+    //  }
+    //  return result;
+    //}
+    //async Task HandleOrChoiceEvent_complex(XElement ev, Field field = null)
+    //{
+    //  LongMessage = "event: " + ev.ToString() + "... start!"; await WaitForButtonClick();
 
-      var par = ev.astring("param");
+    //  var plSelected = CalcPlayersAffectedByPredOnPlayer_complex(ev);
 
-      basePlayerSet = Checker.CalcAffects(ev, basePlayerSet);
+    //  foreach (var pl in plSelected)
+    //  {
+    //    MainPlayer = pl;
 
-      var plSelected = basePlayerSet ?? Players.ToList();//all players is default group
+    //    // check wieviele choices moeglich sind, wenn nur 1 oder keines, kein choice
+    //    var choices = ev.Elements().ToList();
+    //    var possibleChoices = new List<XElement>();
+    //    var texts = new List<string>();
+    //    foreach (var choice in choices)
+    //    {
+    //      var resEffects = Checker.GetResourcesForRule(choice);
+    //      var effectAction = Checker.GetSpecialEffect_legacy(choice);
+    //      var resEffectsPossible = CheckResEffects(pl, resEffects);
+    //      if (!resEffectsPossible && effectAction == null) continue;
 
-      if (dPlayerSelectors.ContainsKey(pred))
-      {
-        var predFunc = dPlayerSelectors[pred];
-        plSelected = predFunc(par, plSelected).ToList();
-      }
-      return plSelected;
-    }
+    //      possibleChoices.Add(choice); var text = choice.astring("text"); texts.Add(text);
+    //    }
+
+    //    if (possibleChoices.Count == 0) continue;
+    //    else
+    //    {
+    //      var selectedNum = 0;
+    //      if (possibleChoices.Count > 1)
+    //      {
+    //        var txt = await PickTextChoiceTask(texts, "event");
+    //        for (int i = 0; i < texts.Count; i++) if (txt.Text == texts[i]) selectedNum = i;
+    //      }
+    //      var choice = possibleChoices[selectedNum];
+    //      // just apply effects without choice
+    //      var resEffects = Checker.GetResourcesForRule(choice);
+    //      var effectAction = Checker.GetSpecialEffect_legacy(choice);
+    //      var possible = CheckResEffects(pl, resEffects);
+    //      var resEffectsPossible = CheckResEffects(pl, resEffects);
+    //      effectAction?.Invoke(new object[] { MainPlayer, field });
+    //      if (resEffectsPossible) foreach (var resEffect in resEffects) await Checker.ApplyResEffectTask(resEffect);
+    //    }
+
+    //    await Task.Delay(shortDelay);
+    //    await WaitForAnimationQueueCompleted();
+
+    //    if (pl != plSelected.Last()) { Message = "next player..."; await WaitForButtonClick(); }
+    //  }
+    //}
+    //async Task HandleTaskEvent_complex(XElement ev, Field field = null)
+    //{
+    //  // this option is for hardcoded events - these events would make the code just ugly, so they are hardcoded
+    //  LongMessage = "event: " + ev.ToString() + "... start!"; await WaitForButtonClick();
+    //  var plSelected = CalcPlayersAffectedByPredOnPlayer_complex(ev);
+    //  var task = ev.astring("task");
+    //  var resEffects = Checker.GetResourcesForRule(ev);
+    //  var effectAction = Checker.GetSpecialEffect_legacy(ev);
+
+    //  foreach (var pl in plSelected)
+    //  {
+    //    MainPlayer = pl; //switch ui to this player
+    //    var resEffectsPossible = CheckResEffects(pl, resEffects);
+    //    if (!resEffectsPossible && effectAction == null) continue;
+
+    //    switch (task)
+    //    {
+    //      case "undeploy_military_each":
+    //        // cond is have workers on military
+    //        var n = pl.Cards.Where(x => x.mil()).Sum(x => x.NumDeployed);
+    //        if (n <= 0) continue;
+
+    //        var answer = await YesNoChoiceTask(ev.astring("text"));
+    //        if (answer)
+    //        {
+    //          var fields = await CountClickWorkerTask("military");
+    //          int times = 0;
+    //          foreach (var f in fields) { MainPlayer.UndeployFrom(f, f.Counter); times += f.Counter; }
+
+    //          for (int i = 0; i < times; i++)
+    //          {
+    //            effectAction?.Invoke(new object[] { MainPlayer, field });
+    //            if (resEffectsPossible) foreach (var resEffect in resEffects) await Checker.ApplyResEffectTask(resEffect);
+    //          }
+    //          await Task.Delay(shortDelay);
+    //          await WaitForAnimationQueueCompleted();
+
+    //        }
+    //        break;
+    //    }
 
 
-    #endregion
+    //    if (pl != plSelected.Last()) { Message = "next player..."; await WaitForButtonClick(); }
+    //  }
+    //}
+
+    //int CalcCounter_complex(XElement ev, Player pl)
+    //{
+    //  var func = ev.astring("func");
+    //  var olist = ParseParams_complex(ev);
+    //  olist.Add(pl);
+    //  Debug.Assert(dCountersII.ContainsKey(func), "CalcCounter: dCountersII does not contain key: " + func);
+    //  int result = dCountersII[func](olist.ToArray());
+    //  return result;
+    //}
+    //List<Player> CalcPredAnderOnObjects_complex(XElement ev, List<Player> basePlayerSet, object[] oarr)
+    //{
+    //  // nimm alle <p> elements von ev: example <p pred="most" param="military" />
+    //  var predlist = ev.Elements("p").ToList();
+    //  var result = basePlayerSet;
+    //  foreach (var predev in predlist) result = CalcPlayersAffectedByPredOnObjects_complex(predev, result, oarr);
+    //  return result;
+    //}
+    //List<Player> CalcPredOrerOnObjects_complex(XElement ev, List<Player> basePlayerSet, object[] oarr)
+    //{
+    //  // nimm alle <p> elements von ev: example <p pred="most" param="military" />
+    //  var predlist = ev.Elements("p").ToList();
+    //  var result = new List<Player>();
+    //  foreach (var predev in predlist) result = result.Union(CalcPlayersAffectedByPredOnObjects_complex(predev, basePlayerSet, oarr)).ToList();
+    //  return result;
+    //}
+    //List<Player> CalcPlayersAffectedByPredOnObjects_complex(XElement ev, List<Player> basePlayerSet = null, object[] oarr = null)
+    //{
+    //  // select players affected by event
+    //  var pred = ev.astring("pred");
+    //  if (pred == "and") return CalcPredAnderOnObjects_complex(ev, basePlayerSet, oarr); else if (pred == "or") return CalcPredOrerOnObjects_complex(ev, basePlayerSet, oarr);
+    //  var par = ev.astring("param");
+    //  basePlayerSet = Checker.CalcAffects(ev, basePlayerSet);
+    //  var plSelected = basePlayerSet ?? Players.ToList();//all players is default group
+    //  if (dPredicates_old.ContainsKey(pred))
+    //  {
+    //    var result = new List<Player>();
+    //    var args = new List<object>();
+    //    if (oarr != null)
+    //    {
+    //      foreach (var obj in oarr) args.Add(obj);
+    //    }
+    //    args.Add(par);
+    //    foreach (var pl in basePlayerSet) if (dPredicates_old[pred].Invoke(args.ToArray())) result.Add(pl);
+    //    plSelected = result;
+    //  }
+    //  else if (dPlayerSelectors.ContainsKey(pred))
+    //  {
+    //    var predFunc = dPlayerSelectors[pred];
+    //    plSelected = predFunc(par, plSelected).ToList();
+    //  }
+    //  return plSelected;
+    //}
+    //List<Player> CalcPredAnder_complex(XElement ev)
+    //{
+    //  // nimm alle <p> elements von ev: example <p pred="most" param="military" />
+    //  var predlist = ev.Elements("p").ToList();
+    //  var result = Players.ToList();
+    //  foreach (var predev in predlist) result = CalcPlayersAffectedByPredOnPlayer_complex(predev, result);
+    //  return result;
+    //}
+    //List<Player> CalcPredOrer_complex(XElement ev)
+    //{
+    //  // nimm alle <p> elements von ev: example <p pred="most" param="military" />
+    //  var predlist = ev.Elements("p").ToList();
+    //  var basePlayerSet = Players.ToList();
+    //  var result = new List<Player>();
+    //  foreach (var predev in predlist) result = result.Union(CalcPlayersAffectedByPredOnPlayer_complex(predev)).ToList();
+    //  return result;
+    //}
+    //List<Player> CalcPlayersAffectedByPredOnPlayer_complex(XElement ev, List<Player> basePlayerSet = null)
+    //{
+    //  // select players affected by event
+    //  var pred = ev.astring("pred");
+    //  if (pred == "and") return CalcPredAnder_complex(ev); else if (pred == "or") return CalcPredOrer_complex(ev);
+
+    //  var par = ev.astring("param");
+
+    //  basePlayerSet = Checker.CalcAffects(ev, basePlayerSet);
+
+    //  var plSelected = basePlayerSet ?? Players.ToList();//all players is default group
+
+    //  if (dPlayerSelectors.ContainsKey(pred))
+    //  {
+    //    var predFunc = dPlayerSelectors[pred];
+    //    plSelected = predFunc(par, plSelected).ToList();
+    //  }
+    //  return plSelected;
+    //}
+
+
+    //#endregion
   }
 }

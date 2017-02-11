@@ -1,6 +1,8 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -24,6 +26,7 @@ namespace ations
         Game.UIRoundmarker = elRoundMarker; // some ui elements needed for animations triggered in gameloop
       }));
     }
+
     #endregion
     private void OnResNumUpdated(object sender, DataTransferEventArgs e) { Game.ResourceUpdated((sender as Grid).Parent as StackPanel); }
     private void OnNumDeployedUpdated(object sender, DataTransferEventArgs e) { Game.NumDeployedUpdated((sender as TextBlock).Parent as Grid); }
@@ -51,9 +54,6 @@ namespace ations
 
     private void OnClickTesting(object sender, RoutedEventArgs e)    {      Game.Message = "no current test function";    }
 
-    private void OnClickSave(object sender, RoutedEventArgs e)    {      Game.SaveGame();    }
-
-    private async void OnClickLoad(object sender, RoutedEventArgs e)    {      await Game.LoadGame();    }
 
     private void CalculatePosition(object sender, DependencyPropertyChangedEventArgs e)
     {
@@ -85,5 +85,8 @@ namespace ations
     {
       Game.OnClickSpecialOption((sender as FrameworkElement).DataContext as Choice);
     }
+    private void OnClickSave(object sender, RoutedEventArgs e) { State.SaveGame(this,Game.Inst); }
+
+    private async void OnClickLoad(object sender, RoutedEventArgs e) { await Game.InterruptGame(); }// Game =  State.LoadGame(this); }
   }
 }

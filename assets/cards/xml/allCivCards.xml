@@ -200,7 +200,7 @@
   </venice>
   <vikings>
     <card name="slave_church" age="1" type="building" score="1" book="1" stability="1"/>
-    <card name="berserker" age="1" type="military" raid="3" score="1" military="3" wheat="-2" />
+    <card name="berserkers" age="1" type="military" raid="3" score="1" military="3" wheat="-2" />
     <card name="old_uppsala" age="1" type="wonder" vp="-2">
       <a wheat="-1" military="3" effect="round"/>
     </card>

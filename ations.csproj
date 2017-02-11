@@ -79,19 +79,21 @@
     <Compile Include="Common\Converters\NonEmptyToVisibleConverter.cs" />
     <Compile Include="Common\Converters\OptionAvailableToVisibleConverter.cs" />
     <Compile Include="Common\Converters\ZeroToVisibleConverter.cs" />
+    <Compile Include="MA\Settings.cs" />
+    <Compile Include="MA\VM.cs" />
+    <Compile Include="MA\WinGame.xaml.cs">
+      <DependentUpon>WinGame.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="NA\AI.cs" />
     <Compile Include="NA\CheckerHelpers.cs" />
-    <Compile Include="NA\unused\CheckerDictionaries.cs" />
+    <Compile Include="NA\State.cs" />
     <Compile Include="NA\CheckerIntelligent.cs" />
     <Compile Include="NA\GameTasks.cs" />
-    <Compile Include="NA\unused\Rules.cs" />
-    <Compile Include="NA\done\State.cs" />
     <Compile Include="NA\ATestDictionary.cs" />
     <Compile Include="NA\CheckerStupid.cs" />
     <Compile Include="NA\AGameTests.cs" />
-    <Compile Include="NA\unused\Game_in_work.cs" />
     <Compile Include="NA\GameSettings.cs" />
     <Compile Include="NA\GameProperties.cs" />
-    <Compile Include="NA\unused\GameRules.cs" />
     <Compile Include="Common\Converters\NumberToStringConverter.cs" />
     <Compile Include="Common\Converters\NumberToBrushConverter.cs" />
     <Compile Include="Common\Converters\BooleanToBackgroundConverter.cs" />
@@ -106,6 +108,10 @@
     <Compile Include="Window1.xaml.cs">
       <DependentUpon>Window1.xaml</DependentUpon>
     </Compile>
+    <Page Include="MA\WinGame.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="NA\WGame.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -127,10 +133,8 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="NA\unused\AI.cs" />
     <Compile Include="NA\Card.cs" />
     <Compile Include="NA\done\CardType.cs" />
-    <Compile Include="NA\unused\Causes.cs" />
     <Compile Include="NA\done\Choice.cs" />
     <Compile Include="NA\done\Civ.cs" />
     <Compile Include="NA\done\ContextInfo.cs" />
@@ -147,12 +151,10 @@
     <Compile Include="NA\done\Res.cs" />
     <Compile Include="NA\done\ResDict.cs" />
     <Compile Include="NA\done\Stats.cs" />
-    <Compile Include="NA\unused\Strategy.cs" />
     <Compile Include="NA\WGame.xaml.cs">
       <DependentUpon>WGame.xaml</DependentUpon>
     </Compile>
     <Compile Include="NA\done\Worker.cs" />
-    <Compile Include="NA\unused\_trash.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>

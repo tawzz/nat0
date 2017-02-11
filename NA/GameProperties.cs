@@ -24,8 +24,9 @@ namespace ations
     #region properties
 
     public int NumPlayers { get; set; }
+
     public ObservableCollection<Player> Players { get; set; }
-    public List<Player> PassOrder { get; set; }
+
     public Player MainPlayer
     {
       get { return mainPlayer; }
@@ -45,7 +46,8 @@ namespace ations
     Player mainPlayer;
     public Progress Progress { get; set; }
     public Stats Stats { get; set; }
-    public State State { get; set; }
+    public List<Player> PassOrder { get; set; }
+    //public State State { get; set; }
 
     public string Description { get { return description; } set { description = value; NotifyPropertyChanged(); } }
     string description;
@@ -84,9 +86,9 @@ namespace ations
     public List<Storyboard> AnimationQueue { get; set; }
     public FrameworkElement UIRoundmarker { get; set; }
 
-    public bool AllPlayersPassed { get { return Players.All(x=>x.HasPassed); } }
     public bool NoChangeInTurn { get; set; }
 
+    public bool AllPlayersPassed { get { return Players.All(x=>x.HasPassed); } }
 
     #endregion
   }

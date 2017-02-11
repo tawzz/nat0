@@ -139,6 +139,25 @@ namespace ations
       }
       catch(Exception ex) { string msg = ex.Message; return null; }
     }
+    public static XElement LoadFromFile(string path)
+    {
+      //var xml = XElement.Load(path);
+      //var txt = File.ReadAllText(path);
+      //XElement result = XElement.Parse(txt);
+      XElement result;
+      if (!path.Contains("\\")) path = Path.Combine(Environment.CurrentDirectory, path);
+      if (path.TryLoadXElement(out result)) return result;
+      else { Console.WriteLine("LoadFromFile: couldn't load file: " + path); return null; }
+    }
+    public static void SaveToFile(XElement x, string path)
+    {
+      try
+      {
+        if (!path.Contains("\\")) path = Path.Combine(Environment.CurrentDirectory, path);
+        File.WriteAllText(path, x.ToString());
+      }
+      catch { Console.WriteLine("SaveToFile: couldn't write file: " + path);  }
+    }
 
     public static BitmapImage GetProgressboardImage() { return GetImage("boards/progress_board.jpg"); }
     public static BitmapImage GetStatsboardImage() { return GetImage("boards/stats_board.jpg"); }
@@ -189,7 +208,8 @@ namespace ations
         bmp.EndInit();
         return bmp;
       }
-      catch {
+      catch
+      {
         return null;
       }
     }

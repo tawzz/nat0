@@ -136,7 +136,7 @@ namespace ations
       var chosen = await PickCardChoiceTask(list, "turmoil");
 
       var newdyncard = chosen.Tag as Card;
-      if (newdyncard != null) { MainPlayer.UpgradeDynasty(newdyncard); await Checker.CheckUpgradeDynasty(MainPlayer, newdyncard); }
+      if (newdyncard != null) { await Checker.CheckUpgradeDynasty(MainPlayer, newdyncard); MainPlayer.UpgradeDynasty(newdyncard); }
       else MainPlayer.UpdateResBy("gold", 2);
 
       await Checker.CheckTurmoil(MainPlayer, newdyncard == null);// MainPlayer.TurmoilsTaken++;
@@ -145,24 +145,25 @@ namespace ations
     }
     public async Task<Card> UpgradeDynastyTask(Player pl)
     {
-      var dyncard = await IndependentDynastyUpgradeTask(pl);
-      await Checker.CheckUpgradeDynasty(pl, dyncard);
-      return dyncard;
-    }
-    public async Task<Card> IndependentDynastyUpgradeTask(Player pl)
-    {
+      //var dyncard = await IndependentDynastyUpgradeTask(pl);
+      // pick dynasty card
+      Card dyncard = null;
       var dyn = pl.Civ.Dynasties.ToList();
-      if (dyn.Count == 0) { return null; }
-      if (dyn.Count == 1) { pl.UpgradeDynasty(dyn[0]); return dyn[0]; }
+      if (dyn.Count == 0) { dyncard = null; }
+      if (dyn.Count == 1) { dyncard = dyn[0]; }
+      if (dyn.Count > 1)
+      {
+        var plMain = MainPlayer; MainPlayer = pl;
 
-      if (MainPlayer != pl) { MainPlayer = pl; await Task.Delay(1000); }
+        List<Choice> list = new List<Choice>();
+        foreach (var c in dyn) { var ch = new Choice(); ch.Tag = c; ch.Text = "upgrade"; list.Add(ch); }
+        var chosen = await PickCardChoiceTask(list, "dynasty change");
+        dyncard = chosen.Tag as Card;
 
-      List<Choice> list = new List<Choice>();
-      foreach (var c in dyn) { var ch = new Choice(); ch.Tag = c; ch.Text = "upgrade"; list.Add(ch); }
+        MainPlayer = plMain;
+      }
 
-      var chosen = await PickCardChoiceTask(list, "dynasty change");
-      var dyncard = chosen.Tag as Card;
-      MainPlayer.UpgradeDynasty(dyncard);
+      if (dyncard != null) { await Checker.CheckUpgradeDynasty(pl, dyncard); pl.UpgradeDynasty(dyncard); }
       return dyncard;
     }
 
@@ -173,10 +174,10 @@ namespace ations
       var fieldBuy = ProgressField;
       var fieldPlace = CivBoardPlace;
       if (card.civ() && fieldPlace == null) { fieldPlace = MainPlayer.GetPossiblePlacesForType(card.Type).FirstOrDefault(); Debug.Assert(fieldPlace != null, "BuyProgressCard: so ein MIST!!!!"); }
+      Progress.Remove(fieldBuy);
 
       await Checker.CheckBuy(card, fieldPlace);
 
-      Progress.Remove(fieldBuy);
       MainPlayer.CardsBoughtThisRound.Add(card);
       MainPlayer.Pay(card.Price);
 
@@ -220,7 +221,7 @@ namespace ations
       //  MainPlayer.UpdateResBy("vp", 1);
       //  await Checker.CheckBuyGoldenAge(MainPlayer, card, res);
       //}
-      else if (res == null || !string.IsNullOrEmpty(effect))      {        await Checker.CheckBuyGoldenAge(MainPlayer, card, res);      }
+      else if (res == null || !string.IsNullOrEmpty(effect)) { await Checker.CheckBuyGoldenAge(MainPlayer, card, res); }
       else MainPlayer.UpdateResBy(res.Name, res.Num);
     }
     public async Task BuyVPForGoldenAgeTask(Player pl, int costOfVP, List<Res> resToPayForVP, Card card = null)
@@ -336,7 +337,7 @@ namespace ations
     {
       var plMain = MainPlayer; MainPlayer = pl;
       if (pl.Res.n("worker") == 0) { await PickWorkerToUndeployTask(); }
-      var fields = pl.Civ.Fields.Where(x=>!x.IsEmpty && types.Contains(x.Card.Type)).ToList();
+      var fields = pl.Civ.Fields.Where(x => !x.IsEmpty && types.Contains(x.Card.Type)).ToList();
       var field = await PickCivFieldOutOf(pl, fields, "free deployment");
       pl.DeployWorker(1);
       field.Card.NumDeployed++;
@@ -598,11 +599,11 @@ namespace ations
       foreach (var res in reslist) ResChoices.Add(new Res(res.Name, 0));
       ShowMultiResChoices = true; var capt = Caption; Caption = "Pick"; Message = MainPlayer.Name + ", pick between " + min + " and " + max + " resources for " + forWhat;
 
-      await MakeSureUserPicksBetween(min,max);
+      await MakeSureUserPicksBetween(min, max);
 
       ShowMultiResChoices = false;
       var result = ResChoices.ToList(); ResChoices.Clear();
-      Message = MainPlayer.Name + " picked " + result.Sum(x=>x.Num) + " resources"; Caption = capt;
+      Message = MainPlayer.Name + " picked " + result.Sum(x => x.Num) + " resources"; Caption = capt;
 
       return result;
     }
@@ -734,7 +735,7 @@ namespace ations
         // how do I bind to a list of resources two way?!?!?!?!?!?!?!?!?!!!!!!!!
         var reslist = ResChoices;
         picked = reslist.Sum(x => x.Num);
-        if (picked <min || picked > max) { Message = "pick between " + min + " and " + max + " resources!"; foreach (var r in ResChoices) r.Num = 0; }
+        if (picked < min || picked > max) { Message = "pick between " + min + " and " + max + " resources!"; foreach (var r in ResChoices) r.Num = 0; }
       }
     }
     public async Task WaitForAnimationQueueCompleted(int minAnimations = 0)

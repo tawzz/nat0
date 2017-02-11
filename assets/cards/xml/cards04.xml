@@ -69,7 +69,7 @@
     <a arch="1" max="2"/>
   </card>
   <card name="mit" age="4" type="wonder" vp="1" arch="0_1" >
-    <buy pred="cardtype" param="building" effect="deploy_worker_for_free" />
+    <buy pred="cardtype" param="building" effect="deploy_worker_on_it_for_free" />
   </card>
   <card name="napoleonic_war" age="4" type="war" wheat="11" />
   <card name="national_park" age="4" type="building" score="2_2_1" book="4" coal="2"/>

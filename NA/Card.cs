@@ -31,15 +31,11 @@ namespace ations
 
     public int NumDeployed { get { return numDeployed; } set { if (numDeployed != value) { numDeployed = value; NotifyPropertyChanged(); } } }
     int numDeployed; // includes architects on wonder in construction
+
     public bool IsEnabled { get { return isEnabled; } set { if (isEnabled != value) { isEnabled = value; NotifyPropertyChanged(); } } }
     bool isEnabled;
     public bool IsSelected { get { return (bool)GetValue(IsSelectedProperty); } set { SetValue(IsSelectedProperty, value); } }
     public static readonly DependencyProperty IsSelectedProperty = DependencyProperty.Register("IsSelected", typeof(bool), typeof(Card), null);
-
-    public bool ActionAvailable { get { return HasAction && ActionTaken < GetActionMax; } }
-    public bool HasAction { get { return GetAction != null; } }
-    public bool CanDeployOn { get { return this.buildmil() && NumDeployed < MaxDeploy; } }
-    public int MaxDeploy { get { return X.aint("maxdeploy", 100); } }
 
     #endregion
 
@@ -124,6 +120,11 @@ namespace ations
     {
       return MakeCard(Helpers.GetCardX(name));
     }
+
+    public bool ActionAvailable { get { return HasAction && ActionTaken < GetActionMax; } }
+    public bool HasAction { get { return GetAction != null; } }
+    public bool CanDeployOn { get { return this.buildmil() && NumDeployed < MaxDeploy; } }
+    public int MaxDeploy { get { return X.aint("maxdeploy", 100); } }
 
     public int[] GetArchCostArray { get { var s = X.astring("arch"); return string.IsNullOrEmpty(s) ? new int[0] : s.Split('_').Select(x => int.Parse(x)).ToArray(); } }
     public int[] GetScoringArray { get { var s = X.astring("score"); return string.IsNullOrEmpty(s) ? new int[0] : s.Split('_').Select(x => int.Parse(x)).ToArray(); } }

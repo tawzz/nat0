@@ -16,13 +16,14 @@ using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using System.Xml.Linq;
+using System.Xml.Serialization;
 using ations;
 namespace ations
 {
   #region design time
   public class AGameDesignTime { public Game Game { get; set; } public AGameDesignTime() { Game = Game.Inst; } }
   #endregion
-  public partial class Game : DependencyObject, INotifyPropertyChanged
+  public partial class Game : DependencyObject, INotifyPropertyChanged, IXmlSerializable
   {
     #region  constructor: singleton
     private static readonly Game instance = new Game(); public static Game Inst { get { return instance; } }
@@ -36,10 +37,31 @@ namespace ations
       ContextStack = new Stack<ContextInfo>();
       Players = new ObservableCollection<Player>();
       Helpers.MakeCardIndex();
-      State = new State();
+      //State = new State();
 
       Initialize();
     }
+
+    //    #region  constructor
+    //    //private static readonly Game instance = new Game(); : singleton
+
+    //    public static Game Inst { get { if (inst == null) inst = new Game(); return inst; } private set { inst = value; } }// { {if ; private set; }// { return instance; } }
+    //    static Game inst = null;
+
+    //    public Game()
+    //    {
+    //      PreselectedFields = new ObservableCollection<Field>();
+    //      ResChoices = new ObservableCollection<Res>();
+    //      ChangesInResources = new ObservableCollection<Res>();
+    //      Choices = new ObservableCollection<Choice>();
+    //      AnimationQueue = new List<Storyboard>();
+    //      ContextStack = new Stack<ContextInfo>();
+    //      Players = new ObservableCollection<Player>();
+    //      Helpers.MakeCardIndex();
+
+    //      Initialize();
+    ////      NotifyPropertyChanged("Inst");
+    //    }
 
     public void ResetGame()
     {
@@ -77,19 +99,6 @@ namespace ations
       NotifyPropertyChanged("MainPlayer");
 
     }
-    //public void InitPlayers(int num, IEnumerable<string> civs)
-    //{
-    //  Debug.Assert(Players != null, "InitPlayers with Players==null");
-    //  NumPlayers = num;
-    //  Players.Clear();
-    //  for (int i = 0; i < NumPlayers; i++)
-    //    Players.Add(PlayerType[i] ? new AI(PlayerNames[i], PlayerCivs[i], PlayerBrushes[i], Levels.Chieftain, i) : new Player(PlayerNames[i], PlayerCivs[i], PlayerBrushes[i], Levels.Chieftain, i));
-    //  MainPlayer = Players[0];
-    //  NotifyPropertyChanged("Players");
-    //  NotifyPropertyChanged("NumPlayers");
-    //  NotifyPropertyChanged("MainPlayer");
-
-    //}
     void Initialize(int nPlayers = numPlayersSetting, int nProgressCols = progressColsSetting, int nRounds = roundSetting, bool inclDyn = inclExpDynSetting, bool inclFake = inclExpFakeSetting)
     {
       // alle default values
@@ -124,9 +133,9 @@ namespace ations
       IsOkStartEnabled = true; Kickoff = GameLoop;//Tester;// testing 
 
       // TEST SETUP FUER RUNTIME DEFAULT HERE ***************************************
-      switchesOff();
-      SwitchRoundAndAgeOn = SwitchProgressOn = SwitchNewEventOn = SwitchActionOn = SwitchProductionOn = SwitchOrderOn = SwitchWarOn = true;
-
+      //switchesOff();
+      //SwitchRoundAndAgeOn = SwitchProgressOn = SwitchNewEventOn = SwitchActionOn = SwitchProductionOn = SwitchOrderOn = SwitchWarOn = true;
+      switchesOn();
 
       // TEST SETUP FUER DESIGNER HERE **********************************************
       //design test

@@ -200,45 +200,45 @@ namespace ations
     public static List<Player> Others(Player pl) { return Game.Inst.Players.Where(x => x != pl).ToList(); }
 
     #region unused
-    public static List<Player> CalcAffects_old(XElement ev, List<Player> basePlayerSet)
-    {
-      var game = Game.Inst;
-      var affects = ev.astring("affects"); // affects attribute overrides basePlayerSet
-      if (!string.IsNullOrEmpty(affects))
-      {
-        switch (affects)
-        {
-          case "all": basePlayerSet = game.Players.ToList(); break;
-          case "others": basePlayerSet = game.Players.Where(x => x != game.MainPlayer).ToList(); break;
-          case "self": basePlayerSet = new List<Player> { game.MainPlayer }; break;
-          default: break;
-        }
-      }
-      var pred = ev.astring("pred");
-      if (string.IsNullOrEmpty(pred)) return basePlayerSet;
-      else if (Selectors.ContainsKey(pred)) return Selectors[pred](ev.astring("param"), basePlayerSet);
-      else if (Predicates.ContainsKey(pred)) return basePlayerSet.Where(x => Predicates[pred](ev.astring("param"))).ToList();
-      else { Console.WriteLine(game.LongMessage = "pred " + pred + " unknown!"); return basePlayerSet; }
-    }
-    public static EffectAction GetEffectAction(XElement xel)
-    {
-      var specialEffect = xel.astring("effect");
-      Console.WriteLine("\teffect=" + specialEffect);
-      var result = string.IsNullOrEmpty(specialEffect) ? null
-        : Effects.ContainsKey(specialEffect) ? Effects[specialEffect]
-        : ImpossibleEffect;
-      return result;
-    }
-    public static void ImpossibleAction(object[] oarr) { }
-    public static EffectAction ImpossibleEffect = new EffectAction((a, b, c, d) => { });
-    public static Action<object[]> GetSpecialEffect_legacy(XElement xel) // TODO: ersetze dEffectII durch EffectActions
-    {
-      var specialEffect = xel.astring("effect");
-      var result = string.IsNullOrEmpty(specialEffect) ? null
-        : dEffectII.ContainsKey(specialEffect) ? dEffectII[specialEffect]
-        : ImpossibleAction;
-      return result;
-    }
+    //public static List<Player> CalcAffects_old(XElement ev, List<Player> basePlayerSet)
+    //{
+    //  var game = Game.Inst;
+    //  var affects = ev.astring("affects"); // affects attribute overrides basePlayerSet
+    //  if (!string.IsNullOrEmpty(affects))
+    //  {
+    //    switch (affects)
+    //    {
+    //      case "all": basePlayerSet = game.Players.ToList(); break;
+    //      case "others": basePlayerSet = game.Players.Where(x => x != game.MainPlayer).ToList(); break;
+    //      case "self": basePlayerSet = new List<Player> { game.MainPlayer }; break;
+    //      default: break;
+    //    }
+    //  }
+    //  var pred = ev.astring("pred");
+    //  if (string.IsNullOrEmpty(pred)) return basePlayerSet;
+    //  else if (Selectors.ContainsKey(pred)) return Selectors[pred](ev.astring("param"), basePlayerSet);
+    //  else if (Predicates.ContainsKey(pred)) return basePlayerSet.Where(x => Predicates[pred](ev.astring("param"))).ToList();
+    //  else { Console.WriteLine(game.LongMessage = "pred " + pred + " unknown!"); return basePlayerSet; }
+    //}
+    //public static EffectAction GetEffectAction(XElement xel)
+    //{
+    //  var specialEffect = xel.astring("effect");
+    //  Console.WriteLine("\teffect=" + specialEffect);
+    //  var result = string.IsNullOrEmpty(specialEffect) ? null
+    //    : Effects.ContainsKey(specialEffect) ? Effects[specialEffect]
+    //    : ImpossibleEffect;
+    //  return result;
+    //}
+    //public static void ImpossibleAction(object[] oarr) { }
+    //public static EffectAction ImpossibleEffect = new EffectAction((a, b, c, d) => { });
+    //public static Action<object[]> GetSpecialEffect_legacy(XElement xel) // TODO: ersetze dEffectII durch EffectActions
+    //{
+    //  var specialEffect = xel.astring("effect");
+    //  var result = string.IsNullOrEmpty(specialEffect) ? null
+    //    : dEffectII.ContainsKey(specialEffect) ? dEffectII[specialEffect]
+    //    : ImpossibleAction;
+    //  return result;
+    //}
 
     #endregion
 
