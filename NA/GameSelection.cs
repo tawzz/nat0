@@ -100,12 +100,6 @@ namespace ations
     public Step Step { get { Debug.Assert(Context.Steps != null, "Step accessed: Context.Steps is null!"); return Context.Steps.LastOrDefault(); } }
 
     public void OnClickSpecialOption(Choice choice) { UpdateSteps(new Step(cl.cspecial, choice)); }
-    //{
-    //  //DisableAndUnselectAll();
-    //  //Message = "execute special action?";
-
-    //  //await Checker.ExecuteAction(MainPlayer, choice.Tag as Card);
-    //}
     public void OnClickProgressField(Field field) { UpdateSteps(new Step(cl.prog, field)); }
     public void OnClickCivField(Field field) { UpdateSteps(new Step(cl.civ, field)); }
     public void OnClickArchitect() { UpdateSteps(new Step(cl.arch)); }
@@ -131,9 +125,12 @@ namespace ations
       UpdateUI();
     }
 
-
     public bool RefreshSequence(Step newStep)
     {
+      if (Context == null)
+      {
+        int n = 5;
+      }
       Debug.Assert(Context != null, "RefreshSteps: Context null");
       Debug.Assert(Context.Steps != null, "RefreshSteps: Context.Steps NULL bei RefreshSequence!");
       Debug.Assert(Context.StepDictionary != null, "RefreshSteps: Context.StepDictionary null!");
@@ -186,6 +183,7 @@ namespace ations
 
             var currentStep = result.LastOrDefault();
             Debug.Assert(currentStep != null, "RefreshSteps: currentStep null!");
+            currentStep.GameInst = this;
             if (currentStep.IsValid != null && !currentStep.IsValid(result)) { result.Clear(); continue; }
             currentStep.Process?.Invoke(result);
 
@@ -199,7 +197,6 @@ namespace ations
       Context.Steps = result; // if no match found: get back empty step list in same context
       return complete;
     }
-
 
     public cl[] FindExactKey(Dictionary<cl[], Step[]> dict, cl[] clicks)
     {
@@ -235,109 +232,173 @@ namespace ations
       //now first could be empty!
       return first.Length == 0 ? null : first;
     }
-    public bool RefreshSequenceNew(Step newStep)
-    {
-      Debug.Assert(Context != null, "RefreshSteps: Context null");
-      Debug.Assert(Context.Steps != null, "RefreshSteps: Context.Steps NULL bei RefreshSequence!");
-      Debug.Assert(Context.StepDictionary != null, "RefreshSteps: Context.StepDictionary null!");
 
-      // if clicked a selected object, unselect and roll back to previous to clicking that object
-      var newSteps = Steps.Any(x => x.Obj == newStep.Obj) ? EraseAllStepsBeforeAndIncludingObject(newStep.Obj) : Steps.Plus(newStep);
-
-      if (newSteps.Count() == 0) { Context.Steps = newSteps.ToList(); return false; }
-
-      var dict = Context.StepDictionary;
-
-      // does newsteps fit any key?
-      var clicks = newSteps.Select(x => x.Click).ToArray();
-
-      bool done = false;
-
-      //cl[] bestmatch=null;
-      //cl[] bestkey=null;
-      Dictionary<cl[], cl[]> matches = new Dictionary<cl[], cl[]>();
-
-      foreach (var k in dict.Keys)
-      {
-        var match = FindLongestPostfixOfFirstThatIsPrefixOfSecond(clicks, k);
-        if (match != null) matches.Add(k, match);
-      }
-
-      // foreach match check if valid: all steps have to fulfill precond!
+    #endregion
 
 
 
+    #region unused
+    //public bool RefreshSequenceNew(Step newStep)
+    //{
+    //  Debug.Assert(Context != null, "RefreshSteps: Context null");
+    //  Debug.Assert(Context.Steps != null, "RefreshSteps: Context.Steps NULL bei RefreshSequence!");
+    //  Debug.Assert(Context.StepDictionary != null, "RefreshSteps: Context.StepDictionary null!");
 
+    //  // if clicked a selected object, unselect and roll back to previous to clicking that object
+    //  var newSteps = Steps.Any(x => x.Obj == newStep.Obj) ? EraseAllStepsBeforeAndIncludingObject(newStep.Obj) : Steps.Plus(newStep);
 
-      //  while (!done)
-      //{
-      //  var exactKey = FindExactKey(dict, clicks);
-      //  if (exactKey == null)
-      //  {
-      //    var beginningOfKey =
-      //    }
-      //}
+    //  if (newSteps.Count() == 0) { Context.Steps = newSteps.ToList(); return false; }
+
+    //  var dict = Context.StepDictionary;
+
+    //  // does newsteps fit any key?
+    //  var clicks = newSteps.Select(x => x.Click).ToArray();
+
+    //  bool done = false;
+
+    //  //cl[] bestmatch=null;
+    //  //cl[] bestkey=null;
+    //  Dictionary<cl[], cl[]> matches = new Dictionary<cl[], cl[]>();
+
+    //  foreach (var k in dict.Keys)
+    //  {
+    //    var match = FindLongestPostfixOfFirstThatIsPrefixOfSecond(clicks, k);
+    //    if (match != null) matches.Add(k, match);
+    //  }
+
+    //  // foreach match check if valid: all steps have to fulfill precond!
 
 
 
 
 
+    //  //  while (!done)
+    //  //{
+    //  //  var exactKey = FindExactKey(dict, clicks);
+    //  //  if (exactKey == null)
+    //  //  {
+    //  //    var beginningOfKey =
+    //  //    }
+    //  //}
 
-      //Debug.Assert(Context != null, "RefreshSteps: Context null");
-      //Debug.Assert(Context.Steps != null, "RefreshSteps: Context.Steps NULL bei RefreshSequence!");
-      //Debug.Assert(Context.StepDictionary != null, "RefreshSteps: Context.StepDictionary null!");
 
-      //// if clicked a selected object, unselect and roll back to previous to clicking that object
-      //var newSteps = Steps.Any(x => x.Obj == newStep.Obj) ? EraseAllStepsBeforeAndIncludingObject(newStep.Obj) : Steps.Plus(newStep);
 
-      ////Console.WriteLine("\tSteps:" + Steps.Count+", newSteps:"+newSteps.Count());
 
-      //if (newSteps.Count() == 0) { Context.Steps = newSteps.ToList(); return false; }
 
-      var revsteps = newSteps.ToArray().Reverse().ToList();
-      List<Step> result = new List<Step>();
-      cl[] key = null;
-      //var dict = Context.StepDictionary;
-      bool complete = false; IsCardActivation = IsSpecialOptionActivation= false;
 
-      foreach (var k in dict.Keys)
-      {
-        var rk = k.Reverse().ToArray();
-        var len = rk.Length;
-        int i = 0;
-        while (i < len && rk[i] != revsteps[0].Click) i++;
-        if (i >= len) continue; //not a match at all
-        //while (i < len-1 && rk[i+1] == revsteps[0].Click) i++; //****** nimm last match of a sequence of same clicks
+    //  //Debug.Assert(Context != null, "RefreshSteps: Context null");
+    //  //Debug.Assert(Context.Steps != null, "RefreshSteps: Context.Steps NULL bei RefreshSequence!");
+    //  //Debug.Assert(Context.StepDictionary != null, "RefreshSteps: Context.StepDictionary null!");
 
-        var success = true;
-        for (int j = i; j < len; j++) { if (j - i >= revsteps.Count || revsteps[j - i].Click != rk[j]) { success = false; break; } } // not a match!
+    //  //// if clicked a selected object, unselect and roll back to previous to clicking that object
+    //  //var newSteps = Steps.Any(x => x.Obj == newStep.Obj) ? EraseAllStepsBeforeAndIncludingObject(newStep.Obj) : Steps.Plus(newStep);
 
-        if (success)
-        {
-          result = revsteps.ToArray().Take(len - i).Reverse().ToList();
-          key = k;
+    //  ////Console.WriteLine("\tSteps:" + Steps.Count+", newSteps:"+newSteps.Count());
 
-          for (int j = 0; j < result.Count; j++)
-          {
-            Debug.Assert(result[j].Click == key[j], "RefreshSteps: Clicks do not match in matching step sequence");
-            result[j].IsValid = dict[key][j].IsValid;
-            result[j].Process = dict[key][j].Process;
-            result[j].UndoProcess = dict[key][j].UndoProcess;
-            result[j].Message = dict[key][j].Message;
-          }
+    //  //if (newSteps.Count() == 0) { Context.Steps = newSteps.ToList(); return false; }
 
-          var currentStep = result.LastOrDefault();
-          Debug.Assert(currentStep != null, "RefreshSteps: currentStep null!");
-          if (currentStep.IsValid != null && !currentStep.IsValid(result)) { result.Clear(); continue; }
-          currentStep.Process?.Invoke(result);
+    //  var revsteps = newSteps.ToArray().Reverse().ToList();
+    //  List<Step> result = new List<Step>();
+    //  cl[] key = null;
+    //  //var dict = Context.StepDictionary;
+    //  bool complete = false; IsCardActivation = IsSpecialOptionActivation = false;
 
-          if (i == 0) { complete = true; break; } //got complete action
-        }
-      }
+    //  foreach (var k in dict.Keys)
+    //  {
+    //    var rk = k.Reverse().ToArray();
+    //    var len = rk.Length;
+    //    int i = 0;
+    //    while (i < len && rk[i] != revsteps[0].Click) i++;
+    //    if (i >= len) continue; //not a match at all
+    //    //while (i < len-1 && rk[i+1] == revsteps[0].Click) i++; //****** nimm last match of a sequence of same clicks
 
-      Context.Steps = result; // if no match found: get back empty step list in same context
-      return complete;
-    }
+    //    var success = true;
+    //    for (int j = i; j < len; j++) { if (j - i >= revsteps.Count || revsteps[j - i].Click != rk[j]) { success = false; break; } } // not a match!
+
+    //    if (success)
+    //    {
+    //      result = revsteps.ToArray().Take(len - i).Reverse().ToList();
+    //      key = k;
+
+    //      for (int j = 0; j < result.Count; j++)
+    //      {
+    //        Debug.Assert(result[j].Click == key[j], "RefreshSteps: Clicks do not match in matching step sequence");
+    //        result[j].IsValid = dict[key][j].IsValid;
+    //        result[j].Process = dict[key][j].Process;
+    //        result[j].UndoProcess = dict[key][j].UndoProcess;
+    //        result[j].Message = dict[key][j].Message;
+    //      }
+
+    //      var currentStep = result.LastOrDefault();
+    //      Debug.Assert(currentStep != null, "RefreshSteps: currentStep null!");
+    //      if (currentStep.IsValid != null && !currentStep.IsValid(result)) { result.Clear(); continue; }
+    //      currentStep.Process?.Invoke(result);
+
+    //      if (i == 0) { complete = true; break; } //got complete action
+    //    }
+    //  }
+
+    //  Context.Steps = result; // if no match found: get back empty step list in same context
+    //  return complete;
+    //}
+    //public bool RefreshSequence_orig(Step newStep)
+    //{
+    //  Debug.Assert(Context != null, "RefreshSteps: Context null");
+    //  Debug.Assert(Context.Steps != null, "RefreshSteps: Context.Steps NULL bei RefreshSequence!");
+    //  Debug.Assert(Context.StepDictionary != null, "RefreshSteps: Context.StepDictionary null!");
+
+    //  // if clicked a selected object, unselect and roll back to previous to clicking that object
+    //  var newSteps = Steps.Any(x => x.Obj == newStep.Obj) ? EraseAllStepsBeforeAndIncludingObject(newStep.Obj) : Steps.Plus(newStep);
+
+    //  //Console.WriteLine("\tSteps:" + Steps.Count+", newSteps:"+newSteps.Count());
+
+    //  if (newSteps.Count() == 0) { Context.Steps = newSteps.ToList(); return false; }
+
+    //  var revsteps = newSteps.ToArray().Reverse().ToList();
+    //  List<Step> result = new List<Step>();
+    //  cl[] key = null;
+    //  var dict = Context.StepDictionary;
+    //  bool complete = false; IsCardActivation = IsSpecialOptionActivation = false;
+
+    //  foreach (var k in dict.Keys)
+    //  {
+    //    var rk = k.Reverse().ToArray();
+    //    var len = rk.Length;
+    //    int i = 0;
+    //    while (i < len && rk[i] != revsteps[0].Click) i++;
+    //    if (i >= len) continue; //not a match at all
+    //    //while (i < len-1 && rk[i+1] == revsteps[0].Click) i++; //****** nimm last match of a sequence of same clicks
+
+    //    var success = true;
+    //    for (int j = i; j < len; j++) { if (j - i >= revsteps.Count || revsteps[j - i].Click != rk[j]) { success = false; break; } } // not a match!
+
+    //    if (success)
+    //    {
+    //      result = revsteps.ToArray().Take(len - i).Reverse().ToList();
+    //      key = k;
+
+    //      for (int j = 0; j < result.Count; j++)
+    //      {
+    //        Debug.Assert(result[j].Click == key[j], "RefreshSteps: Clicks do not match in matching step sequence");
+    //        result[j].IsValid = dict[key][j].IsValid;
+    //        result[j].Process = dict[key][j].Process;
+    //        result[j].UndoProcess = dict[key][j].UndoProcess;
+    //        result[j].Message = dict[key][j].Message;
+    //      }
+
+    //      var currentStep = result.LastOrDefault();
+    //      Debug.Assert(currentStep != null, "RefreshSteps: currentStep null!");
+    //      if (currentStep.IsValid != null && !currentStep.IsValid(result)) { result.Clear(); continue; }
+    //      currentStep.Process?.Invoke(result);
+
+    //      if (i == 0) { complete = true; break; } //got complete action
+    //    }
+    //  }
+
+    //  Context.Steps = result; // if no match found: get back empty step list in same context
+    //  return complete;
+    //}
+
 
     //public bool RefreshSequence(Step newStep)
     //{
@@ -429,69 +490,13 @@ namespace ations
     //  Context.Steps = result; // if no match found: get back empty step list in same context
     //  return complete;
     //}
-    public bool RefreshSequence_orig(Step newStep)
-    {
-      Debug.Assert(Context != null, "RefreshSteps: Context null");
-      Debug.Assert(Context.Steps != null, "RefreshSteps: Context.Steps NULL bei RefreshSequence!");
-      Debug.Assert(Context.StepDictionary != null, "RefreshSteps: Context.StepDictionary null!");
+    //{
+    //  //DisableAndUnselectAll();
+    //  //Message = "execute special action?";
 
-      // if clicked a selected object, unselect and roll back to previous to clicking that object
-      var newSteps = Steps.Any(x => x.Obj == newStep.Obj) ? EraseAllStepsBeforeAndIncludingObject(newStep.Obj) : Steps.Plus(newStep);
-
-      //Console.WriteLine("\tSteps:" + Steps.Count+", newSteps:"+newSteps.Count());
-
-      if (newSteps.Count() == 0) { Context.Steps = newSteps.ToList(); return false; }
-
-      var revsteps = newSteps.ToArray().Reverse().ToList();
-      List<Step> result = new List<Step>();
-      cl[] key = null;
-      var dict = Context.StepDictionary;
-      bool complete = false; IsCardActivation = IsSpecialOptionActivation= false;
-
-      foreach (var k in dict.Keys)
-      {
-        var rk = k.Reverse().ToArray();
-        var len = rk.Length;
-        int i = 0;
-        while (i < len && rk[i] != revsteps[0].Click) i++;
-        if (i >= len) continue; //not a match at all
-        //while (i < len-1 && rk[i+1] == revsteps[0].Click) i++; //****** nimm last match of a sequence of same clicks
-
-        var success = true;
-        for (int j = i; j < len; j++) { if (j - i >= revsteps.Count || revsteps[j - i].Click != rk[j]) { success = false; break; } } // not a match!
-
-        if (success)
-        {
-          result = revsteps.ToArray().Take(len - i).Reverse().ToList();
-          key = k;
-
-          for (int j = 0; j < result.Count; j++)
-          {
-            Debug.Assert(result[j].Click == key[j], "RefreshSteps: Clicks do not match in matching step sequence");
-            result[j].IsValid = dict[key][j].IsValid;
-            result[j].Process = dict[key][j].Process;
-            result[j].UndoProcess = dict[key][j].UndoProcess;
-            result[j].Message = dict[key][j].Message;
-          }
-
-          var currentStep = result.LastOrDefault();
-          Debug.Assert(currentStep != null, "RefreshSteps: currentStep null!");
-          if (currentStep.IsValid != null && !currentStep.IsValid(result)) { result.Clear(); continue; }
-          currentStep.Process?.Invoke(result);
-
-          if (i == 0) { complete = true; break; } //got complete action
-        }
-      }
-
-      Context.Steps = result; // if no match found: get back empty step list in same context
-      return complete;
-    }
+    //  //await Checker.ExecuteAction(MainPlayer, choice.Tag as Card);
+    //}
 
     #endregion
-
-
-
-
-
   }
 }

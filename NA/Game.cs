@@ -20,48 +20,32 @@ using System.Xml.Serialization;
 using ations;
 namespace ations
 {
-  #region design time
-  public class AGameDesignTime { public Game Game { get; set; } public AGameDesignTime() { Game = Game.Inst; } }
-  #endregion
+  //#region design time
+  //public class AGameDesignTime { public Game Game { get; set; } public AGameDesignTime() { Game = new Game(); } }// GameInst; } }
+  //#endregion
   public partial class Game : DependencyObject, INotifyPropertyChanged, IXmlSerializable
   {
-    #region  constructor: singleton
-    private static readonly Game instance = new Game(); public static Game Inst { get { return instance; } }
-    private Game()
+    //#region  constructor: singleton
+    //private static readonly Game instance = new Game(); public static Game Inst { get { return instance; } }
+    //private Game()
+    public Game()
     {
+      Checker = new Checker(this);
+      Tests = new Tests(this);
+
       PreselectedFields = new ObservableCollection<ations.Field>();
       ResChoices = new ObservableCollection<Res>();
       ChangesInResources = new ObservableCollection<Res>();
       Choices = new ObservableCollection<Choice>();
       AnimationQueue = new List<Storyboard>();
       ContextStack = new Stack<ContextInfo>();
+
       Players = new ObservableCollection<Player>();
       Helpers.MakeCardIndex();
       //State = new State();
 
       Initialize();
     }
-
-    //    #region  constructor
-    //    //private static readonly Game instance = new Game(); : singleton
-
-    //    public static Game Inst { get { if (inst == null) inst = new Game(); return inst; } private set { inst = value; } }// { {if ; private set; }// { return instance; } }
-    //    static Game inst = null;
-
-    //    public Game()
-    //    {
-    //      PreselectedFields = new ObservableCollection<Field>();
-    //      ResChoices = new ObservableCollection<Res>();
-    //      ChangesInResources = new ObservableCollection<Res>();
-    //      Choices = new ObservableCollection<Choice>();
-    //      AnimationQueue = new List<Storyboard>();
-    //      ContextStack = new Stack<ContextInfo>();
-    //      Players = new ObservableCollection<Player>();
-    //      Helpers.MakeCardIndex();
-
-    //      Initialize();
-    ////      NotifyPropertyChanged("Inst");
-    //    }
 
     public void ResetGame()
     {
@@ -76,7 +60,7 @@ namespace ations
       ClearAnimations();
       Stats.Clear();
       ArchitectEnabled = TurmoilEnabled = WorkerEnabled = IsOkStartEnabled = IsPassEnabled = IsCancelEnabled = false;
-      OkStartClicked = CancelClicked = PassClicked = ArchitectSelected = TurmoilSelected = WorkerSelected = IsCardActivation = IsSpecialOptionActivation=false;
+      OkStartClicked = CancelClicked = PassClicked = ArchitectSelected = TurmoilSelected = WorkerSelected = IsCardActivation = IsSpecialOptionActivation = false;
       ActionComplete = false;
       Context = null;
       ContextStack.Clear();
@@ -120,11 +104,11 @@ namespace ations
       rounds = nRounds;
 
       InitPlayers(nPlayers);
-      Progress = new Progress(nProgressCols, inclDyn, inclFake);// NumPlayers + 2, true, false); //testing
+      Progress = new Progress(this,nProgressCols, inclDyn, inclFake);// NumPlayers + 2, true, false); //testing
       Stats = new Stats(this);
 
       ArchitectEnabled = TurmoilEnabled = WorkerEnabled = IsOkStartEnabled = IsPassEnabled = IsCancelEnabled = false;
-      OkStartClicked = CancelClicked = PassClicked = ArchitectSelected = TurmoilSelected = WorkerSelected = IsCardActivation = IsSpecialOptionActivation=false;
+      OkStartClicked = CancelClicked = PassClicked = ArchitectSelected = TurmoilSelected = WorkerSelected = IsCardActivation = IsSpecialOptionActivation = false;
       ActionComplete = false;
       Context = null;
       ContextStack.Clear();
@@ -135,15 +119,15 @@ namespace ations
       // TEST SETUP FUER RUNTIME DEFAULT HERE ***************************************
       //switchesOff();
       //SwitchRoundAndAgeOn = SwitchProgressOn = SwitchNewEventOn = SwitchActionOn = SwitchProductionOn = SwitchOrderOn = SwitchWarOn = true;
-      switchesOn();
+      Tests.switchesOn();
 
       // TEST SETUP FUER DESIGNER HERE **********************************************
       //design test
       //var card = P0.GetCard("yurt");
       //card.StoredResources.Add(new Res("gold"));
-      
-      
-      
+
+
+
       //ShowCardChoices = true;
       //var dyn = MainPlayer.Civ.Dynasties.ToList();
       //List<Choice> list = new List<Choice>();
@@ -153,7 +137,28 @@ namespace ations
 
     }
 
-    #endregion
+    //    #region  constructor
+    //    //private static readonly Game instance = new Game(); : singleton
+
+    //    public static Game Inst { get { if (inst == null) inst = new Game(); return inst; } private set { inst = value; } }// { {if ; private set; }// { return instance; } }
+    //    static Game inst = null;
+
+    //    public Game()
+    //    {
+    //      PreselectedFields = new ObservableCollection<Field>();
+    //      ResChoices = new ObservableCollection<Res>();
+    //      ChangesInResources = new ObservableCollection<Res>();
+    //      Choices = new ObservableCollection<Choice>();
+    //      AnimationQueue = new List<Storyboard>();
+    //      ContextStack = new Stack<ContextInfo>();
+    //      Players = new ObservableCollection<Player>();
+    //      Helpers.MakeCardIndex();
+
+    //      Initialize();
+    ////      NotifyPropertyChanged("Inst");
+    //    }
+
+//#endregion
 
     #region resource selection/update/production, choice selection
 
@@ -240,7 +245,7 @@ namespace ations
     public int NumArchitects(Card card) { return card.GetArchCostArray.Length; }
     public bool CalcCanAffordArchitect() { return MainPlayer.Res.n("coal") >= CalcArchitectCost(MainPlayer.WICField.Card); }
     public bool CalcCanAffordArchitect(Player pl) { return pl.Res.n("coal") >= CalcArchitectCost(pl.WICField.Card); }
-    public bool CanDeploy { get { return MainPlayer.Cards.Any(x=>x.buildmil()) && MainPlayer.Res.n("coal") >= CalcMinDeployCost(MainPlayer); } } //simplified
+    public bool CanDeploy { get { return MainPlayer.Cards.Any(x => x.buildmil()) && MainPlayer.Res.n("coal") >= CalcMinDeployCost(MainPlayer); } } //simplified
     public int CalcMinDeployCost(Player pl) { return pl.Cards.Where(x => x.buildmil()).Min(x => Checker.CalcDeployCost(pl, x)); }
     public void UpdateUI() { DisableAndUnselectAll(); EnableAndSelectForContext(Context.Id); Message = Step != null ? EditMessage(Step.Message) : Context.BaseMessage; }
     public void EnableAndSelectForContext(ctx context)

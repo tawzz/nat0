@@ -8,20 +8,22 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Threading;
+using ations.MA;
 
 namespace ations
 {
   public partial class WGame : Window
   {
     #region properties and constructor
-    public Game Game { get; set; }
+    public VM VM { get { return (Application.Current as App).VM; } }
+    public Game Game { get { return VM.Game; } }
     public WGame()
     {
-      Game = Game.Inst;
+      //Game = GameInst;
       InitializeComponent();
       Dispatcher.BeginInvoke(DispatcherPriority.Loaded, new Action(() =>
       {
-        DataContext = Game;
+        //DataContext = Game;
         //Game.UIDispatcher = Dispatcher;
         Game.UIRoundmarker = elRoundMarker; // some ui elements needed for animations triggered in gameloop
       }));
@@ -48,9 +50,9 @@ namespace ations
 
     private void OnClickWorkerOnCivCard(object sender, MouseButtonEventArgs e)    {      Game.OnClickWorkerCounter((sender as FrameworkElement).DataContext as Field);    }
 
-    private void OnClickNextTest(object sender, RoutedEventArgs e)    {      Game.NextTestRequested();    }
-    private void OnClickRepeatTest(object sender, RoutedEventArgs e) { Game.RepeatRequested(); }
-    private void OnClickPlayMode(object sender, RoutedEventArgs e) { Game.PlayModeRequested(); }
+    private void OnClickNextTest(object sender, RoutedEventArgs e)    {      Game.Tests.NextTestRequested();    }
+    private void OnClickRepeatTest(object sender, RoutedEventArgs e) { Game.Tests.RepeatRequested(); }
+    private void OnClickPlayMode(object sender, RoutedEventArgs e) { Game.Tests.PlayModeRequested(); }
 
     private void OnClickTesting(object sender, RoutedEventArgs e)    {      Game.Message = "no current test function";    }
 
@@ -85,7 +87,7 @@ namespace ations
     {
       Game.OnClickSpecialOption((sender as FrameworkElement).DataContext as Choice);
     }
-    private void OnClickSave(object sender, RoutedEventArgs e) { State.SaveGame(this,Game.Inst); }
+    private void OnClickSave(object sender, RoutedEventArgs e) { State.SaveGame(this, Game); }
 
     private async void OnClickLoad(object sender, RoutedEventArgs e) { await Game.InterruptGame(); }// Game =  State.LoadGame(this); }
   }

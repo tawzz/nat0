@@ -13,7 +13,7 @@ namespace ations
     // base scoring america = 7.4, 2w 5c 7g 5vp, egypt = 2w 7c 5g 4vp
     string startWithTest = "america_dyn1"; // autotests start with america_dyn1
     bool stopAfterTest = false;
-    string initialMode = "testing";
+    string initialMode = "";//"testing";
 
     Dictionary<string, Action> TestDictionary = new Dictionary<string, Action>()
     {

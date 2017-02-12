@@ -7,12 +7,15 @@ using System.Xml.Linq;
 
 namespace ations
 {
-  public static partial class Checker
+  public partial class Checker
   {
-    public static void AddToRes(List<Res> list, string name, int num) { var res = list.FirstOrDefault(x => x.Name == name); if (res == null) list.Add(new Res(name, num)); else res.Num += num; }
-    public static async Task ApplyResEffectTask(Res resEffect)
+    public Game GameInst { get; set; }
+    public Checker(Game game) { GameInst = game; }
+    public void AddToRes(List<Res> list, string name, int num) { var res = list.FirstOrDefault(x => x.Name == name); if (res == null) list.Add(new Res(name, num)); else res.Num += num; }
+    public async Task ApplyResEffectTask(Res resEffect)
     {
-      var game = Game.Inst;
+      var game = GameInst;
+      //var game = gameinst; Debug.Assert(game != null, "gameinst is null!");
       var resname = resEffect.Name;
       var resnum = resEffect.Num;
       if (resname == "worker" && resnum < 0) // needs to return a worker!
@@ -45,9 +48,9 @@ namespace ations
       }
 
     }
-    public static async Task ExecuteEffectAction(string effect, string param, Player pl)
+    public async Task ExecuteEffectAction(string effect, string param, Player pl)
     {
-      var game = Game.Inst;
+      var game = GameInst;
       switch (effect) //TODO streamline shortcuts!
       {
         case "go_first": { List<Player> newlist = new List<Player> { pl }; newlist.AddRange(Others(pl)); game.Players.Clear(); foreach (var p in newlist) game.Players.Add(p); break; }
@@ -58,14 +61,14 @@ namespace ations
         case "may_hire_2_arch_for_free": if (pl.HasWIC) { var answer = await game.YesNoChoiceTask("hire 2 architects for free?"); if (answer) await game.AddFreeArchitectsTask(pl, 2); } break;
         case "may_deploy_2_workers_to_military_for_free": if (pl.NumMilitaryFields > 0) { var answer = await game.YesNoChoiceTask("deploy 2 workers to military for free?"); if (answer) { for (int i = 0; i < 2; i++) { await game.DeployWorkerForFreeTask(pl, new string[] { "military" }); } } } break;
         case "regain_war_loss": if (pl.Military < game.Stats.WarLevel) { foreach (var res in pl.WarLoss) { pl.UpdateResBy(res.Name, res.Num); } } break;
-        case "remove_advisors": pl.RemoveAdvisor(); break;
+        case "remove_advisors": game.RemoveAdvisor(pl); break;
         case "remove_colony_if_none_pay_vp": { var n = pl.NumColonies; if (n > 1) { var f = await game.PickCivFieldOutOf(pl, pl.Colonies, "event"); RemoveCivCard(pl, f); } else if (n == 1) { RemoveCivCard(pl, pl.Colonies.First()); } else { await game.PayTask(pl, "vp", 1); } } break;
       }
       await Task.Delay(100);
     }
-    public static List<Player> Filter(string pred, string param, IEnumerable<Player> basePlayerSet)
+    public List<Player> Filter(string pred, string param, IEnumerable<Player> basePlayerSet)
     {
-      var game = Game.Inst;
+      var game = GameInst;
       switch (pred)
       {
         case "least":
@@ -97,9 +100,9 @@ namespace ations
       }
       return basePlayerSet.ToList();
     }
-    public static List<Player> CalcAffects(XElement ev, List<Player> basePlayerSet)
+    public List<Player> CalcAffects(XElement ev, List<Player> basePlayerSet)
     {
-      var game = Game.Inst;
+      var game = GameInst;
       var affects = ev.astring("affects"); // affects attribute overrides basePlayerSet
       if (!string.IsNullOrEmpty(affects))
       {
@@ -118,7 +121,7 @@ namespace ations
       //else if (Predicates.ContainsKey(pred)) return basePlayerSet.Where(x => Predicates[pred](ev.astring("param"))).ToList();
       //else { Console.WriteLine(game.LongMessage = "pred " + pred + " unknown!"); return basePlayerSet; }
     }
-    public static bool CheckResEffects(Player pl, IEnumerable<Res> resEffects)
+    public bool CheckResEffects(Player pl, IEnumerable<Res> resEffects)
     {
       foreach (var res in resEffects)
       {
@@ -138,14 +141,14 @@ namespace ations
         }
         else if (res.Name == "arch")
         {
-          if (res.Num > 0 && (!pl.HasWIC || !Game.Inst.CalcCanAffordArchitect(pl))) return false;
+          if (res.Num > 0 && (!pl.HasWIC || !GameInst.CalcCanAffordArchitect(pl))) return false;
           if (res.Num < 0 && (!pl.HasWIC || pl.WIC.NumDeployed < -res.Num)) return false;
         }
         else if (res.Num < 0 && pl.Res.n(res.Name) < -res.Num) return false;
       }
       return true;
     }
-    public static List<Res> GetResourcesForRule(XElement xel)
+    public List<Res> GetResourcesForRule(XElement xel)
     {
       List<string> exceptions = new List<string> { "pred", "param", "effect", "eparam", "affects", "text", "max" };
       List<Res> result = new List<Res>();
@@ -160,9 +163,9 @@ namespace ations
       }
       return result;
     }
-    public static List<Player> PlayersWith(string pred, string resname, IEnumerable<Player> pls = null)
+    public List<Player> PlayersWith(string pred, string resname, IEnumerable<Player> pls = null)
     {
-      var game = Game.Inst;
+      var game = GameInst;
       if (pls == null) pls = game.Players.ToList();
       Debug.Assert(pls.Count() >= 1, "0 players in PlayersWith");
       var sorted = pls.OrderBy(x => x.Res.n(resname)).Select(x => new Tuple<Player, int>(x, x.Res.n(resname))).ToList();
@@ -176,10 +179,10 @@ namespace ations
       else if (pred == "not_most") return resultingTuples.Count == pls.Count() - 1 ? resultingTuples.Select(x => x.Item1).ToList() : pls.ToList();
       else return resultingTuples.Select(x => x.Item1).ToList();
     }
-    public static bool PlayerHas(Player pl, string pred, string resname) { return PlayersWith(pred, resname).Contains(pl); }
-    public static bool OtherPlayerHas(Player pl, string name)
+    public bool PlayerHas(Player pl, string pred, string resname) { return PlayersWith(pred, resname).Contains(pl); }
+    public bool OtherPlayerHas(Player pl, string name)
     {
-      var game = Game.Inst;
+      var game = GameInst;
       foreach (var other in game.Players)
       {
         if (other == pl) continue;
@@ -187,22 +190,22 @@ namespace ations
       }
       return false;
     }
-    public static bool AnyPlayerHas(string name)
+    public bool AnyPlayerHas(string name)
     {
-      var game = Game.Inst;
+      var game = GameInst;
       foreach (var pl in game.Players)
       {
         if (pl.Cards.Any(x => x.Name == name)) return true;
       }
       return false;
     }
-    public static Player PlayerThatHas(string name) { return Game.Inst.Players.FirstOrDefault(x => x.Cards.Any(y => y.Name == name)); }
-    public static List<Player> Others(Player pl) { return Game.Inst.Players.Where(x => x != pl).ToList(); }
+    public Player PlayerThatHas(string name) { return GameInst.Players.FirstOrDefault(x => x.Cards.Any(y => y.Name == name)); }
+    public List<Player> Others(Player pl) { return GameInst.Players.Where(x => x != pl).ToList(); }
 
     #region unused
     //public static List<Player> CalcAffects_old(XElement ev, List<Player> basePlayerSet)
     //{
-    //  var game = Game.Inst;
+    //  var game = GameInst;
     //  var affects = ev.astring("affects"); // affects attribute overrides basePlayerSet
     //  if (!string.IsNullOrEmpty(affects))
     //  {

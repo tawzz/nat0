@@ -34,6 +34,7 @@ namespace ations.MA
     {
       Name = "Nations";
       Settings.Initialize();
+      Game = new Game();
       // restore game from saved game?
     }
 

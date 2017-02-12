@@ -23,6 +23,9 @@ namespace ations
   {
     #region properties
 
+    public Checker Checker { get; set; }
+    public Tests Tests { get; set; }
+
     public int NumPlayers { get; set; }
 
     public ObservableCollection<Player> Players { get; set; }

@@ -7,13 +7,14 @@
         xmlns:local="clr-namespace:ations"
         mc:Ignorable="d"
         Title="AWGame"
-        d:DataContext="{Binding Game, Source={d:DesignInstance IsDesignTimeCreatable=True, Type={x:Type local:AGameDesignTime}}}"
+        DataContext="{Binding VM, RelativeSource={RelativeSource Self}}"
+        d:DataContext="{Binding VM, Source={d:DesignInstance IsDesignTimeCreatable=True, Type={x:Type local:VMDesignTime}}}"
         WindowStartupLocation="Manual"
         Height="980"
         Width="1686"
         Left="70"
         Top="100">
-  <Grid x:Name="gridMain"
+  <Grid x:Name="gridMain" DataContext="{Binding Game}"
         Background="Transparent">
     <DockPanel>
       <Grid x:Name="gMessage"

@@ -36,7 +36,7 @@ namespace ations
     static Dictionary<cl[], Step[]> dSwapCards = new Dictionary<cl[], Step[]>()
     {
       {new cl[] {cl.prog},
-        new Step[] {new Step("put cross here?", validator:(_)=>{ return IsCTX(ctx.pickProgress); }) } },
+        new Step[] {new Step("put cross here?", validator: (list) => { return LastGame(list).Context.Id == ctx.pickProgress; }) } },
       {new cl[] {cl.prog, cl.prog},
         new Step[] {new Step("select another progress card"), new Step("swap?")} },
     };
@@ -61,9 +61,9 @@ namespace ations
       {new cl[] {cl.civ, cl.civ},
         new Step[] {new Step("undeploy?", validator: HasWorkerDeployedContextUndeploy, processor:Remove2ndLast) } },
       {new cl[] {cl.civ},
-        new Step[] {new Step("deploy?", validator:(_)=>{ return IsCTX(ctx.deployWorker); }) } },
+        new Step[] {new Step("deploy?", validator:(list)=>{ return LastGame(list).Context.Id == ctx.deployWorker; }) } },
       {new cl[] {cl.civ, cl.civ},
-        new Step[] {new Step("deploy?", validator: (_) => { return IsCTX(ctx.deployWorker); }, processor:Remove2ndLast) } },
+        new Step[] {new Step("deploy?", validator: (list) => { return LastGame(list).Context.Id == ctx.deployWorker; }, processor:Remove2ndLast) } },
     };
     static Dictionary<cl[], Step[]> dMChooser = new Dictionary<cl[], Step[]>()//weg
     {
@@ -99,20 +99,21 @@ namespace ations
       { ctx.removeMilitaryWorker, dMChooser },//weg
     };
 
-    public static bool IsCTX(ctx context) { return Game.Inst.Context.Id == context; }
+    //public static bool IsCTX(ctx context) { return GameInst.Context.Id == context; }
     public static bool AllowsWonder(List<Step> list) { return LastField(list).TypesAllowed.Contains("wic"); }
     public static bool BuildingOrMilitaryUnderMaxDeploy(List<Step> list) { var last = LastField(list); var result = last.Card.CanDeployOn; return result; }// var card = last.Card; var maxdeploy = card.X.aint("maxdeploy", 100); var res = card.buildmil() && card.NumDeployed < maxdeploy; return res;}
-    public static bool HasWorkerDeployedContextUndeploy(List<Step> list) { var last = LastField(list); var result = last.Card.buildmil() && last.Card.NumDeployed > 0; return IsCTX(ctx.removeWorker) && result; }// LastField(list).Card.buildmil(); }
+    public static bool HasWorkerDeployedContextUndeploy(List<Step> list) { var last = LastField(list); var result = last.Card.buildmil() && last.Card.NumDeployed > 0; return LastGame(list).Context.Id == ctx.removeWorker && result; }// LastField(list).Card.buildmil(); }
     public static bool HasMilitaryWorkerDeployed(List<Step> list) { var last = LastField(list); var result = last.Card.mil() && last.Card.NumDeployed > 0; return result; }// LastField(list).Card.buildmil(); }
     public static bool LastFitsFirst(List<Step> list) { return list.Count > 1 && LastField(list).TypesAllowed.Contains(FirstField(list).Card.Type); }
     public static bool CanDeployFromLast(List<Step> list) { var card = LastField(list).Card; return card.buildmil() && card.NumDeployed > 0; }
-    public static bool OneStepBuy(List<Step> list) { return list.Count == 1 && Game.Inst.IsOneStepBuy(list[0].Obj as Field); }
+    public static bool OneStepBuy(List<Step> list) { return list.Count == 1 && LastGame(list).IsOneStepBuy(list[0].Obj as Field); }
     public static void Remove2ndLast(List<Step> list) { list.RemoveAt(list.Count - 2); }
-    public static bool ActionPossible(List<Step> list) { var last = LastField(list); var result = !last.Card.buildmil() && Checker.CheckActionPossible(G.MainPlayer, last.Card); return result; }
-    public static bool SpecialOptionPossible(List<Step> list) { var last = LastChoice(list); var result = Checker.CheckActionPossible(G.MainPlayer, last.Tag as Card); return result; }
-    public static void SetActionHandlingTrue(List<Step> list) { Game.Inst.IsCardActivation = true; }
-    public static void SetSpecialOptionHandlingTrue(List<Step> list) { Game.Inst.IsSpecialOptionActivation = true; }
+    public static bool ActionPossible(List<Step> list) { var last = LastField(list); var result = !last.Card.buildmil() && LastGame(list).Checker.CheckActionPossible(LastGame(list).MainPlayer, last.Card); return result; }
+    public static bool SpecialOptionPossible(List<Step> list) { var last = LastChoice(list); var result = LastGame(list).Checker.CheckActionPossible(LastGame(list).MainPlayer, last.Tag as Card); return result; }
+    public static void SetActionHandlingTrue(List<Step> list) { LastGame(list).IsCardActivation = true; }
+    public static void SetSpecialOptionHandlingTrue(List<Step> list) { LastGame(list).IsSpecialOptionActivation = true; }
 
+    public static Game LastGame(List<Step> list) { return LastStep(list).GameInst; }
     public static Step LastStep(List<Step> list) { Debug.Assert(list.LastOrDefault() != null, "NULL STEP!!!"); return list.Last(); }
     public static Step FirstStep(List<Step> list) { Debug.Assert(list.FirstOrDefault() != null, "NULL STEP!!!"); return list.First(); }
     public static Field LastField(List<Step> list) { Debug.Assert(LastStep(list).Obj is Field, "LAST NOT FIELD!!!"); return LastStep(list).Obj as Field; }

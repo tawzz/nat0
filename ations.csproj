@@ -89,9 +89,7 @@
     <Compile Include="NA\State.cs" />
     <Compile Include="NA\CheckerIntelligent.cs" />
     <Compile Include="NA\GameTasks.cs" />
-    <Compile Include="NA\ATestDictionary.cs" />
     <Compile Include="NA\CheckerStupid.cs" />
-    <Compile Include="NA\AGameTests.cs" />
     <Compile Include="NA\GameSettings.cs" />
     <Compile Include="NA\GameProperties.cs" />
     <Compile Include="Common\Converters\NumberToStringConverter.cs" />
@@ -105,6 +103,8 @@
     <Compile Include="Common\Converters\BooleanToOpacityConverter.cs" />
     <Compile Include="Common\Converters\ReverseBooleanToVisibilityConverter.cs" />
     <Compile Include="Common\Storyboards.cs" />
+    <Compile Include="NA\Tests.cs" />
+    <Compile Include="NA\TestsDictionary.cs" />
     <Compile Include="Window1.xaml.cs">
       <DependentUpon>Window1.xaml</DependentUpon>
     </Compile>

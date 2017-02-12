@@ -105,9 +105,6 @@ namespace ations
     public Field WICField { get { return Civ.Fields[CardType.iWIC]; } }
     public Field ADVField { get { return Civ.Fields[0]; } }
     public Field DYNField { get { return Civ.Fields[CardType.iDYN]; } }
-    public int GoldenAgeBonus { get { return Checker.CalcGoldenAgeBonus(this); } }
-    public int GoldenAgeBonusForVP { get { return Checker.CalcGoldenAgeBonusForVP(this); } }
-    public int RaidValue { get { return Checker.CalcRaid(this); } }
     // Res.n("raid"); } set { if (Res.n("raid") != value) { Res.set("raid", value); NotifyPropertyChanged(); } } }
     ////    public int MilminBonus { get; set; }
     //  public int MilitaryDeployBonus { get; set; }
@@ -238,7 +235,7 @@ namespace ations
       Defaulted.Clear();
       SpecialOptions.Clear();
       if (initCiv) InitCiv(civ ?? this.Civ.Name);
-      Score = Checker.CalcScore(this);
+      Score = 0;
     }
     public void InitCiv(string civ)
     {
@@ -272,44 +269,44 @@ namespace ations
       Books = Stability = Military = 0;
     }
 
-    public void LoadXml(XElement xpl)
-    {
-      Name = xpl.astring("name");
-      Index = xpl.aint("index");
-      Level = xpl.aint("level");
-      HasPassed = xpl.abool("hasPassed");
-      var xreslist = xpl.Element("resources").Attributes();
-      foreach (var xattr in xreslist)
-      {
-        var resname = xattr.Name.ToString();
-        var resnum = xpl.Element("resources").aint(resname);
-        Res.set(resname, resnum);
-      }
+    //public void LoadXml(XElement xpl)
+    //{
+    //  Name = xpl.astring("name");
+    //  Index = xpl.aint("index");
+    //  Level = xpl.aint("level");
+    //  HasPassed = xpl.abool("hasPassed");
+    //  var xreslist = xpl.Element("resources").Attributes();
+    //  foreach (var xattr in xreslist)
+    //  {
+    //    var resname = xattr.Name.ToString();
+    //    var resnum = xpl.Element("resources").aint(resname);
+    //    Res.set(resname, resnum);
+    //  }
 
-      var xciv = xpl.Element("civboard");
-      var civname = xciv.astring("civ");
-      Civ = new Civ(civname);
-      Cards.Clear();
-      int i = 0;
-      foreach (var xattr in xciv.Attributes())
-      { // attributes stored in order - important!!!!!!
-        var aname = xattr.Name.ToString();
-        if (aname == "civ") continue;
-        var ndeployed = xciv.aint(aname);
-        // name is card name or empty+index, val is numdeployed
-        var f = Civ.Fields[i];
-        var card = aname.StartsWith("empty") ? Card.MakeEmptyCard(f) : Card.MakeCard(aname);
-        card.NumDeployed = ndeployed;
-        f.Card = card;
-        if (!f.IsEmpty) Cards.Add(card);
-      }
+    //  var xciv = xpl.Element("civboard");
+    //  var civname = xciv.astring("civ");
+    //  Civ = new Civ(civname);
+    //  Cards.Clear();
+    //  int i = 0;
+    //  foreach (var xattr in xciv.Attributes())
+    //  { // attributes stored in order - important!!!!!!
+    //    var aname = xattr.Name.ToString();
+    //    if (aname == "civ") continue;
+    //    var ndeployed = xciv.aint(aname);
+    //    // name is card name or empty+index, val is numdeployed
+    //    var f = Civ.Fields[i];
+    //    var card = aname.StartsWith("empty") ? Card.MakeEmptyCard(f) : Card.MakeCard(aname);
+    //    card.NumDeployed = ndeployed;
+    //    f.Card = card;
+    //    if (!f.IsEmpty) Cards.Add(card);
+    //  }
 
-      var workerx = xpl.Element("extraworkers");
-      GratisExtraWorkers = workerx.aint("gratis");
-      for (int k = 0; k < workerx.Elements().Count(); k++) { ExtraWorkers[k].IsCheckedOut = workerx.Elements().ElementAt(k).abool("checkedOut"); }
+    //  var workerx = xpl.Element("extraworkers");
+    //  GratisExtraWorkers = workerx.aint("gratis");
+    //  for (int k = 0; k < workerx.Elements().Count(); k++) { ExtraWorkers[k].IsCheckedOut = workerx.Elements().ElementAt(k).abool("checkedOut"); }
 
-      Checker.CalcStabAndMil(this);
-    }
+    //  CalcStabAndMil(this);
+    //}
     public XElement ToXml()
     {
       var plx = new XElement("player",
@@ -410,21 +407,21 @@ namespace ations
       }
     }
 
-    public void UpgradeDynasty(Card card, Field f = null)
-    {
-      Debug.Assert(Civ.Dynasties.Contains(card), "UpgradeDynasty: card not in Dynasties!");
-      Civ.Dynasties.Remove(card);
-      if (f == null) { f = Civ.LargeSizeDynField; }
-      Checker.AddCivCardSync(this, card, f); //*********** Player.UpgradeDynasty: vielleicht kann man CheckUpgradeDynasty auch hier machen, wen add dynasty card!
-    }
-    public void RemoveAdvisor() { Checker.RemoveCivCard(this, Civ.Fields[CardType.iADV]); }
-    public void WonderReady(Field targetField)
-    {
-      var card = WIC;
-      card.NumDeployed = 0;
-      Checker.AddCivCardSync(this, card, targetField);
-      Checker.RemoveWIC(this);
-    }
+    //public void UpgradeDynasty(Card card, Field f = null)
+    //{
+    //  Debug.Assert(Civ.Dynasties.Contains(card), "UpgradeDynasty: card not in Dynasties!");
+    //  Civ.Dynasties.Remove(card);
+    //  if (f == null) { f = Civ.LargeSizeDynField; }
+    //  Checker.AddCivCardSync(this, card, f); //*********** Player.UpgradeDynasty: vielleicht kann man CheckUpgradeDynasty auch hier machen, wen add dynasty card!
+    //}
+    //public void RemoveAdvisor() { Checker.RemoveCivCard(this, Civ.Fields[CardType.iADV]); }
+    //public void WonderReady(Field targetField)
+    //{
+    //  var card = WIC;
+    //  card.NumDeployed = 0;
+    //  Checker.AddCivCardSync(this, card, targetField);
+    //  Checker.RemoveWIC(this);
+    //}
 
     public Dictionary<string, int> GetResDiff(Dictionary<string, int> resBefore, IEnumerable<string> relevantRes = null)
     {

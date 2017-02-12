@@ -22,6 +22,8 @@ namespace ations
     public string Message { get { return message; } set { message = value; NotifyPropertyChanged(); } }
     string message;
 
+    public Game GameInst { get; set; }
+
     public Step(cl click, object obj = null, ctx context = ctx.none) { Click = click; Obj = obj; Context = context; }
     public Step(string txt, Action<List<Step>> processor = null, Func<List<Step>, bool> validator = null, Action undo = null)
     {

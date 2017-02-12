@@ -20,37 +20,37 @@ namespace ations
         IsOkStartEnabled = false; IsRunning = true;
         while (Stats.Round < rounds)
         {
-          TestOrPlayMode(); Title = TestKey; iphase = 0; RoundBegin(); //State.RoundBegin();
+          Tests.TestOrPlayMode(); Title = Tests.TestKey; iphase = 0; RoundBegin(); //State.RoundBegin();
 
-          if (SwitchRoundAndAgeOn) { Stats.UpdateRound(); Stats.UpdateAge(); await WaitForRoundMarkerAnimationCompleted(); }
+          if (Tests.SwitchRoundAndAgeOn) { Stats.UpdateRound(); Stats.UpdateAge(); await WaitForRoundMarkerAnimationCompleted(); }
 
-          if (SwitchProgressOn) Progress.Deal(); CustomizeProgress?.Invoke();
+          if (Tests.SwitchProgressOn) Progress.Deal(); Tests.CustomizeProgress?.Invoke();
 
-          if (SwitchGrowthOn) { TestPreGrowth?.Invoke(); await GrowthPhaseTask(); TestPostGrowth?.Invoke(); }
-          CustomizeGrowth?.Invoke();
+          if (Tests.SwitchGrowthOn) { Tests.TestPreGrowth?.Invoke(); await GrowthPhaseTask(); Tests.TestPostGrowth?.Invoke(); }
+          Tests.CustomizeGrowth?.Invoke();
 
-          if (SwitchNewEventOn) { TestPreNewEvent?.Invoke(); await Checker.PickEventCard(); TestPostNewEvent?.Invoke(); }
-          CustomizeEvent?.Invoke();
+          if (Tests.SwitchNewEventOn) { Tests.TestPreNewEvent?.Invoke(); await Checker.PickEventCard(); Tests.TestPostNewEvent?.Invoke(); }
+          Tests.CustomizeEvent?.Invoke();
 
-          if (SwitchActionOn) { TestPreAction?.Invoke(); await PlayerActionTask(); TestPostAction?.Invoke(); }
+          if (Tests.SwitchActionOn) { Tests.TestPreAction?.Invoke(); await PlayerActionTask(); Tests.TestPostAction?.Invoke(); }
 
-          if (SwitchProductionOn) { TestPreProduction?.Invoke(); await ProductionTask(); TestPostProduction?.Invoke(); }
-          CustomizeProduction?.Invoke();
+          if (Tests.SwitchProductionOn) { Tests.TestPreProduction?.Invoke(); await ProductionTask(); Tests.TestPostProduction?.Invoke(); }
+          Tests.CustomizeProduction?.Invoke();
 
-          if (SwitchOrderOn) Checker.CalcPlayerOrder();
+          if (Tests.SwitchOrderOn) Checker.CalcPlayerOrder();
 
-          if (SwitchWarOn) { TestPreWar?.Invoke(); await WarResolutionTask(); TestPostWar?.Invoke(); }
+          if (Tests.SwitchWarOn) { Tests.TestPreWar?.Invoke(); await WarResolutionTask(); Tests.TestPostWar?.Invoke(); }
 
-          if (SwitchEventOn) { TestPreEventResolution?.Invoke(); await EventResolutionTask(); TestPostEventResolution?.Invoke(); }
+          if (Tests.SwitchEventOn) { Tests.TestPreEventResolution?.Invoke(); await EventResolutionTask(); Tests.TestPostEventResolution?.Invoke(); }
 
-          if (SwitchFamineOn) await FamineTask();
+          if (Tests.SwitchFamineOn) await FamineTask();
 
           await Checker.CheckEndOfAge();
 
-          if (ShowScore || IsTesting) Scoring();
-          if (TestCheckFailed() || stopAfterTest) await WaitForButtonClick();
+          if (ShowScore || Tests.IsTesting) Scoring();
+          if (Tests.TestCheckFailed() || Tests.stopAfterTest) await WaitForButtonClick();
 
-          TestCleanup?.Invoke(); iround++; iplayer = 0; iphase = 0; Stats.UpdateWarPosition(); //cleanup
+          Tests.TestCleanup?.Invoke(); iround++; iplayer = 0; iphase = 0; Stats.UpdateWarPosition(); //cleanup
         }
         Message = "Game Over"; ShowScore = true; Scoring(); await WaitForButtonClick(); // LongMessage = Message = "TEST FAILED!"; IsTesting = false;
       }

@@ -38,6 +38,5 @@ D:\dev\projects\nations\n\ations\ations\obj\Debug\ations.Properties.Resources.re
 D:\dev\projects\nations\n\ations\ations\obj\Debug\ations.csproj.GenerateResource.Cache
 D:\dev\projects\nations\n\ations\ations\obj\Debug\ations.exe
 D:\dev\projects\nations\n\ations\ations\obj\Debug\ations.pdb
-D:\dev\projects\nations\n\ations\ations\obj\Debug\ations.csprojResolveAssemblyReference.cache
 D:\dev\projects\nations\n\ations\ations\obj\Debug\MA\WinGame.g.cs
 D:\dev\projects\nations\n\ations\ations\obj\Debug\MA\WinGame.baml

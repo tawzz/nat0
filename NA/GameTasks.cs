@@ -32,7 +32,7 @@ namespace ations
         MainPlayer = pl; await Task.Delay(500);
         var txt = await PickTextChoiceTask(new string[] { "pay " + resnum + " " + resname, "remove " + cardtype }, "event");
         if (txt.Text.StartsWith("pay")) await PayTask(pl, resname, resnum);
-        else if (cardtype == "advisor") pl.RemoveAdvisor(); // ist there a case where player would remove just 1 advisor and another where he would remove all advisors?
+        else if (cardtype == "advisor") RemoveAdvisor(pl); // ist there a case where player would remove just 1 advisor and another where he would remove all advisors?
         else
         {
           var fields = pl.Civ.Fields.Where(x => !x.IsEmpty && x.Card.Type == cardtype).ToList();
@@ -119,7 +119,7 @@ namespace ations
         await WaitForButtonClick();
       }
       var civField = Step.Obj as Field;
-      MainPlayer.WonderReady(civField);
+      WonderReady(MainPlayer,civField);
       await Checker.CheckReady(civField);
       ContextEnd();
     }
@@ -136,13 +136,29 @@ namespace ations
       var chosen = await PickCardChoiceTask(list, "turmoil");
 
       var newdyncard = chosen.Tag as Card;
-      if (newdyncard != null) { await Checker.CheckUpgradeDynasty(MainPlayer, newdyncard); MainPlayer.UpgradeDynasty(newdyncard); }
+      if (newdyncard != null) { await Checker.CheckUpgradeDynasty(MainPlayer, newdyncard); UpgradeDynasty(MainPlayer,newdyncard); }
       else MainPlayer.UpdateResBy("gold", 2);
 
       await Checker.CheckTurmoil(MainPlayer, newdyncard == null);// MainPlayer.TurmoilsTaken++;
       Stats.Turmoils--;
       Message = MainPlayer.Name + " took a turmoil"; await Task.Delay(200);
     }
+    public void UpgradeDynasty(Player pl, Card card, Field f = null)
+    {
+      Debug.Assert(pl.Civ.Dynasties.Contains(card), "UpgradeDynasty: card not in Dynasties!");
+      pl.Civ.Dynasties.Remove(card);
+      if (f == null) { f = pl.Civ.LargeSizeDynField; }
+      Checker.AddCivCardSync(pl, card, f); //*********** Player.UpgradeDynasty: vielleicht kann man CheckUpgradeDynasty auch hier machen, wen add dynasty card!
+    }
+    public void RemoveAdvisor(Player pl) { Checker.RemoveCivCard(pl, pl.Civ.Fields[CardType.iADV]); }
+    public void WonderReady(Player pl,Field targetField)
+    {
+      var card = pl.WIC;
+      card.NumDeployed = 0;
+      Checker.AddCivCardSync(pl, card, targetField);
+      Checker.RemoveWIC(pl);
+    }
+
     public async Task<Card> UpgradeDynastyTask(Player pl)
     {
       //var dyncard = await IndependentDynastyUpgradeTask(pl);
@@ -163,7 +179,7 @@ namespace ations
         MainPlayer = plMain;
       }
 
-      if (dyncard != null) { await Checker.CheckUpgradeDynasty(pl, dyncard); pl.UpgradeDynasty(dyncard); }
+      if (dyncard != null) { await Checker.CheckUpgradeDynasty(pl, dyncard); UpgradeDynasty(pl,dyncard); }
       return dyncard;
     }
 
@@ -183,20 +199,24 @@ namespace ations
 
       if (card.war()) { Stats.UpdateWarPosition(MainPlayer, card); }
       else if (card.golden()) { await BuyGoldenAgeTask(card); }
-      else if (card.battle()) { await PickResourceAndGetItTask(new string[] { "wheat", "coal", "book" }, MainPlayer.RaidValue, "battle"); }
+      else if (card.battle()) { await PickResourceAndGetItTask(new string[] { "wheat", "coal", "book" }, RaidValue(MainPlayer), "battle"); }
       else { Debug.Assert(card.civ(), "BuyProgressCard: not a civ card:" + card.Name); await Checker.AddCivCard(MainPlayer, card, fieldPlace); }
 
       Message = MainPlayer.Name + " bought " + card.Name;
     }
+    public int GoldenAgeBonus(Player pl) { return Checker.CalcGoldenAgeBonus(pl); }
+    public int GoldenAgeBonusForVP(Player pl) { return Checker.CalcGoldenAgeBonusForVP(pl); } 
+    public int RaidValue(Player pl) { return Checker.CalcRaid(pl); } 
+
     public async Task BuyGoldenAgeTask(Card card)
     {
       var res = card.GetResources().FirstOrDefault();
       var effect = card.GetEffect;
       Debug.Assert(res != null || !string.IsNullOrEmpty(card.GetEffect), "BuyGoldenAgeTask: no resource on golden age card AND no effect!");
 
-      if (res != null) res.Num += MainPlayer.GoldenAgeBonus; ;
+      if (res != null) res.Num += GoldenAgeBonus(MainPlayer); ;
 
-      var costOfVP = Stats.Age - MainPlayer.GoldenAgeBonusForVP;
+      var costOfVP = Stats.Age - GoldenAgeBonusForVP(MainPlayer);
       var resToPayForVP = MainPlayer.Res.List.Where(x => x.CanPayWith && x.Num > 0).ToList();
       var canaffordvp = resToPayForVP.Sum(x => x.Num) >= costOfVP;
 
@@ -290,7 +310,7 @@ namespace ations
     public async Task OptionBuyVPTask(Player pl)
     {
       // first check if can afford vp
-      var goldenagebonus = pl.GoldenAgeBonus;
+      var goldenagebonus = GoldenAgeBonus(pl);
       var costOfVP = Stats.Age - goldenagebonus;
       var resToPayForVP = pl.Res.List.Where(x => x.CanPayWith && x.Num > 0).ToList();
       var canaffordvp = resToPayForVP.Sum(x => x.Num) >= costOfVP;
@@ -646,7 +666,7 @@ namespace ations
       while (!OkStartClicked && !PassClicked)
       {
         if (Interrupt) throw (new Exception("STOPPED BY PLAYER!"));
-        if (IsTesting) { await Task.Delay(longDelay); ConsumeTestInput(); await Task.Delay(longDelay); }
+        if (Tests.IsTesting) { await Task.Delay(longDelay); Tests.ConsumeTestInput(); await Task.Delay(longDelay); }
         await Task.Delay(100);
       }
       var result = OkStartClicked;
@@ -663,7 +683,7 @@ namespace ations
       {
         if (Interrupt) throw (new Exception("STOPPED BY PLAYER!"));
 
-        if (IsTesting) { await Task.Delay(longDelay); ConsumeTestInput(); await Task.Delay(longDelay); }
+        if (Tests.IsTesting) { await Task.Delay(longDelay); Tests.ConsumeTestInput(); await Task.Delay(longDelay); }
 
         await Task.Delay(100);
       }
@@ -677,7 +697,7 @@ namespace ations
       {
         if (Interrupt) throw (new Exception("STOPPED BY PLAYER!"));
 
-        if (IsTesting) { await Task.Delay(longDelay); ConsumeTestInput(); await Task.Delay(longDelay); }//***
+        if (Tests.IsTesting) { await Task.Delay(longDelay); Tests.ConsumeTestInput(); await Task.Delay(longDelay); }//***
 
         await Task.Delay(100);
       }

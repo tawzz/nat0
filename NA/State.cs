@@ -157,7 +157,7 @@ namespace ations
   //  {
   //    var state = new GameState();
   //    state.PlayerStates = new Dictionary<Player, PlayerState>();
-  //    foreach (var pl in Game.Inst.Players) state.PlayerStates.Add(pl, PlayerState.Record(pl));
+  //    foreach (var pl in GameInst.Players) state.PlayerStates.Add(pl, PlayerState.Record(pl));
   //    return state;
 
   //  }
@@ -166,7 +166,7 @@ namespace ations
   //  {
   //    var diff = new GameState();
   //    diff.PlayerStates = new Dictionary<Player, PlayerState>();
-  //    foreach (var pl in Game.Inst.Players) diff.PlayerStates.Add(pl, PlayerState.CalcDifference(s1.PlayerStates[pl], s2.PlayerStates[pl]));
+  //    foreach (var pl in GameInst.Players) diff.PlayerStates.Add(pl, PlayerState.CalcDifference(s1.PlayerStates[pl], s2.PlayerStates[pl]));
   //    return diff;
   //  }
   //}

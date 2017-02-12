@@ -27,8 +27,11 @@ namespace ations
     public int MaxWonderNatural { get; set; }
     public int MaxOthers { get; set; }
 
-    public Progress(int cols, bool inclDyn = true, bool inclFake = false, bool balancing = true)
+    Game game;
+
+    public Progress(Game game, int cols, bool inclDyn = true, bool inclFake = false, bool balancing = true)
     {
+      this.game = game;
       Rows = 3;
       Cols = cols;
       IncludeDynasty = inclDyn;
@@ -54,7 +57,7 @@ namespace ations
     public void UpdateDeck(int age)
     {
       if (age > Game.MAX_AGE) throw new Exception("Cannot UpdateDeck for age " + age + "!!!!!");
-      if (age < 1) { age = 1; Game.Inst.Stats.UpdateRound(0); Game.Inst.Stats.UpdateAge(); }
+      if (age < 1) { age = 1; game.Stats.UpdateRound(0); game.Stats.UpdateAge(); }
       XDeck = Helpers.GetCardarrayX(age, IncludeDynasty, IncludeFake).OrderBy(x => Rand.N()).ToArray();
       //CardDeck = XDeck.Select(x=> Card.MakeCard(x)).ToList(); // wenn das zulange dauert, wieder weg!
     }
@@ -62,7 +65,7 @@ namespace ations
     {
       try
       {
-        if (XDeck == null) { UpdateDeck(Game.Inst.Stats.Age); }
+        if (XDeck == null) { UpdateDeck(game.Stats.Age); }
 
         // preserve cards from 1. row
         var row1 = Fields.Take(Cols).Where(x => !x.IsEmpty).Select(x => x.Card).ToArray();
@@ -109,7 +112,7 @@ namespace ations
       Card[] cards = null;
       try
       {
-        if (XDeck == null || XDeck.Length < Rows * Cols) UpdateDeck(Game.Inst.Stats.Age);
+        if (XDeck == null || XDeck.Length < Rows * Cols) UpdateDeck(game.Stats.Age);
 
         //preserve cards from 1. row
         var row1 = Fields.Take(Cols).Where(x => !x.IsEmpty).Select(x => x.Card).ToArray();// Cards.Take(Cols).Where(x=>!x.ToArray();
